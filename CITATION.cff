@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use trusty-sim in your research, please cite it as below."
+title: "trusty-sim"
+type: software
+authors:
+  - family-names: "Trusty"
+    given-names: "Ty"
+version: "0.1.0a2"
+date-released: "2026-09-28"

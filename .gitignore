@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+out_*/
+*.basis
+*.npy
+*.npz
+.DS_Store
+imgui.ini
+.polyscope.ini
