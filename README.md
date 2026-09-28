@@ -11,19 +11,25 @@ contact between them. You drive it from Python and step it with numpy arrays.
 
 ## Install
 
-This build is published on TestPyPI only. Install numpy from PyPI first, then
-trusty-sim from TestPyPI:
+This build is published on TestPyPI only. With [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install numpy
-pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a2
+curl -LsSf https://astral.sh/uv/install.sh | sh     # once, if you don't have uv
+uv venv && source .venv/bin/activate
+uv pip install numpy                                 # from PyPI
+uv pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a2
 ```
+
+Installing numpy first and then trusty-sim with `--no-deps` keeps every other
+package coming from the real PyPI rather than TestPyPI.
 
 Optional extras:
 
-- `pip install polyscope trimesh matplotlib` for the interactive viewer used by
-  the examples.
-- `pip install scipy` for building subspace bases.
+- `uv pip install polyscope trimesh matplotlib` for the interactive viewer used
+  by the examples.
+- `uv pip install scipy` for building subspace bases.
+
+Using pip instead works the same way: replace `uv pip` with `pip`.
 
 ## Requirements
 
@@ -79,10 +85,11 @@ trusty.capabilities()   # {'fem', 'contact', 'affine', 'rods', 'shells', ...}
 
 ## Running the examples
 
-The examples use the optional viewer, and the subspace examples need scipy:
+The examples use the optional viewer, and the subspace examples need scipy.
+In the environment where trusty-sim is installed:
 
 ```bash
-pip install polyscope trimesh matplotlib scipy
+uv pip install polyscope trimesh matplotlib scipy
 python examples/beam_hex_drop.py              # opens the polyscope viewer
 python examples/beam_hex_drop.py --no-viewer  # most examples also run headless
 ```
