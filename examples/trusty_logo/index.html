@@ -1510,10 +1510,10 @@ together, with contact and friction between each pair.</p>
 <p><strong>Capabilities:</strong> <code>fem</code>, <code>affine</code>, <code>shells</code>, <code>mpm</code>, <code>embedded</code>, <code>rods</code>,
 <code>contact</code>.</p>
 <p>To open it in the viewer (it starts paused):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/coupling/trusty_logo.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>examples/coupling/trusty_logo.py
 </code></pre></div>
 <p>To run it headless, with its checks:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>examples/coupling/trusty_logo.py<span class="w"> </span>--no-viewer
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>examples/coupling/trusty_logo.py<span class="w"> </span>--no-viewer
 </code></pre></div>
 <p>The headless run takes about three minutes on Apple's Accelerate backend.
 It prints how many Newton iterations each step took, which letters touch and
@@ -1659,7 +1659,7 @@ them linearly to full pull over the first 0.4 s:</p>
 <p>At 0.02 s per step, the 45-step run reaches full pull at step 20 and then
 holds it while the word settles.</p>
 <details class="example">
-<summary>Full script: <code>python examples/coupling/trusty_logo.py</code></summary>
+<summary>Full script: <code>uv run examples/coupling/trusty_logo.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="sd">"""The word "Trusty", one body type per letter, squeezed by two rod loops.</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="sd">This is the scene on the TrustySim home page. Six letters float in a row,</span>
@@ -1693,10 +1693,10 @@ holds it while the word settles.</p>
 <a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="sd">topology.npz, frame_NNNN.npz), for rendering offline.</span>
 <a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>
 <a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="sd">Usage:</span>
-<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="sd">    python examples/coupling/trusty_logo.py                       # viewer (opens paused)</span>
-<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="sd">    python examples/coupling/trusty_logo.py --no-viewer           # headless self-check</span>
-<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a><span class="sd">    python examples/coupling/trusty_logo.py --export frames/      # headless, save frames</span>
-<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="sd">    python examples/coupling/trusty_logo.py --backend accelerate  # Apple solver</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="sd">    uv run examples/coupling/trusty_logo.py                       # viewer (opens paused)</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="sd">    uv run examples/coupling/trusty_logo.py --no-viewer           # headless self-check</span>
+<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a><span class="sd">    uv run examples/coupling/trusty_logo.py --export frames/      # headless, save frames</span>
+<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="sd">    uv run examples/coupling/trusty_logo.py --backend accelerate  # Apple solver</span>
 <a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a><span class="sd">"""</span>
 <a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a>
 <a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>

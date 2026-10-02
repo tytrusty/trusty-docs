@@ -580,6 +580,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#run-the-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run the examples
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1408,6 +1419,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#run-the-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run the examples
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1479,6 +1501,20 @@
 <p>Each module page lists the capability it needs. Call
 <code>trusty.check_capabilities("shells")</code> at the top of a script to fail early
 with a clear message.</p>
+<h2 id="run-the-examples">Run the examples<a class="headerlink" href="#run-the-examples" title="Permanent link">&para;</a></h2>
+<p>Every example on these pages is a script in the
+<a href="https://github.com/tytrusty/trusty-docs">trusty-docs</a> repository. Clone it
+and run any of them with <code>uv run</code> from the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tytrusty/trusty-docs
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">cd</span><span class="w"> </span>trusty-docs
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>uv<span class="w"> </span>run<span class="w"> </span>examples/quickstart.py
+</code></pre></div>
+<p>The first <code>uv run</code> makes an environment in the repository with trusty-sim,
+the polyscope viewer and everything else the examples use; later runs reuse
+it. Most examples also run headless with <code>--no-viewer</code>, and each script's
+docstring lists its options.</p>
+<p>Without uv, install trusty-sim and polyscope as above, add
+<code>pip install trimesh matplotlib scipy</code>, and use <code>python</code> in place of <code>uv run</code>.</p>
 
 
 

@@ -1743,7 +1743,7 @@ bodies; see <a href="../contact/#friction">Friction</a>.</p>
 <p>A world holds one MPM body. To pour two blocks of fluid, pass all their
 particles in one call.</p>
 <details class="example">
-<summary>Full script: <code>python examples/mpm/dam_break.py</code></summary>
+<summary>Full script: <code>uv run examples/mpm/dam_break.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""Dam break: a column of water collapses inside an open box.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">A block of MPM fluid particles stands against one end of a box. Gravity pulls</span>
@@ -1754,15 +1754,15 @@ particles in one call.</p>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">bounces but keeps its shape.</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">Usage:</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    python examples/mpm/dam_break.py                     # polyscope viewer</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    python examples/mpm/dam_break.py --no-viewer         # headless self-check</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    python examples/mpm/dam_break.py --noslip            # fluid sticks to the walls</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/mpm/dam_break.py --scheme lite       # the other MPM scheme</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    python examples/mpm/dam_break.py --material stable_neohookean  # an elastic block</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    python examples/mpm/dam_break.py --sample uniform    # particles on a lattice</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">    python examples/mpm/dam_break.py --spacing 0.025 --cell-size 0.05  # finer</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="sd">    python examples/mpm/dam_break.py --backend accelerate  # faster on macOS</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="sd">    python examples/mpm/dam_break.py --backend cuda      # on the GPU</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    uv run examples/mpm/dam_break.py                     # polyscope viewer</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    uv run examples/mpm/dam_break.py --no-viewer         # headless self-check</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    uv run examples/mpm/dam_break.py --noslip            # fluid sticks to the walls</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    uv run examples/mpm/dam_break.py --scheme lite       # the other MPM scheme</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    uv run examples/mpm/dam_break.py --material stable_neohookean  # an elastic block</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    uv run examples/mpm/dam_break.py --sample uniform    # particles on a lattice</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">    uv run examples/mpm/dam_break.py --spacing 0.025 --cell-size 0.05  # finer</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="sd">    uv run examples/mpm/dam_break.py --backend accelerate  # faster on macOS</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="sd">    uv run examples/mpm/dam_break.py --backend cuda      # on the GPU</span>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="sd">"""</span>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>
 <a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2155,7 +2155,7 @@ fill its cells, so it costs more on both counts.</p>
 </table>
 <p>Both give the same kind of flow; <code>Cdpi</code> is the default and, on the dam
 break, the faster of the two. <code>Lite</code> runs the fluid model only.
-<code>python examples/mpm/dam_break.py --scheme lite</code> runs the dam break with it.</p>
+<code>uv run examples/mpm/dam_break.py --scheme lite</code> runs the dam break with it.</p>
 <h3 id="timestep">Timestep<a class="headerlink" href="#timestep" title="Permanent link">&para;</a></h3>
 <p>The timestep is the world's <code>timestep</code>. Each step is solved implicitly, but
 the solve converges quickly only while the fastest particles move well under a

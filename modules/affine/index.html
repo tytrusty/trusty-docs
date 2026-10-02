@@ -1729,7 +1729,7 @@ take. Its mass and inertia come from the surface and the density.</p>
 </table>
 <p>Each <code>add_revolute_joint</code> is a hinge; see <a href="#joints">Joints</a>.</p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/pendulum.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/pendulum.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""A chain of rigid bars, hinged end to end and to the world at one end,</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="sd">swinging under gravity.</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1738,9 +1738,9 @@ take. Its mass and inertia come from the surface and the density.</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">it. Released horizontal, the chain swings down like a multi-link pendulum.</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">Usage:</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    python examples/affine/pendulum.py                # polyscope</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    python examples/affine/pendulum.py --no-viewer    # headless</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    python examples/affine/pendulum.py --links 6 --steps 600</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    uv run examples/affine/pendulum.py                # polyscope</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    uv run examples/affine/pendulum.py --no-viewer    # headless</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    uv run examples/affine/pendulum.py --links 6 --steps 600</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">"""</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1932,7 +1932,7 @@ Every body is an affine body:</p>
 <a href="#fixed-joints">fixed joint</a> never collide with each other, so their surfaces
 may overlap.</p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/wrecking_ball.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/wrecking_ball.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="sd">"""Wrecking ball: a 4-link chain of hinged affine bars with a heavy cube on</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="sd">the end, released horizontal, swings down into a wall of blocks.</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1944,9 +1944,9 @@ may overlap.</p>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="sd">hour.</span>
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="sd">Usage:</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="sd">    python examples/affine/wrecking_ball.py                 # polyscope</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="sd">    python examples/affine/wrecking_ball.py --no-viewer     # headless</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="sd">    python examples/affine/wrecking_ball.py --grid 6</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="sd">    uv run examples/affine/wrecking_ball.py                 # polyscope</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="sd">    uv run examples/affine/wrecking_ball.py --no-viewer     # headless</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="sd">    uv run examples/affine/wrecking_ball.py --grid 6</span>
 <a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="sd">"""</span>
 <a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
 <a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2222,7 +2222,7 @@ in place and still gives. Here a soft foot is welded under a stiff shin:</p>
 foot squashes, and the weld keeps it under the shin.</p>
 <p><img alt="A stiff shin with a soft foot welded under it, at rest and on impact" class="shot" src="../../assets/img/affine_weld.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/fixed_joint.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/fixed_joint.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="sd">"""Fixed (weld) joint: a soft foot welded under a stiff shin.</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="sd">A weld locks the relative position and orientation of two affine bodies, but</span>
@@ -2247,8 +2247,8 @@ foot squashes, and the weld keeps it under the shin.</p>
 <a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="sd">prints PASS or FAIL. Polyscope mode shows the drop.</span>
 <a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>
 <a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="sd">Usage:</span>
-<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="sd">    python examples/affine/fixed_joint.py                # polyscope</span>
-<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="sd">    python examples/affine/fixed_joint.py --no-viewer    # headless test</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="sd">    uv run examples/affine/fixed_joint.py                # polyscope</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="sd">    uv run examples/affine/fixed_joint.py --no-viewer    # headless test</span>
 <a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="sd">"""</span>
 <a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>
 <a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2515,7 +2515,7 @@ holds until it is changed:</p>
 above, the hinge carries both bars under gravity and lags its target by about
 a thousandth of a radian.</p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/actuated_arm.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/actuated_arm.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="sd">"""A 3-link arm with one joint of each moving type, each driven by an</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="sd">actuator.</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
@@ -2534,9 +2534,9 @@ a thousandth of a radian.</p>
 <a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="sd">command keeps going: watch "act" level off while "cmd" keeps moving.</span>
 <a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>
 <a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="sd">Usage:</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="sd">    python examples/affine/actuated_arm.py                # polyscope</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="sd">    python examples/affine/actuated_arm.py --no-viewer    # headless</span>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="sd">    python examples/affine/actuated_arm.py --steps 800</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="sd">    uv run examples/affine/actuated_arm.py                # polyscope</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="sd">    uv run examples/affine/actuated_arm.py --no-viewer    # headless</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="sd">    uv run examples/affine/actuated_arm.py --steps 800</span>
 <a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="sd">"""</span>
 <a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>
 <a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2747,7 +2747,7 @@ orange lines) and waits at its limit:</p>
 <p>The joint does not pass through its limit, even against an actuator far
 stiffer than the limit. Spherical and fixed joints take no limits.</p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/joint_limit.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/joint_limit.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="sd">"""Joint limits: two identical hinges driven by the same swept target angle,</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="sd">one with a joint limit and one without.</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
@@ -2759,9 +2759,9 @@ stiffer than the limit. Spherical and fixed joints take no limits.</p>
 <a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="sd">Polyscope mode shows the two bars side by side.</span>
 <a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
 <a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="sd">Usage:</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="sd">    python examples/affine/joint_limit.py                # polyscope</span>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="sd">    python examples/affine/joint_limit.py --no-viewer    # headless test</span>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="sd">    python examples/affine/joint_limit.py --lo -0.5 --hi 0.5</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="sd">    uv run examples/affine/joint_limit.py                # polyscope</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="sd">    uv run examples/affine/joint_limit.py --no-viewer    # headless test</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="sd">    uv run examples/affine/joint_limit.py --lo -0.5 --hi 0.5</span>
 <a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="sd">"""</span>
 <a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
 <a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2976,7 +2976,7 @@ steps after it. The grey bar has no limit and gets there within a step; the
 red one is limited to 3 rad/s and turns there steadily:</p>
 <p><img alt="Snapshots of two bars turning: one at once, one at a capped speed" class="shot" src="../../assets/img/affine_velocity.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/joint_velocity_limit.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/joint_velocity_limit.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="sd">"""Joint velocity limits: two identical light hinges given the same sudden</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="sd">jump in target angle, one with a velocity limit and one without.</span>
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
@@ -2996,9 +2996,9 @@ red one is limited to 3 rad/s and turns there steadily:</p>
 <a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="sd">two bars side by side with a live speed readout.</span>
 <a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>
 <a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="sd">Usage:</span>
-<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="sd">    python examples/affine/joint_velocity_limit.py                # polyscope</span>
-<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="sd">    python examples/affine/joint_velocity_limit.py --no-viewer    # headless test</span>
-<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="sd">    python examples/affine/joint_velocity_limit.py --omega-max 2.0</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="sd">    uv run examples/affine/joint_velocity_limit.py                # polyscope</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a><span class="sd">    uv run examples/affine/joint_velocity_limit.py --no-viewer    # headless test</span>
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a><span class="sd">    uv run examples/affine/joint_velocity_limit.py --omega-max 2.0</span>
 <a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="sd">"""</span>
 <a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>
 <a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -3304,7 +3304,7 @@ it there (the faint box is the forearm at rest):</p>
 </tbody>
 </table>
 <details class="example">
-<summary>Full script: <code>python examples/affine/line_muscle.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/line_muscle.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="sd">"""Line muscle: a "biceps" curling a two-link arm.</span>
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="sd">An upper arm welded to the world and a forearm hinged to it at the elbow, with</span>
@@ -3325,9 +3325,9 @@ it there (the faint box is the forearm at rest):</p>
 <a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a><span class="sd">activation slider.</span>
 <a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>
 <a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a><span class="sd">Usage:</span>
-<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="sd">    python examples/affine/line_muscle.py                # polyscope</span>
-<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="sd">    python examples/affine/line_muscle.py --no-viewer    # headless test</span>
-<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="sd">    python examples/affine/line_muscle.py --f-max 600</span>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a><span class="sd">    uv run examples/affine/line_muscle.py                # polyscope</span>
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a><span class="sd">    uv run examples/affine/line_muscle.py --no-viewer    # headless test</span>
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a><span class="sd">    uv run examples/affine/line_muscle.py --f-max 600</span>
 <a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a><span class="sd">"""</span>
 <a id="__codelineno-16-25" name="__codelineno-16-25" href="#__codelineno-16-25"></a>
 <a id="__codelineno-16-26" name="__codelineno-16-26" href="#__codelineno-16-26"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -3617,14 +3617,14 @@ the example adds an actuator that waves the joint back and forth:</p>
 waves its arms while a pit of balls is dropped onto it:</p>
 <p><img alt="A two-armed robot loaded from a URDF, among dropped balls" class="shot" src="../../assets/img/affine_urdf.png" width="640" /></p>
 <p>Try your own robot with
-<code>python examples/affine/articulation.py --urdf my_robot.urdf</code>. Boxes,
+<code>uv run examples/affine/articulation.py --urdf my_robot.urdf</code>. Boxes,
 spheres, cylinders and capsules are supported, and fixed URDF joints become
 fixed joints. <code>&lt;inertial&gt;</code> and <code>&lt;collision&gt;</code> are ignored, and prismatic
 joints between links are skipped, because a prismatic joint always joins a
 body to the world. With the full pit of 72 balls the example is slow, about
 half a second a step; <code>--grid 3,4,2</code> drops fewer.</p>
 <details class="example">
-<summary>Full script: <code>python examples/affine/articulation.py</code></summary>
+<summary>Full script: <code>uv run examples/affine/articulation.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="sd">"""Load a robot from a URDF file as a set of jointed affine bodies, and drop</span>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="sd">a pit of balls onto it.</span>
 <a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
@@ -3647,9 +3647,9 @@ half a second a step; <code>--grid 3,4,2</code> drops fewer.</p>
 <a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a><span class="sd">    sizes the drop.</span>
 <a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a>
 <a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a><span class="sd">Usage:</span>
-<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="sd">    python examples/affine/articulation.py                       # polyscope</span>
-<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="sd">    python examples/affine/articulation.py --no-viewer --grid 5,6,3</span>
-<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a><span class="sd">    python examples/affine/articulation.py --urdf path/to.urdf</span>
+<a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a><span class="sd">    uv run examples/affine/articulation.py                       # polyscope</span>
+<a id="__codelineno-19-24" name="__codelineno-19-24" href="#__codelineno-19-24"></a><span class="sd">    uv run examples/affine/articulation.py --no-viewer --grid 5,6,3</span>
+<a id="__codelineno-19-25" name="__codelineno-19-25" href="#__codelineno-19-25"></a><span class="sd">    uv run examples/affine/articulation.py --urdf path/to.urdf</span>
 <a id="__codelineno-19-26" name="__codelineno-19-26" href="#__codelineno-19-26"></a><span class="sd">"""</span>
 <a id="__codelineno-19-27" name="__codelineno-19-27" href="#__codelineno-19-27"></a>
 <a id="__codelineno-19-28" name="__codelineno-19-28" href="#__codelineno-19-28"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>

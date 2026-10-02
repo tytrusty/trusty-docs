@@ -1641,17 +1641,17 @@ its id, which every other <code>trusty.fem</code> function takes.</p>
 <p>The clamp comes from <code>pin_face</code>. Pins, moving targets and loads are covered
 under <a href="../boundary_conditions/">Boundary conditions</a>.</p>
 <details class="example">
-<summary>Full script: <code>python examples/cantilever_beam.py</code></summary>
+<summary>Full script: <code>uv run examples/cantilever_beam.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""Cantilevered hex beam with Stable Neo-Hookean elasticity and gravity.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">Steps the simulator and, unless</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">``--no-viewer`` is passed, shows the deforming beam in polyscope.</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">Usage:</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    python examples/cantilever_beam.py                # live polyscope</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    python examples/cantilever_beam.py --no-viewer    # write PNG sequence</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    python examples/cantilever_beam.py --steps 240    # run longer</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    python examples/cantilever_beam.py --order q2     # quadratic (Q2) elements</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">    uv run examples/cantilever_beam.py                # live polyscope</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">    uv run examples/cantilever_beam.py --no-viewer    # write PNG sequence</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">    uv run examples/cantilever_beam.py --steps 240    # run longer</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">    uv run examples/cantilever_beam.py --order q2     # quadratic (Q2) elements</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">Install polyscope with ``pip install trusty-sim[viewer]`` (or directly</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">``pip install polyscope``).</span>
@@ -1886,7 +1886,7 @@ different amounts under their own weight. From left to right:
 <code>StableNeoHookean</code>, <code>NeohookeanBW</code>, <code>Corotational</code>, <code>ARAP</code>, <code>StableFung</code>.</p>
 <p><img alt="Five hanging columns, one per material" class="shot" src="../../assets/img/fem_materials.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/fem/hanging_materials.py</code></summary>
+<summary>Full script: <code>uv run examples/fem/hanging_materials.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="sd">"""One hanging column per material model, stretching under its own weight.</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="sd">Five soft columns (E = 10 kPa, nu = 0.45) share a mesh and density and hang</span>
@@ -1898,8 +1898,8 @@ different amounts under their own weight. From left to right:
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="sd">``--steps 10`` is already settled.</span>
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="sd">Usage:</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="sd">    python examples/fem/hanging_materials.py              # live polyscope</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="sd">    python examples/fem/hanging_materials.py --no-viewer  # print lengths</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="sd">    uv run examples/fem/hanging_materials.py              # live polyscope</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="sd">    uv run examples/fem/hanging_materials.py --no-viewer  # print lengths</span>
 <a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="sd">"""</span>
 <a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
 <a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2029,7 +2029,7 @@ Under gravity the stiff halves stay straight and the beam folds at the soft
 band (coloured by Young's modulus):</p>
 <p><img alt="A graded cantilever folding at its soft middle band" class="shot" src="../../assets/img/fem_graded.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/fem/graded_beam.py</code></summary>
+<summary>Full script: <code>uv run examples/fem/graded_beam.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="sd">"""One beam whose stiffness varies along its length: a soft band as a hinge.</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="sd">A cantilever is stiff (E = 10 MPa) everywhere except a soft band (E = 50 kPa)</span>
@@ -2040,8 +2040,8 @@ band (coloured by Young's modulus):</p>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="sd">including what happens when the grid does not cover the body.</span>
 <a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="sd">Usage:</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="sd">    python examples/fem/graded_beam.py              # live polyscope</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="sd">    python examples/fem/graded_beam.py --no-viewer  # print the sag</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="sd">    uv run examples/fem/graded_beam.py              # live polyscope</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="sd">    uv run examples/fem/graded_beam.py --no-viewer  # print the sag</span>
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="sd">"""</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
 <a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2152,7 +2152,7 @@ band (coloured by Young's modulus):</p>
 <a id="__codelineno-5-120" name="__codelineno-5-120" href="#__codelineno-5-120"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
-<p><code>python examples/fem/graded_material.py</code> goes further: it compares ramps
+<p><code>uv run examples/fem/graded_material.py</code> goes further: it compares ramps
 running either way along the beam, and shows what goes wrong when the grid is
 too short.</p>
 <h2 id="mesh-types">Mesh types<a class="headerlink" href="#mesh-types" title="Permanent link">&para;</a></h2>
@@ -2210,9 +2210,9 @@ it.</p>
 <a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">loaded</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">transform_mesh</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">))</span>
 </code></pre></div>
 <p>The sample ball is <a href="https://github.com/tytrusty/trusty-docs/blob/main/examples/data/ball.msh"><code>examples/data/ball.msh</code></a>. Try your own
-mesh with <code>python examples/fem/mesh_types.py --mesh my_mesh.msh</code>.</p>
+mesh with <code>uv run examples/fem/mesh_types.py --mesh my_mesh.msh</code>.</p>
 <details class="example">
-<summary>Full script: <code>python examples/fem/mesh_types.py</code></summary>
+<summary>Full script: <code>uv run examples/fem/mesh_types.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="sd">"""Hex and tet meshes: built-in beams, and a tet mesh loaded from a file.</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
 <a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="sd">Builds one world with a structured hex beam, a structured tet beam and a tet</span>
@@ -2221,9 +2221,9 @@ mesh with <code>python examples/fem/mesh_types.py --mesh my_mesh.msh</code>.</p>
 <a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="sd">lets all three fall under gravity.</span>
 <a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
 <a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="sd">Usage:</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="sd">    python examples/fem/mesh_types.py                   # live polyscope</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="sd">    python examples/fem/mesh_types.py --no-viewer       # print mesh sizes</span>
-<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="sd">    python examples/fem/mesh_types.py --mesh my.msh     # your own tet mesh</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="sd">    uv run examples/fem/mesh_types.py                   # live polyscope</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="sd">    uv run examples/fem/mesh_types.py --no-viewer       # print mesh sizes</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="sd">    uv run examples/fem/mesh_types.py --mesh my.msh     # your own tet mesh</span>
 <a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="sd">"""</span>
 <a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>
 <a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2362,7 +2362,7 @@ From front to back: hex Q1, tet P1, tet P2, hex Q2 serendipity, hex Q2. The
 linear tet beam locks worst and barely sags; all three quadratic beams agree.</p>
 <p><img alt="Five cantilevers, one per element type and order" class="shot" src="../../assets/img/fem_order.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/bending_locking.py</code></summary>
+<summary>Full script: <code>uv run examples/bending_locking.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="sd">"""Higher-order (P2/Q2) FEM demo: quadratic elements resist bending locking.</span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="sd">Builds one world with a cantilever beam per element family, laid out side by</span>
@@ -2373,9 +2373,9 @@ linear tet beam locks worst and barely sags; all three quadratic beams agree.</p
 <a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="sd">(`fem.read_surface_triangles`).</span>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="sd">Usage:</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="sd">    python examples/bending_locking.py                # live polyscope</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="sd">    python examples/bending_locking.py --no-viewer    # print comparison</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="sd">    python examples/bending_locking.py --res 8 1 1    # finer corner mesh</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="sd">    uv run examples/bending_locking.py                # live polyscope</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="sd">    uv run examples/bending_locking.py --no-viewer    # print comparison</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="sd">    uv run examples/bending_locking.py --res 8 1 1    # finer corner mesh</span>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="sd">"""</span>
 <a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
 <a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2548,7 +2548,7 @@ squeezing (pressure) and strain energy includes it. Use von Mises for yielding
 and strain energy when pressure matters.</p>
 <p><img alt="A squeezed block cut open, coloured by von Mises and by strain energy" class="shot" src="../../assets/img/fem_stress.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>python examples/fem/visualize_stress.py</code></summary>
+<summary>Full script: <code>uv run examples/fem/visualize_stress.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="sd">"""Von Mises vs strain energy density on a block squeezed between two plates.</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="sd">A soft, nearly incompressible block (E = 500 kPa, nu = 0.45) is clamped at its</span>
@@ -2568,9 +2568,9 @@ and strain energy when pressure matters.</p>
 <a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="sd">strain measure, so soft and stiff regions are directly comparable).</span>
 <a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>
 <a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="sd">Usage:</span>
-<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="sd">    python examples/fem/visualize_stress.py              # live polyscope</span>
-<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="sd">    python examples/fem/visualize_stress.py --no-viewer  # print ranges</span>
-<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="sd">    python examples/fem/visualize_stress.py --squeeze 0.4</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="sd">    uv run examples/fem/visualize_stress.py              # live polyscope</span>
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a><span class="sd">    uv run examples/fem/visualize_stress.py --no-viewer  # print ranges</span>
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a><span class="sd">    uv run examples/fem/visualize_stress.py --squeeze 0.4</span>
 <a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a><span class="sd">"""</span>
 <a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>
 <a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
