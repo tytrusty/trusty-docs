@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/examples/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/examples/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/examples/trusty_logo/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/examples/trusty_logo/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/getting_started/install/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/getting_started/install/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/affine/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/affine/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/boundary_conditions/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/boundary_conditions/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/contact/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/contact/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/embedded/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/embedded/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/mpm/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/mpm/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/rods/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/rods/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/shells/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/shells/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/solids/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/solids/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/modules/subspace/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/modules/subspace/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/affine/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/affine/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/boundary_conditions/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/boundary_conditions/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/contact/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/contact/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/embedded/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/embedded/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/fem/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/fem/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/mpm/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/mpm/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/rods/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/rods/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/shells/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/shells/</loc>
       </url>
       <url>
-        <loc>https://tytrusty.github.io/trusty-sim-examples/reference/subspace/</loc>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/subspace/</loc>
       </url>
 </urlset>
