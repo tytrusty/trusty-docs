@@ -51,20 +51,16 @@ def square_sheet(side, res, z):
 def build_world(backend: str):
     trusty.check_capabilities("shells", "contact")
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 1.0 / 120.0
-    cfg.newton.max_iters = 60
-    cfg.integrator       = trusty.IntegratorType.BDF2
-    cfg.contact.enabled  = True
-    cfg.contact.kappa    = 1.0e4
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0,
+                         newton=trusty.NewtonConfig(max_iters=60),
+                         time_stepping="bdf2")
+    trusty.contact.enable(world, trusty.contact.Config(kappa=1.0e4))
 
-    world = trusty.World(cfg)
-
-    # Near-rigid affine cube on the floor (declared first -> block 0).
+    # Near-rigid affine cube on the floor.
     cube_half = 0.15
     Vc, Fc    = box_tris((0.0, 0.0, cube_half + 0.005), cube_half)
-    trusty.affine.add_affine_body(world, Vc, Fc, density=1000.0, stiffness=1e9)
+    cube = trusty.affine.add_affine_body(world, Vc, Fc, density=1000.0, stiffness=1e9)
 
     # Thin shell sheet dropped from just above the cube top.
     cube_top = 2 * cube_half + 0.005
@@ -77,14 +73,12 @@ def build_world(backend: str):
     sheet = trusty.shells.add_shell(world, Vs, Fs, sh_cfg)
 
     trusty.add_floor_plane(world, 0.0)
+    return world, sheet, cube
 
 
-    globals()["_CUBE_TOP"] = cube_top
-    return world, sheet
-
-
-def run_headless(world, sheet, steps: int):
-    print(f"affine x shell contact: {steps} steps (K12 + K3 + K1 via CoupledScalar)")
+def run_headless(world, sheet, cube, steps: int):
+    cube_top = float(trusty.affine.surface(world, cube)[0][:, 2].max())
+    print(f"affine x shell contact: {steps} steps")
     diverged = 0
     for i in range(steps):
         world.step()
@@ -95,23 +89,22 @@ def run_headless(world, sheet, steps: int):
             print(f"  step {i + 1:4d}  sheet_min_z={sz:+.4f}  "
                   f"iters={r.iterations}  res={r.final_residual:.2e}")
     sz       = float(np.asarray(trusty.shells.read_positions(world, sheet))[:, 2].min())
-    cube_top = globals().get("_CUBE_TOP", 0.305)
     print(f"Done. sheet_min_z={sz:+.4f} (cube top ~{cube_top:.3f}), "
           f"{diverged} non-converged steps.")
     # The sheet drapes onto the cube; its lowest point hangs below the cube
     # top (edges sag) but must stay well above the floor.
     assert sz > 0.04, f"shell sheet fell to the floor (min_z={sz})"
-    print("OK: shell sheet drapes on the affine cube (12x3 cross-block holds).")
+    print("OK: the shell sheet drapes over the affine cube.")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=160)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
-    world, sheet = build_world(args.backend)
-    run_headless(world, sheet, args.steps)
+    world, sheet, cube = build_world(args.backend)
+    run_headless(world, sheet, cube, args.steps)
 
 
 if __name__ == "__main__":

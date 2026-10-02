@@ -2,7 +2,7 @@
 
 A triangle-surface mesh (procedurally-generated bar by default, or one
 loaded from disk via `--mesh`) is voxelized into a Q1 hex body and
-dropped under gravity. Setting `cfg.contact.enabled = True` registers
+dropped under gravity. Calling `trusty.contact.enable(world, ...)` registers
 the body's smooth input surface (lifted to hex DOFs through its
 `Prolongation`) into the contact term --- the barrier sees the
 **input surface**, not the staircased hex faces.
@@ -54,7 +54,7 @@ VOXEL_FACTOR = 1.5
 
 
 def build_world(
-    backend: str = "cpu",
+    backend: str = "auto",
     *,
     mesh_path: Path | None = None,
     voxel_factor: float = VOXEL_FACTOR,
@@ -87,25 +87,21 @@ def build_world(
           f"{voxel_size:.4f}  (factor={voxel_factor})")
 
     material = trusty.StableNeoHookean(youngs_modulus=youngs, poisson_ratio=0.4)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.newton.max_iters = 60
-    cfg.integrator = trusty.IntegratorType.BDF2
-
     # Embedded bodies auto-register their prolongation-mapped contact
     # surface when contact is enabled --- the IPC term acts on the
     # smooth input surface, not the staircased hex faces.
-    cfg.contact.enabled = True
-
-    world    = trusty.World(cfg)
+    world    = trusty.World(backend=backend,
+                            timestep=1.0 / 60.0,
+                            newton=trusty.NewtonConfig(max_iters=60),
+                            time_stepping="bdf2")
+    trusty.contact.enable(world)
     body     = trusty.embedded.add_embedded_solid(
         world, V, F, voxel_size=voxel_size, material=material, density=1000.0,
         order=order)
 
     trusty.add_floor_plane(world, 0.0)
 
-    return world, body, cfg.contact
+    return world, body
 
 
 def _register_visuals(ps, world, body, floor_z, show_hexes: bool):
@@ -214,7 +210,7 @@ def run_screenshots(world, body, steps: int, floor_z: float,
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--order", choices=list(HEX_ORDERS), default="linear",
                         help="element order: q1 linear (default), q2 Lagrange, q2s serendipity")
     parser.add_argument("--steps", type=int, default=120)
@@ -232,7 +228,7 @@ def main():
     args = parser.parse_args()
 
     order = HEX_ORDERS[args.order]
-    world, body, _ = build_world(
+    world, body = build_world(
         backend=args.backend,
         mesh_path=args.mesh,
         voxel_factor=args.voxel_factor,

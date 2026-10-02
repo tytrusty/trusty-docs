@@ -1,27 +1,19 @@
-"""Reduced-coordinate (subspace) beam dropped onto a floor plane.
+"""A soft reduced block dropped onto a floor, as hex or tet elements.
 
-Demonstrates the subspace simulator with the CPU and CUDA backends:
-the beam is unpinned (free body), gravity pulls it down, and an IPC
-floor plane catches it. The state is a length-``r`` reduced vector
-``z`` (``x_full = x0 + B z``); per Newton iter the subspace term
-projects gravity / inertia / elastic Hessians and a CUDA dense LDLT
-(or CPU dense LDLT) solves the small dense system.
+The block is free (not clamped), so its basis also spans rigid motion: it
+falls, lands on the floor plane and bounces. The state is a short vector of
+basis coordinates instead of every node position.
 
 Pick the basis kind with ``--basis``:
 
-  - ``handles`` (default): affine-expanded skinning eigenmodes
-    (``12 * modes`` columns). Rotation-rich, captures tumbling
-    motion with few handles.
-  - ``modal``: plain modal eigenmodes (``modes`` columns). Cheap,
-    good for small bending.
+  - ``handles`` (default): skinning eigenmodes, 12 coordinates per
+    handle. They follow large rotation, so the block can tumble.
+  - ``modal``: plain vibration modes, one coordinate per mode. Cheaper,
+    good for small deformation. On a free body the first six modes are
+    rigid motion, so use more than six.
 
-Pick the element kind with ``--element hex|tet``. Hex uses
-``trusty.subspace.add_hex_body``; tet uses ``add_tet_body``. The
-subspace term, contact, and basis machinery all work identically
-across both.
-
-Pick the backend with ``--backend cpu|cuda``. CUDA needs a CUDA-enabled
-build; the current wheels are CPU / Accelerate only.
+Pick the element kind with ``--element hex|tet``: hex bodies use
+``trusty.subspace.add_hex_body``, tet bodies ``add_tet_body``.
 
 Usage:
 
@@ -68,15 +60,10 @@ FLOOR_Z     = 0.0
 
 def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
                           modes: int, backend: str):
-    """Build the unpinned beam world + chosen subspace basis.
+    """A free block lifted ``DROP_HEIGHT`` above the floor, with its basis.
 
-    The base beam from ``make_beam_*_mesh`` is centred near the origin;
-    we translate every node up by ``DROP_HEIGHT`` so the runtime beam
-    starts above the floor and falls under gravity. The basis is
-    precomputed against the translated rest (K + M are translation-
-    invariant so the modes' shapes are unaffected). ``modes`` is the
-    column count for ``modal`` and the handle count for ``handles`` /
-    ``modal+handles``.
+    ``modes`` is the mode count for ``modal`` and the handle count for
+    ``handles``.
     """
     if element == "hex":
         base_mesh    = trusty.make_beam_hex_mesh(size=(0.5, 0.5, 0.5), res=(6, 6, 6))
@@ -94,16 +81,15 @@ def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
         raise ValueError(f"unknown element kind {element!r}")
     material = trusty.StableNeoHookean(youngs_modulus=1e5, poisson_ratio=0.3)
 
-    # Translate every node up by DROP_HEIGHT. Both the precompute and
-    # the runtime world use this lifted mesh, so x0 is consistently
-    # above the floor.
+    # Lift the block. The precompute and the run share this mesh, so the
+    # basis rest shape matches the body's.
     rest_verts = np.asarray(base_mesh.vertices, dtype=np.float64).copy()
     rest_verts[:, 2] += DROP_HEIGHT
     mesh = wrap_mesh(np.ascontiguousarray(rest_verts),
                      np.ascontiguousarray(cells))
     mh = build_basis.mesh_hash_sha256(rest_verts, cells)
 
-    # Precompute world: a fem body so `fem_rest_K_M` can extract K + M.
+    # Precompute world: a plain solid with the same mesh and material.
     pc_world = trusty.World()
     fem_add(pc_world, mesh, material, density=1000.0)
 
@@ -122,16 +108,12 @@ def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
     pack.save(basis_path, basis_obj)
     basis = trusty.subspace.load(str(basis_path))
 
-    sim_cfg = trusty.SimulatorConfig()
-    sim_cfg.timestep = 1.0 / 60.0
-    sim_cfg.backend  = backend
-    sim_cfg.newton.tolerance = 1e-5
-    sim_cfg.integrator = trusty.IntegratorType.BDF2
-    sim_cfg.contact.enabled = True
-
-    # Runtime world: subspace-tagged body of the lifted geometry,
-    # carrying the basis as a `SubspaceBody` component.
-    world = trusty.World(sim_cfg)
+    # Runtime world: the reduced body, carrying the basis.
+    world = trusty.World(timestep=1.0 / 60.0,
+                         backend=backend,
+                         newton=trusty.NewtonConfig(tolerance=1e-5),
+                         time_stepping="bdf2")
+    trusty.contact.enable(world)
     beam  = subspace_add(world, mesh, material, density=1000.0, basis=basis)
     trusty.add_floor_plane(world, FLOOR_Z)
     return world, beam, mesh, rest_verts, cells, basis_path
@@ -180,55 +162,38 @@ def run_polyscope(rest_verts, cells, element, body, world, basis,
     ps.show()
 
 
-def run_headless(rest_verts, cells, element, body, world, basis,
-                 steps: int, label: str, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_mesh = _register_visuals(ps, rest_verts, cells, element)
-    _register_basis_columns(ps_mesh, basis)
-    ps.reset_camera_to_home_view()
-
-    def snap(i):
-        ps.screenshot(str(out_dir / f"subspace_beam_{label}_{i:04d}.png"),
-                      transparent_bg=False)
-    snap(0)
-    for i in range(1, steps + 1):
+def run_headless(body, world, steps: int, label: str):
+    lowest = np.inf
+    for _ in range(steps):
         world.step()
-        ps_mesh.update_vertex_positions(
-            np.asarray(trusty.subspace.deformed_positions(world, body=body)))
-        snap(i)
+        x = trusty.subspace.deformed_positions(world, body)
+        lowest = min(lowest, float(x[:, 2].min()))
     rep = world.last_report()
-    print(f"[{label}] wrote {steps + 1} frames; last iters={rep.iterations}, "
-          f"residual={rep.final_residual:.3e}, "
-          f"{'converged' if rep.converged else 'DIVERGED'}")
+    print(f"[{label}] {steps} steps; lowest point {lowest:.4f} m "
+          f"(floor at {FLOOR_Z}); final rest height {x[:, 2].min():.4f} m; "
+          f"{'converged' if rep.converged else 'NOT converged'}")
 
 
 def main():
     trusty.check_capabilities("subspace", "contact")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "cuda", "accelerate"],
-                   default="cpu",
-                   help="simulator backend (default: cpu). 'accelerate' uses "
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
+                   default="auto",
+                   help="simulator backend (default: auto). 'accelerate' uses "
                         "Apple's sparse solver.")
     p.add_argument("--basis", choices=["modal", "handles"],
                    default="handles",
-                   help="subspace basis kind (default: handles). "
-                        "'handles' uses affine-expanded skinning eigenmodes; "
-                        "'modal' uses plain modal eigenmodes.")
+                   help="basis kind (default: handles)")
     p.add_argument("--element", choices=["hex", "tet"], default="hex",
-                   help="element kind (default: hex). 'tet' exercises "
-                        "subspace.add_tet_body + the tet-aware subspace "
-                        "elastic / contact path.")
+                   help="element kind (default: hex)")
     p.add_argument("--modes", type=int, default=6,
                    help="basis size: modal column count for --basis modal, "
                         "handle count for --basis handles (default: 6)")
     p.add_argument("--steps", type=int, default=240,
                    help="total simulation steps (default: 240 = 4 s at 1/60)")
     p.add_argument("--no-viewer", action="store_true",
-                   help="headless: write PNG screenshots instead of polyscope")
-    p.add_argument("--out", type=Path, default=Path("out"),
-                   help="output directory for --no-viewer mode")
+                   help="run headless and print where the block lands")
     args = p.parse_args()
 
     if args.backend == "cuda" and "cuda" not in trusty.capabilities():
@@ -243,8 +208,7 @@ def main():
         basis = pack.load(basis_path)
         label = f"{args.backend}-{args.element}-{args.basis}"
         if args.no_viewer:
-            run_headless(rest_verts, cells, args.element, beam, world, basis,
-                         args.steps, label, args.out)
+            run_headless(beam, world, args.steps, label)
         else:
             run_polyscope(rest_verts, cells, args.element, beam, world, basis,
                           args.steps, label)

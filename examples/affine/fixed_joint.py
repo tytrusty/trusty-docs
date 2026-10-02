@@ -1,26 +1,25 @@
 """Fixed (weld) joint: a soft foot welded under a stiff shin.
 
-The weld rigidly locks the relative *rigid* pose of two affine bodies while
-leaving each body's affine-deformation DOF free -- so a low-stiffness body welded
-under a high-stiffness one is pose-locked but still squishes locally. This is the
-quadruped soft-foot case: a soft icosphere foot welded under a stiff shin, which
-gives contact compliance at the foot without a separate soft-body solver.
+A weld locks the relative position and orientation of two affine bodies, but
+each body can still deform by its own stiffness. So a soft body welded under a
+stiff one stays in place and still squashes: here, a soft ball of a foot under
+a stiff shin, which gives a leg a compliant contact without a separate soft
+body.
 
-Two things make it work:
-  * The 3-point frame (`origin`, `origin + axis_u`, `origin + axis_v`) pins all
-    6 relative rigid DOF -- the foot cannot translate or rotate relative to the
-    shin (a spherical pin would let it dangle; a revolute pin would let it spin).
-  * The welded pair is auto-excluded from contact, so the overlapping shin and
-    foot meshes do not barrier-diverge against each other.
+  * The weld frame (`origin`, `origin + axis_u`, `origin + axis_v`) locks all
+    six relative degrees of freedom: the foot can neither slide nor turn
+    against the shin (a spherical joint would let it dangle, a revolute one
+    would let it spin).
+  * The welded pair never collides with itself, so the shin and foot meshes
+    may overlap.
 
-The shin+foot assembly free-drops onto a frictionless floor. The stiff shin stays
-rigid; the soft foot squishes on impact (affine compliance); the weld holds the
-foot under the shin throughout; the solve stays SPD (no shin-foot self-collision).
+The shin and foot drop onto a frictionless floor together. The shin stays
+rigid, the foot squashes on impact and springs back, and the weld holds the
+foot under the shin throughout.
 
-Headless mode is a self-checking test: it asserts the run stays finite (solver
-healthy), the foot stays welded to the shin (relative pose held), the assembly
-rests on the floor, and the soft foot compresses more than the rigid shin. Prints
-PASS/FAIL. Polyscope mode shows the drop.
+Headless mode checks this: the run stays finite, the foot stays welded to the
+shin, the pair rests on the floor, and the foot compresses on impact. It
+prints PASS or FAIL. Polyscope mode shows the drop.
 
 Usage:
     python examples/affine/fixed_joint.py                # polyscope
@@ -92,12 +91,8 @@ DROP_Z    = 0.30                         # clearance of the foot bottom above th
 
 def build(backend):
     trusty.check_capabilities("affine", "contact")
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.contact.enabled = True
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.01)
+    trusty.contact.enable(world)
 
     shin_center = np.array([0.0, 0.0, DROP_Z + FOOT_R + SHIN_HALF[2]])
     shin_tip    = shin_center - np.array([0.0, 0.0, SHIN_HALF[2]])   # bottom face center
@@ -109,8 +104,8 @@ def build(backend):
     shin = trusty.affine.add_affine_body(world, Vs, Fs, density=1000.0, stiffness=1e7)
     foot = trusty.affine.add_affine_body(world, Vf, Ff, density=400.0,  stiffness=1e5)
 
-    # Weld the foot under the shin: a 3-point frame at the shin tip, spanned by
-    # two non-collinear in-face offsets. Locks the foot's rigid pose to the shin.
+    # Weld the foot under the shin: a frame at the shin tip, spanned by two
+    # non-collinear offsets in the shin's bottom face.
     weld_origin = shin_tip
     trusty.affine.add_fixed_joint(
         world, foot, tuple(weld_origin),
@@ -120,9 +115,7 @@ def build(backend):
     trusty.contact.add_plane(world, np.array([0.0, 0.0, 0.0]),
                              np.array([0.0, 0.0, 1.0]))
 
-
-    # Capture the near-rest surfaces to recover each body's affine transform
-    # later -- the bindings expose only the surface, not the 12-DOF q.
+    # Keep the rest surfaces, to recover each body's current affine map later.
     rest = {shin: np.asarray(trusty.affine.surface(world, shin)[0]),
             foot: np.asarray(trusty.affine.surface(world, foot)[0])}
     print("Soft foot (icosphere, stiffness 1e5) welded under a stiff shin "
@@ -174,15 +167,15 @@ def run_headless(world, weld_origin, rest, shin, foot, steps):
                 np.asarray(trusty.affine.surface(world, shin)[0])[:, 2].min())
     compression = 1.0 - min_foot_extent / rest_foot_extent
 
-    print(f"\nfinite throughout (solver healthy): {finite}")
+    print(f"\nfinite throughout: {finite}")
     print(f"weld gap (foot vs shin at frame origin): {weld_gap:.5f} m")
     print(f"assembly rests on floor (min surface z): {min_z:+.4f} m")
     print(f"soft foot peak compression: {100 * compression:.1f}%  "
           f"(stiff shin stays rigid)")
 
     ok = (finite and weld_gap < 5e-3 and min_z > -1e-2 and compression > 0.01)
-    print("PASS: weld held the soft foot under the stiff shin; foot squished, "
-          "solve stayed SPD." if ok else "FAIL: see metrics above.")
+    print("PASS: the weld held the soft foot under the stiff shin, and the foot "
+          "squashed on impact." if ok else "FAIL: see metrics above.")
     return ok
 
 
@@ -226,13 +219,11 @@ def run_polyscope(world, weld_origin, rest, shin, foot, steps):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=200)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 
-    backend = (trusty.Backend.ACCELERATE if args.backend == "accelerate"
-               else trusty.Backend.CPU)
-    world, weld_origin, rest, shin, foot = build(backend)
+    world, weld_origin, rest, shin, foot = build(args.backend)
     if args.no_viewer:
         ok = run_headless(world, weld_origin, rest, shin, foot, args.steps)
         raise SystemExit(0 if ok else 1)

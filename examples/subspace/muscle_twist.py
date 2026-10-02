@@ -2,15 +2,16 @@
 
 A muscle's fiber field need not be straight. Wind the per-element fibers into a
 HELIX around the beam's long axis and contracting them generates torque about
-that axis -- the muscle twists (like wringing a towel). The fiber field is
-both folded into the muscle-aware skinning basis (`build_skinning_eigenmodes`) and
-used by the runtime muscle term (`subspace.add_muscle`), so the twist is
-captured end to end. The beam's base is anchored to a fixed affine wall; the
-free end rotates about the axis when the muscle fires.
+that axis -- the muscle twists (like wringing a towel). The same muscle is
+declared on the precompute world, so the skinning basis
+(`build_skinning_eigenmodes`) is built from the muscled body, and on the
+reduced body that is simulated. The beam's base is attached to a fixed affine wall; the free
+end rotates about the axis when the muscle fires.
 
-The example drives the actuation on a SINUSOID, so the beam twists and untwists
+The example drives the actuation on a sinusoid, so the beam twists and untwists
 periodically.
 
+Usage:
     python examples/subspace/muscle_twist.py
     python examples/subspace/muscle_twist.py --no-viewer   # self-checking
 
@@ -20,11 +21,13 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tempfile
+from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis as bb
+from trusty.subspace.precompute import build_basis as bb, pack
 
 
 def make_box(center, half):
@@ -48,7 +51,7 @@ def helical_fiber_field(rest, hexes, axis_yz, twist_rate):
     plus a circumferential part of pitch ``k = twist_rate``. Contracting these
     helices wrings the beam about x."""
     cy, cz = axis_yz
-    cent = rest[hexes].mean(axis=1)
+    cent = rest[hexes].mean(axis=1)   # one fiber per element, at its centre
     dy = cent[:, 1] - cy
     dz = cent[:, 2] - cz
     fib = np.stack([np.ones_like(dy), -twist_rate * dz, twist_rate * dy], axis=1)
@@ -67,7 +70,7 @@ def tip_twist_degrees(deformed, rest, tip_nodes, axis_yz):
     return float(np.degrees(np.mean(np.unwrap(angles)))) if angles else 0.0
 
 
-def build_world(modes, muscle_stiffness, twist_rate):
+def build_world(modes, muscle_stiffness, twist_rate, backend="cpu"):
     beam = trusty.make_beam_hex_mesh(size=(1.0, 0.3, 0.3), res=(14, 4, 4))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     rest = np.asarray(beam.vertices).copy()
@@ -80,20 +83,15 @@ def build_world(modes, muscle_stiffness, twist_rate):
     trusty.subspace.add_muscle(pc, pc_body, fiber, muscle_stiffness)
     basis_obj = bb.build_skinning_eigenmodes(
         world=pc, num_nodes=rest.shape[0], rest_positions=rest,
-        num_handles=modes, mesh_hash=bb.mesh_hash_sha256(rest, hexes))
+        num_handles=modes)
 
-    import tempfile
-    from pathlib import Path
-    from trusty.subspace.precompute import pack
     tmp = Path(tempfile.mkdtemp())
     pack.save(tmp / "twist.basis", basis_obj)
     basis = trusty.subspace.load(str(tmp / "twist.basis"))
 
-    cfg = trusty.SimulatorConfig()
-    cfg.timestep = 1.0 / 120.0
-    cfg.gravity = (0.0, 0.0, 0.0)   # isolate the muscle
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0,
+                         gravity=(0.0, 0.0, 0.0))  # isolate the muscle
     wall_c = (-0.1, axis_yz[0], axis_yz[1])
     Vw, Fw = make_box(wall_c, (0.1, 0.25, 0.25))
     wall = trusty.affine.add_affine_body(world, Vw, Fw, density=500.0, stiffness=1e8)
@@ -182,6 +180,12 @@ def main() -> int:
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
+    # 'auto' (Accelerate on a Mac) raises.
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
+                   default="cpu",
+                   help="solver backend (default: cpu); 'accelerate' uses "
+                        "Apple's sparse solver")
     p.add_argument("--modes", type=int, default=10)
     p.add_argument("--muscle-stiffness", type=float, default=3e5)
     p.add_argument("--twist-rate", type=float, default=3.0,
@@ -191,9 +195,11 @@ def main() -> int:
     p.add_argument("--period", type=int, default=90, help="sinusoid period (steps)")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
+    if args.backend == "cuda" and "cuda" not in trusty.capabilities():
+        raise SystemExit("CUDA backend not available in this build")
 
     world, muscle, mus, rest, hexes, fiber, axis_yz, wall = build_world(
-        args.modes, args.muscle_stiffness, args.twist_rate)
+        args.modes, args.muscle_stiffness, args.twist_rate, args.backend)
 
     if args.no_viewer:
         return run_headless(world, muscle, mus, rest, axis_yz, args.period, args.amp)

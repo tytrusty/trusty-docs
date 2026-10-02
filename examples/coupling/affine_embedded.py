@@ -44,14 +44,10 @@ def build_world(backend: str):
     trusty.check_capabilities("embedded")
 
     mat   = trusty.StableNeoHookean(youngs_modulus=3e5, poisson_ratio=0.40)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.01
-    cfg.newton.max_iters = 60
-    cfg.contact.enabled  = True
-    cfg.contact.dhat     = 2e-3
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=60))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=2e-3))
 
     # Embedded voxel solid resting on the floor (base ~1cm above).
     emb_half = 0.15
@@ -73,7 +69,7 @@ def build_world(backend: str):
 
 
 def run_headless(world, emb, emb_top: float, cube, steps: int):
-    print(f"affine x embedded contact: {steps} steps (12x3 cross via CoupledScalar)")
+    print(f"affine x embedded contact: {steps} steps")
     diverged = 0
     for i in range(steps):
         world.step()
@@ -89,7 +85,7 @@ def run_headless(world, emb, emb_top: float, cube, steps: int):
     assert cz > emb_top - 0.08, \
         f"affine cube sank through the embedded body (min_z={cz})"
     assert diverged == 0
-    print("OK: affine cube rests on the embedded body (12x3 cross-block holds).")
+    print("OK: the affine cube rests on the embedded body.")
 
 
 def run_polyscope(world, emb, emb_top: float, cube, steps: int):
@@ -124,7 +120,7 @@ def run_polyscope(world, emb, emb_top: float, cube, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=100)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, emb, emb_top, cube = build_world(args.backend)

@@ -2,12 +2,12 @@
 
 affine (near-rigid) + fem (deformable hex) + embedded (voxelized) + shell +
 subspace (reduced) -- all in one world, stacked into a single centered tower on
-a shared floor with IPC contact enabled, so every layer presses on the one
+a shared floor with contact on, so every layer presses on the one
 below. Every pair of body types interacts through the same contact model, in
 one implicit solve.
 
 The soft solids (fem / embedded / subspace) share E = 1e5 and at least 100
-DOF each; the affine cube stays stiff (1e9) as the base of the stack.
+degrees of freedom each; the affine cube stays stiff (1e9) as the base of the stack.
 
 
 Usage:
@@ -25,6 +25,8 @@ from pathlib import Path
 import numpy as np
 
 import trusty
+
+FRICTION_MU = 0.5   # Coulomb coefficient of every body and the floor
 
 
 def box_tris(center, half, n=1):
@@ -111,23 +113,18 @@ def build_subspace_basis(tmp: Path, size, res, num_handles):
     return trusty.subspace.load(str(path))
 
 
-def build_world(tmp: Path, backend: str = "cpu"):
+def build_world(tmp: Path, backend: str = "auto"):
     trusty.check_capabilities("contact", "affine", "embedded", "subspace", "shells")
     soft  = trusty.StableNeoHookean(youngs_modulus=1e5, poisson_ratio=0.40)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.01
-    cfg.newton.max_iters = 80
-    cfg.contact.enabled  = True
-    cfg.contact.dhat     = 2e-3
-    cfg.contact.kappa    = 1e6
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=80))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=2e-3, kappa=1e6))
     bodies = {}
 
     half      = 0.08      # half-extent of each stacked box (0.16 m footprint)
     gap       = 0.006     # rest gap between layers (and above the floor)
-    n_handles = 3         # subspace reduced DOF = 12 * n_handles
+    n_handles = 3         # subspace: 12 reduced degrees of freedom per handle
 
     # Everything stacks into one centered tower, bottom -> top, so each layer
     # presses on the one below. The stiff affine cube anchors the base; the
@@ -141,13 +138,13 @@ def build_world(tmp: Path, backend: str = "cpu"):
         world, Vc, Fc, density=1000.0, stiffness=1e9)
     z = cz + half + gap
 
-    # fem box (E=1e5, res 3 -> 4*4*4 = 64 nodes = 192 DOF)
+    # fem box (E=1e5, res 3 -> 4*4*4 = 64 nodes)
     fem_mesh = shifted_hex((2 * half, 2 * half, 2 * half), (3, 3, 3), (-half, -half, z))
     bodies["fem"] = trusty.fem.add_hex_solid(world, fem_mesh, soft, density=1000.0)
     z += 2 * half + gap
 
-    # embedded box (E=1e5). The hex grid (voxel_size) carries the deformation
-    # DOF; the subdivided box surface (n=4) samples that field so the coupled
+    # embedded box (E=1e5). The hex grid (voxel_size) carries the deformation;
+    # the subdivided box surface (n=4) samples that field so the coupled
     # surface bulges instead of staying faceted between 8 corners.
     ez = z + half
     Ve, Fe = box_tris((0.0, 0.0, ez), half, n=4)
@@ -155,7 +152,7 @@ def build_world(tmp: Path, backend: str = "cpu"):
         world, Ve, Fe, voxel_size=0.05, material=soft, density=1000.0)
     z = ez + half + gap
 
-    # subspace (reduced) box (E=1e5, 9 handles -> 108 reduced DOF)
+    # subspace (reduced) box (E=1e5, 3 handles)
     sub_size = (2 * half, 2 * half, 0.12)
     sub_res  = (4, 4, 3)            # 5*5*4 = 100 nodes
     basis    = build_subspace_basis(tmp, sub_size, sub_res, n_handles)
@@ -165,9 +162,8 @@ def build_world(tmp: Path, backend: str = "cpu"):
     z += 0.12 + gap
 
     # Shell bodies: a closed thin-shell CUBE sitting on the stack, plus the
-    # flat cloth sheet draped over it. The shells module simulates a single
-    # shell entity (multi-shell support tracked in #63), so both are
-    # concatenated into ONE shell body with two disconnected components
+    # flat cloth sheet draped over it. A world holds one shell body, so
+    # both are concatenated into ONE shell body with two disconnected components
     # (cube + sheet) -- cross-component contact lets the cloth drape over the
     # cube, and each component relaxes toward its own rest shape (the cube's
     # 90-degree edge dihedrals keep it boxy).
@@ -183,11 +179,15 @@ def build_world(tmp: Path, backend: str = "cpu"):
     sh_cfg.density        = 1.0e3
     bodies["shell"] = trusty.shells.add_shell(world, Vshell, Fshell, sh_cfg)
 
-    trusty.add_floor_plane(world, 0.0)
+    # Friction keeps the stack standing. It is set per body (a contact uses
+    # the average of the two sides' coefficients), and the floor carries its own.
+    for body in bodies.values():
+        trusty.contact.set_body_friction(world, body, FRICTION_MU)
+    trusty.add_floor_plane(world, 0.0, friction_mu=FRICTION_MU)
 
     n_fem = np.asarray(fem_mesh.vertices).shape[0]
     n_emb = np.asarray(trusty.fem.read_mesh(world, bodies["embedded"]).vertices).shape[0]
-    print(f"DOF/body: affine=12  fem={3 * n_fem}  embedded={3 * n_emb}  "
+    print(f"degrees of freedom per body: affine=12  fem={3 * n_fem}  embedded={3 * n_emb}  "
           f"subspace={12 * n_handles} (reduced)  shell={3 * Vshell.shape[0]} "
           f"(cube+cloth)")
 
@@ -208,6 +208,16 @@ def run_headless(world, bodies, steps: int):
                   f"res={r.final_residual:.2e}  converged={r.converged}")
     print(f"Done. {diverged} non-converged steps over {steps}.")
     assert diverged == 0, f"{diverged} steps did not converge"
+    centres = {
+        "affine": np.asarray(trusty.affine.surface(world, bodies["affine"])[0]),
+        "fem": np.asarray(trusty.fem.read_positions(world, bodies["fem"])),
+        "embedded": np.asarray(trusty.embedded.read_embedded_surface(world, bodies["embedded"])),
+        "subspace": np.asarray(trusty.subspace.deformed_positions(world, body=bodies["subspace"])),
+    }
+    off = {n: float(np.linalg.norm(x[:, :2].mean(axis=0))) for n, x in centres.items()}
+    print("sideways offset of each layer (m): "
+          + "  ".join(f"{n}={d:.3f}" for n, d in off.items()))
+    assert max(off.values()) < 0.02, "the tower did not stay stacked"
     print("OK: affine + fem + embedded + shell + subspace coupled in one solve.")
 
 
@@ -246,7 +256,7 @@ def run_polyscope(world, bodies, sub_mesh, steps: int):
         "embedded", np.asarray(trusty.embedded.read_embedded_surface(world, emb)),
         np.asarray(trusty.embedded.surface_triangles(world, emb)),
         color=(0.40, 0.75, 0.45), smooth_shade=False)
-    # The hex grid behind the embedded surface (the deformation DOF), shown by
+    # The hex grid behind the embedded surface (what deforms), shown by
     # default like the other embedded examples.
     emb_hex = trusty.fem.read_mesh(world, emb)
     ps_emb_hex = ps.register_volume_mesh(
@@ -291,7 +301,7 @@ def run_polyscope(world, bodies, sub_mesh, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=150)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true",
                    help="run headless instead of launching the polyscope viewer")
     args = p.parse_args()

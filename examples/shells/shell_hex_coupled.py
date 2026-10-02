@@ -1,20 +1,13 @@
-"""Stiff metal shell draping onto a soft hex beam, with IPC contact.
+"""A thin sheet falling onto a soft solid beam, with contact.
 
-Composes the FEM module (soft hex beam, pinned cantilever) with the
-shells module (stiff metal sheet, falling under gravity) in a single
-simulator, coupled by IPC contact. The FEM displacement block (K=3) and
-the shell position (K=3) block live in different DOF blocks, so the
-sheet-vs-beam contact is **multi-block geometric contact**: one IPC term
-over a single stitched surface, with a `CompositeCoupling` whose children
-carry different baked DOF offsets. Diagonal and cross-block Hessian
-entries land in the one global mixed (K=3 + K=1 alpha) matrix — no Schur,
-no cross buffers.
-
-Backend: CPU, CUDA, and Accelerate all work.
+A shell and a solid in one world: a soft hex beam, clamped at one end, droops
+under its own weight, while a thin sheet held along one edge above it swings
+down onto the beam. Contact between the two keeps them apart. ``--no-viewer``
+prints where the beam and the sheet end up.
 
 Usage:
     python examples/shells/shell_hex_coupled.py
-    python examples/shells/shell_hex_coupled.py --backend cuda
+    python examples/shells/shell_hex_coupled.py --backend accelerate
     python examples/shells/shell_hex_coupled.py --no-viewer --steps 240
 """
 
@@ -58,37 +51,29 @@ def make_square_sheet(side: float, res: int, ox: float, oy: float, z0: float):
     return V, np.asarray(tris, dtype=np.int32)
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("shells", "fem")
 
     beam_mesh = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
     soft_mat  = trusty.StableNeoHookean(youngs_modulus=5.0e4, poisson_ratio=0.3)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 120.0
-    cfg.newton.max_iters = 50
-    cfg.integrator = trusty.IntegratorType.BDF2
-
-    # Multi-block geometric contact between the shell sheet (shell_position
-    # block) and the hex beam (fem_displacement block).
-    cfg.contact.enabled = True
-    cfg.contact.kappa   = 1.0e6
-
-    world     = trusty.World(cfg)
+    # Contact between the sheet and the beam.
+    world     = trusty.World(backend=backend,
+                             timestep=1.0 / 120.0,
+                             newton=trusty.NewtonConfig(max_iters=50),
+                             time_stepping="bdf2")
+    trusty.contact.enable(world, trusty.contact.Config(kappa=1.0e6))
     beam      = trusty.fem.add_hex_solid(world, beam_mesh, soft_mat, density=500.0)
     trusty.fem.pin_face(world, beam, axis=0, coord=0.0)
 
     V_sh, F_sh = make_square_sheet(SHEET_SIDE, SHEET_RES,
                                    *SHEET_ORIGIN_XY, SHEET_Z)
     sh_cfg = trusty.shells.ShellConfig()
-    sh_cfg.youngs_modulus = 2.0e8        # metal-stiff
+    sh_cfg.youngs_modulus = 2.0e8
     sh_cfg.poisson_ratio  = 0.3
     sh_cfg.thickness      = 5.0e-4
     sh_cfg.density        = 7.8e3
     sheet = trusty.shells.add_shell(world, V_sh, F_sh, sh_cfg)
     trusty.shells.pin_face(world, sheet, axis=0, coord=SHEET_ORIGIN_XY[0])
-
-
     return world, beam, sheet
 
 
@@ -144,41 +129,27 @@ def run_polyscope(world, beam, sheet, steps: int):
     ps.show()
 
 
-def run_screenshots(world, beam, sheet, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_beam, ps_sheet = _register_visuals(ps, world, beam, sheet)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"coupled_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
-        world.step()
-        _refresh(ps_beam, ps_sheet, world, beam, sheet)
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--steps", type=int, default=180)
-    parser.add_argument("--no-viewer", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("out_shell_hex_coupled"))
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print where the bodies end up")
     args = parser.parse_args()
 
     world, beam, sheet = build_world(backend=args.backend)
     if args.no_viewer:
-        run_screenshots(world, beam, sheet, args.steps, args.out)
+        unconverged = 0
+        for _ in range(args.steps):
+            world.step()
+            unconverged += not world.last_report().converged
+        beam_x = np.asarray(trusty.fem.read_positions(world, beam))
+        sheet_x = trusty.shells.read_positions(world, sheet)
+        print(f"after {args.steps} steps: beam top at z = {beam_x[:, 2].max():.3f} m "
+              f"(rest {BEAM_SIZE[2]:.3f} m), lowest beam point z = "
+              f"{beam_x[:, 2].min():.3f} m, sheet lowest point z = "
+              f"{sheet_x[:, 2].min():.3f} m, {unconverged} step(s) not converged")
     else:
         run_polyscope(world, beam, sheet, args.steps)
 

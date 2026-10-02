@@ -1,19 +1,19 @@
-"""Square cloth curtain hanging from its two top corners.
+"""A square cloth curtain hanging from its two top corners.
 
-A flat square sheet starts vertical (in the x-z plane) and is pinned at its
-two top corners; gravity then drapes it into a hanging-curtain swag. Uses the
-same BAC bending + CST Koiter membrane shell as shell_cantilever.py; the only
-difference is the vertical sheet and pinning two corner vertices instead of a
-whole edge. Backend selectable via ``--backend`` (cpu / cuda / accelerate);
-no contact, so all three work end-to-end. ``--bending qb`` swaps BAC for the
-QB(PL) quadratic bending model (positions only, no director DOFs) -- the flat
-rest sheet here is exactly the rest-flat case that model assumes.
+A flat square sheet starts upright, leaning slightly, and is pinned at its two
+top corners; gravity drapes it into a curtain with a swag between the corners.
+The cloth is soft (E = 10 kPa) but cannot stretch more than 10%: the strain
+limit keeps it cloth-like instead of rubbery. ``--no-strain-limit`` shows the
+difference, ``--bending qb`` and ``--membrane neohookean`` swap the bending and
+membrane models. ``--no-viewer`` prints the drape's size and its largest
+stretch.
 
 Usage:
     python examples/shells/cloth_drape.py
-    python examples/shells/cloth_drape.py --backend cuda
+    python examples/shells/cloth_drape.py --no-strain-limit
     python examples/shells/cloth_drape.py --bending qb
-    python examples/shells/cloth_drape.py --no-viewer --steps 300
+    python examples/shells/cloth_drape.py --backend accelerate
+    python examples/shells/cloth_drape.py --no-viewer --steps 120
 """
 
 from __future__ import annotations
@@ -31,19 +31,17 @@ from utils import init_polyscope   # noqa: E402
 
 
 SIDE = 1.0          # m, side length of the sheet
-RES  = 64           # quads per side
+RES  = 32           # quads per side
 TOP_Z = 1.5         # height of the pinned top edge (curtain hangs below)
 TILT_DEG = -1.0     # initial lean off the vertical plane
 
 
 def make_square_sheet(side: float, res: int, top_z: float, tilt_deg: float = 0.0):
-    """Poked-quad square, nominally in the vertical y-z plane (x = 0): i runs
-    along width (y), j along height (z), with the top edge at `top_z`. Each grid
-    quad gets a centre vertex fanned into four triangles, so the triangulation
-    is diagonally symmetric and the drape has no diagonal fold bias. `tilt_deg`
-    leans the sheet about its top edge so gravity has an out-of-plane component
-    -- a perfectly planar curtain sits in unstable equilibrium and never
-    drapes."""
+    """A square sheet, upright in the y-z plane (x = 0), with its top edge at
+    `top_z`. Each grid square is split into four triangles around a centre
+    vertex, so the mesh has no diagonal bias and the cloth folds evenly.
+    `tilt_deg` leans the sheet about its top edge: a perfectly upright sheet
+    is balanced and would never start to drape."""
     ys = np.linspace(0.0, side, res + 1)              # width  (y)
     zs = np.linspace(top_z - side, top_z, res + 1)    # height (z), top at top_z
     Y, Z = np.meshgrid(ys, zs, indexing="xy")
@@ -93,32 +91,42 @@ def held_corners(res: int):
     return [res * (res + 1), res * (res + 1) + res]   # vid(0, res), vid(res, res)
 
 
-def build_world(backend: str = "cpu", bending: str = "bac"):
+BENDING = {"bac": trusty.shells.BendingModel.Bac,
+           "qb": trusty.shells.BendingModel.QuadraticLagrange}
+MEMBRANE = {"koiter": trusty.shells.MembraneModel.Koiter,
+            "neohookean": trusty.shells.MembraneModel.NeoHookean}
+
+
+def build_world(backend: str = "auto", bending: str = "bac",
+                membrane: str = "koiter", strain_limit: bool = True):
     trusty.check_capabilities("shells")
     V, F = make_square_sheet(SIDE, RES, TOP_Z, TILT_DEG)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.newton.max_iters = 30
+    world = trusty.World(backend=backend, timestep=1.0 / 60.0,
+                         newton=trusty.NewtonConfig(max_iters=100))
+    config = trusty.shells.ShellConfig()
+    config.youngs_modulus = 1.0e4      # Pa: soft, like cloth
+    config.poisson_ratio = 0.3
+    config.thickness = 5.0e-4          # m
+    config.density = 500.0             # kg/m^3
+    config.strain_limit = strain_limit
+    config.strain_limit_ratio = 1.1    # stretch at most 10%
+    config.bending_model = BENDING[bending]     # Bac by default
+    config.membrane_model = MEMBRANE[membrane]  # Koiter by default
 
-    world  = trusty.World(cfg)
-    sh_cfg = trusty.shells.ShellConfig()
-    sh_cfg.youngs_modulus = 1.0e4
-    sh_cfg.poisson_ratio  = 0.3
-    sh_cfg.thickness      = 5.0e-4
-    sh_cfg.density        = 500
-    sh_cfg.strain_limit = True
-    sh_cfg.strain_limit_ratio = 1.1
-    sh_cfg.bending_model = (trusty.shells.BendingModel.QuadraticLagrange
-                            if bending == "qb"
-                            else trusty.shells.BendingModel.Bac)
-
-    body = trusty.shells.add_shell(world, V, F, sh_cfg)
-    trusty.shells.pin_vertices(world, body, held_corners(RES))
+    # V (n, 3) and F (m, 3): the sheet's vertices and triangles.
+    body = trusty.shells.add_shell(world, V, F, config)
+    trusty.shells.pin_vertices(world, body, held_corners(RES))  # top corners
+    return world, body, V, F
 
 
-    return world, body
+def max_stretch(world, body, V, F) -> float:
+    """The largest edge length now, over its rest length."""
+    edges = np.concatenate([F[:, [0, 1]], F[:, [1, 2]], F[:, [2, 0]]])
+    x = trusty.shells.read_positions(world, body)
+    rest = np.linalg.norm(V[edges[:, 0]] - V[edges[:, 1]], axis=1)
+    now = np.linalg.norm(x[edges[:, 0]] - x[edges[:, 1]], axis=1)
+    return float((now / rest).max())
 
 
 def _register_visuals(ps, world, body):
@@ -161,46 +169,37 @@ def run_polyscope(world, body, steps: int):
     ps.show()
 
 
-def run_screenshots(world, body, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_mesh = _register_visuals(ps, world, body)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"cloth_{idx:04d}.png"), transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
-        world.step()
-        ps_mesh.update_vertex_positions(
-            np.asarray(trusty.shells.read_positions(world, body)))
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
-    parser.add_argument("--bending", choices=["bac", "qb"], default="bac",
-                        help="bending model: BAC directors, or QB(PL) quadratic "
-                             "bending (rest-flat, positions only)")
-    parser.add_argument("--steps", type=int, default=240)
-    parser.add_argument("--no-viewer", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("out_cloth_drape"))
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
+    parser.add_argument("--bending", choices=list(BENDING), default="bac",
+                        help="bending model: bac (default) or qb, which "
+                             "assumes a flat rest shape")
+    parser.add_argument("--membrane", choices=list(MEMBRANE), default="koiter",
+                        help="membrane model (default koiter)")
+    parser.add_argument("--no-strain-limit", action="store_true",
+                        help="let the cloth stretch freely")
+    parser.add_argument("--steps", type=int, default=120)
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print the drape")
     args = parser.parse_args()
 
-    world, body = build_world(backend=args.backend, bending=args.bending)
+    world, body, V, F = build_world(backend=args.backend, bending=args.bending,
+                                    membrane=args.membrane,
+                                    strain_limit=not args.no_strain_limit)
     if args.no_viewer:
-        run_screenshots(world, body, args.steps, args.out)
-    else:
-        run_polyscope(world, body, args.steps)
+        unconverged = 0
+        for _ in range(args.steps):
+            world.step()
+            unconverged += not world.last_report().converged
+        x = trusty.shells.read_positions(world, body)
+        print(f"after {args.steps} steps: bottom at z = {x[:, 2].min():.3f} m "
+              f"(rest {TOP_Z - SIDE:.3f} m), largest stretch "
+              f"{max_stretch(world, body, V, F):.3f}, "
+              f"{unconverged} step(s) not converged")
+        return
+    run_polyscope(world, body, args.steps)
 
 
 if __name__ == "__main__":

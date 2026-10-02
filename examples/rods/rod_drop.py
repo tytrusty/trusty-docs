@@ -1,8 +1,9 @@
-"""Rod drop with IPC contact.
+"""Rod drop with contact.
 
-A horizontal elastic rod falls under gravity onto a ground plane. The rod's
-per-rod contact surface carries a `contact_offset` equal to its radius, so IPC
-holds the centerline one radius above the ground -- rod edges have thickness.
+A horizontal elastic rod falls under gravity onto a ground plane and comes to
+rest on it. Contact treats the rod as a tube of its own radius, so it rests
+with its centerline about one radius above the ground. The headless run prints
+that resting height.
 
 Usage:
     python examples/rods/rod_drop.py
@@ -27,20 +28,16 @@ from utils import init_polyscope   # noqa: E402
 N, LENGTH, RADIUS, DROP_HEIGHT = 30, 1.0, 0.03, 0.5
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("rods", "contact")
 
     X = np.zeros((N, 3))
     X[:, 0] = np.linspace(0.0, LENGTH, N) - LENGTH / 2
     X[:, 2] = DROP_HEIGHT
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 120.0
-    cfg.contact.enabled = True
-    cfg.contact.dhat    = 0.01
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0)
+    trusty.contact.enable(world, trusty.contact.Config(dhat=0.01))
     mat = trusty.rods.RodMaterial()
     mat.youngs_modulus = 1e7
     mat.radius = RADIUS
@@ -48,7 +45,6 @@ def build_world(backend: str = "cpu"):
 
     rod = trusty.rods.add_rod(world, X, mat)
     trusty.add_floor_plane(world, 0.0)          # ground z = 0
-
 
     return world, rod
 
@@ -102,42 +98,28 @@ def run_polyscope(world, rod, steps: int):
     ps.show()
 
 
-def run_screenshots(world, rod, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    net = _register_visuals(ps, world, rod)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"rod_drop_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
+def run_headless(world, rod, steps: int):
+    for i in range(steps):
         world.step()
-        net.update_node_positions(
-            np.asarray(trusty.rods.read_positions(world, rod)))
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
+        if not world.last_report().converged:
+            raise SystemExit(f"step {i}: Newton did not converge")
+    z = np.asarray(trusty.rods.read_positions(world, rod))[:, 2]
+    print(f"after {steps} steps: centerline at z = {z.min():.4f} to {z.max():.4f} m "
+          f"(rod radius {RADIUS} m)")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "accelerate"], default="auto")
     parser.add_argument("--steps", type=int, default=240)
-    parser.add_argument("--no-viewer", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("out_rod_drop"))
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print the resting height")
     args = parser.parse_args()
 
     world, rod = build_world(backend=args.backend)
     if args.no_viewer:
-        run_screenshots(world, rod, args.steps, args.out)
+        run_headless(world, rod, args.steps)
     else:
         run_polyscope(world, rod, args.steps)
 

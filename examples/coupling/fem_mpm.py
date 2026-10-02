@@ -41,19 +41,10 @@ def build_world(backend: str):
     floor_z = 0.0
     cell    = 0.05
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.005
-    cfg.newton.max_iters = 80
-    cfg.contact.enabled  = True
-    cfg.contact.dhat     = 2e-3
-
-    mpm_cfg = trusty.mpm.MpmConfig()
-    mpm_cfg.cell_size         = cell
-    mpm_cfg.cdpi_domain_scale = 0.25
-    cfg.mpm = mpm_cfg
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.005,
+                         newton=trusty.NewtonConfig(max_iters=80))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=2e-3))
 
     # FEM slab resting just above the floor (non-penetrating start).
     slab_mesh = shifted_hex_mesh((0.8, 0.8, 0.15), (4, 4, 1),
@@ -72,7 +63,8 @@ def build_world(backend: str):
     mmat.mu      = 1e3
     mmat.lam     = 1e4
     particle_volume = (cell * 0.5) ** 3
-    trusty.mpm.add_mpm_particles(world, pts, particle_volume, mmat)
+    trusty.mpm.add_mpm_particles(world, pts, particle_volume, mmat,
+                                 cell_size=cell, cdpi_domain_scale=0.25)
 
     trusty.add_floor_plane(world, floor_z)
 
@@ -177,8 +169,8 @@ def run_polyscope(world, slab, floor_z, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=120)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"],
-                   default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
+                   default="auto")
     p.add_argument("--no-viewer", action="store_true",
                    help="run the headless non-penetration self-check instead "
                         "of launching the polyscope viewer")

@@ -120,14 +120,10 @@ def run(
     E_modulus = 5e5
     nu        = 0.3
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = timestep
-    cfg.gravity  = (0.0, 0.0, 0.0)  # isolate the twist driver
-    cfg.newton.max_iters = 80
-    cfg.newton.tolerance = 1e-4
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=timestep,
+                         gravity=(0.0, 0.0, 0.0),  # isolate the twist driver
+                         newton=trusty.NewtonConfig(max_iters=80, tolerance=1e-4))
     # NeoHookeanBW: log(J) singularity stresses the inversion-free
     # initial-step-size filter under large rotations.
     mat = trusty.NeohookeanBW(youngs_modulus=E_modulus, poisson_ratio=nu)
@@ -313,7 +309,7 @@ def run(
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--backend",
-                    choices=["cpu", "cuda", "accelerate"], default="cpu")
+                    choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     ap.add_argument("--steps", type=int, default=240,
                     help="Number of timesteps over which the twist ramps "
                          "from 0 to `--turns` revolutions.")

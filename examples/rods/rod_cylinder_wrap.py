@@ -1,21 +1,20 @@
 """Rods wrapping a cylinder.
 
-A row of parallel elastic rods drops onto a rigid cylinder, drapes over it, and
-wraps down its sides. Each rod is its own IPC contact surface, so rod-vs-rod is
-held `2*radius` apart by the offset sum and rod-vs-cylinder by `radius` -- both
-driven by the rod radius. Friction lets the rods grip
-and stay wrapped instead of sliding off.
+A row of parallel elastic rods drops onto a fixed cylinder, drapes over it, and
+wraps down its sides. Contact treats each rod as a tube of its own radius:
+rods stay one radius off the cylinder and two radii off each other. Friction
+lets the rods grip and stay wrapped instead of sliding off.
 
-`--num-rods` sets how many rods drop; the rod radius scales down with the count
-so neighbours never overlap along the cylinder axis. `--cylinder-radius` sizes
-the cylinder -- a smaller cylinder lets the fixed-length rods wrap further
-around it.
+`--num-rods` sets how many rods drop; the rod radius shrinks with the count so
+neighbours never overlap along the cylinder. `--cylinder-radius` sizes the
+cylinder: a smaller cylinder lets the fixed-length rods wrap further around it.
+The headless run prints how close the rods come to the cylinder.
 
 Usage:
     python examples/rods/rod_cylinder_wrap.py
     python examples/rods/rod_cylinder_wrap.py --num-rods 12
     python examples/rods/rod_cylinder_wrap.py --cylinder-radius 0.15
-    python examples/rods/rod_cylinder_wrap.py --no-viewer --steps 480
+    python examples/rods/rod_cylinder_wrap.py --no-viewer --steps 240
 """
 
 from __future__ import annotations
@@ -65,25 +64,21 @@ def rod_radius(num_rods: int) -> float:
     return min(MAX_RADIUS, 0.3 * spacing)
 
 
-def build_world(backend: str = "cpu", *, num_rods: int = 5, cyl_r: float = CYL_R):
+def build_world(backend: str = "auto", *, num_rods: int = 5, cyl_r: float = CYL_R):
     trusty.check_capabilities("rods", "contact")
     radius = rod_radius(num_rods)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 120.0
-    cfg.integrator = trusty.IntegratorType.BDF2
-    cfg.contact.enabled = True
-    cfg.contact.dhat    = min(0.01, 0.5 * radius)   # barrier band scales with the rod
-    cfg.contact.mu      = 0.4        # friction so the rods grip and stay wrapped
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=1.0 / 120.0, time_stepping="bdf2")
+    trusty.contact.enable(world, trusty.contact.Config(
+        dhat=min(0.01, 0.5 * radius),   # contact band scales with the rod
+    ))
+    mu = 0.4    # friction so the rods grip and stay wrapped: the cylinder's and each rod's
     Vc, Fc = make_cylinder(cyl_r, -0.6, 0.6, 48, 24)
-    trusty.contact.add_wall(world, "cylinder", Vc, Fc)
+    trusty.contact.add_wall(world, "cylinder", Vc, Fc, friction_mu=mu)
 
     mat = trusty.rods.RodMaterial()
     mat.youngs_modulus = 1e6        # floppy enough to drape around the cylinder
-    mat.radius = radius
+    mat.radius = radius             # also the rod's thickness in contact
     mat.density = 1000.0
 
     ids = []
@@ -93,8 +88,7 @@ def build_world(backend: str = "cpu", *, num_rods: int = 5, cyl_r: float = CYL_R
         X[:, 0] = np.linspace(0.0, LENGTH, N) - LENGTH / 2
         X[:, 1] = y
         X[:, 2] = cyl_r + DROP_ABOVE
-        ids.append(trusty.rods.add_rod(world, X, mat))
-
+        ids.append(trusty.rods.add_rod(world, X, mat, friction_mu=mu))
 
     return world, ids, radius, (Vc, Fc)
 
@@ -152,39 +146,28 @@ def run_polyscope(world, ids, radius, cylinder, steps: int):
     ps.show()
 
 
-def run_screenshots(world, ids, radius, cylinder, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    nets = _register_visuals(ps, world, ids, radius, cylinder)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"rod_cylinder_wrap_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
+def run_headless(world, ids, radius, cyl_r: float, steps: int):
+    for i in range(steps):
         world.step()
-        _update(nets, world, ids)
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
+        if not world.last_report().converged:
+            raise SystemExit(f"step {i}: Newton did not converge")
+    xs = [np.asarray(trusty.rods.read_positions(world, rid)) for rid in ids]
+    gap = min(np.hypot(x[:, 0], x[:, 2]).min() for x in xs) - cyl_r - radius
+    low = min(x[:, 2].min() for x in xs)
+    print(f"after {steps} steps: closest rod surface {gap * 1e3:.1f} mm off the "
+          f"cylinder; rod ends down to z = {low:.3f} m (cylinder axis at z = 0)")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "accelerate"], default="auto")
     parser.add_argument("--steps", type=int, default=360)
-    parser.add_argument("--no-viewer", action="store_true")
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print how the rods came to rest")
     parser.add_argument("--num-rods", type=int, default=5)
     parser.add_argument("--cylinder-radius", type=float, default=CYL_R,
                         help="cylinder radius; smaller -> rods wrap further")
-    parser.add_argument("--out", type=Path, default=Path("out_rod_cylinder_wrap"))
     args = parser.parse_args()
 
     world, ids, radius, cylinder = build_world(
@@ -193,7 +176,7 @@ def main():
           f"rod radius = {radius:.4f})")
 
     if args.no_viewer:
-        run_screenshots(world, ids, radius, cylinder, args.steps, args.out)
+        run_headless(world, ids, radius, args.cylinder_radius, args.steps)
     else:
         run_polyscope(world, ids, radius, cylinder, args.steps)
 

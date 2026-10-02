@@ -1,12 +1,9 @@
-"""Wrecking ball: a heavy affine sphere on an elastic rod chain (DOF elim).
+"""Wrecking ball: a heavy near-rigid sphere swinging on an elastic rod.
 
-A rod chain hangs horizontally from a fixed anchor (its first vertex pinned to
-the world). A heavy near-rigid affine sphere sits at the far end, and the rod's
-last vertex is `stitch`-eliminated onto the sphere -- the rod endpoint rides the
-sphere's 12-DOF affine map (x = A*x_bar + p). Released from horizontal, the
-weighty sphere swings down about the anchor, and the rod's stretch/bending
-tension (folded onto the sphere's DOFs through the elimination) holds it like a
-chain. This exercises the rod-follower DOF elimination onto an affine anchor.
+A rod hangs horizontally from a fixed anchor (its first vertex pinned). A heavy
+near-rigid affine sphere sits at the far end, and the rod's last vertex is
+stitched to the sphere, so it moves with it. Released from horizontal, the
+sphere swings down about the anchor and the rod holds it like a chain.
 
 Usage:
     python examples/rods/wrecking_ball.py                # polyscope
@@ -69,14 +66,9 @@ def icosphere(radius: float, center, subdiv: int = 1):
     return V + np.asarray(center, dtype=np.float64), F
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("rods", "affine", "boundary_conditions")
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.005
-    cfg.newton.max_iters = 60
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.005, newton=trusty.NewtonConfig(max_iters=60))
 
     # Rod chain: horizontal from the anchor to the ball, first vertex pinned.
     ball_c = np.array([ARM_LEN, 0.0, ANCHOR_Z])
@@ -95,9 +87,8 @@ def build_world(backend: str = "cpu"):
     ball = trusty.affine.add_affine_body(world, ball_V, ball_F,
                                          density=BALL_RHO, stiffness=1e8)
 
-    # Rod's last vertex rides the ball's affine map (rod follower, sphere anchor).
+    # The rod's last vertex moves with the ball.
     trusty.boundary_conditions.stitch(world, rod, [N_CHAIN - 1], ball)
-
 
     mass = BALL_RHO * (4.0 / 3.0) * np.pi * BALL_R ** 3
     print(f"Rod chain ({N_CHAIN} verts) + affine ball (~{mass:.0f} kg); "
@@ -178,7 +169,7 @@ def run_polyscope(world, rod, ball, steps: int):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()

@@ -1,11 +1,9 @@
-"""An articulated chain of affine bars, hinged end-to-end and grounded at
-one end, swinging under gravity (Lan et al. 2022, sec. 5.3: joints are
-linear for affine bodies, so a weld is a stiff quadratic penalty).
+"""A chain of rigid bars, hinged end to end and to the world at one end,
+swinging under gravity.
 
-Each bar is a near-rigid affine body (a 4-node virtual tet). The first bar
-is pinned to the world by a hinge; consecutive bars share a hinge at their
-ends. Released horizontal, the chain swings down and articulates like a
-multi-link pendulum.
+Each bar is an affine body: a near-rigid box. The first bar hangs from a
+revolute joint fixed in space; each following bar is hinged to the one before
+it. Released horizontal, the chain swings down like a multi-link pendulum.
 
 Usage:
     python examples/affine/pendulum.py                # polyscope
@@ -45,14 +43,10 @@ def build_chain(n_links: int, stiffness: float, backend: str):
     L = 1.0           # bar length (x)
     r = 0.12          # bar half-thickness
     z0 = float(n_links)   # start high so the chain can swing freely
-    k = stiffness         # use the same stiffness for joints and rigidity
+    k = stiffness         # joint stiffness (N/m); here the same number as the bodies'
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 50
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=50))
     bars = []
     for i in range(n_links):
         cx = i * L
@@ -60,16 +54,15 @@ def build_chain(n_links: int, stiffness: float, backend: str):
         bars.append(trusty.affine.add_affine_body(
             world, V, F, density=1000.0, stiffness=stiffness))
 
-    # Grounded revolute joint at the left end of bar 0.
+    # Hinge bar 0 to the world at its left end (no body_j: grounded).
     trusty.affine.add_revolute_joint(
         world, bars[0], (-L / 2, -r, z0), (-L / 2, r, z0), stiffness=k)
-    # Body-body revolute joints at each shared end.
+    # Hinge each bar to the one before it, at their shared end.
     for i in range(1, n_links):
         x = (i - 0.5) * L
         trusty.affine.add_revolute_joint(
             world, bars[i - 1], (x, -r, z0), (x, r, z0),
             body_j=bars[i], stiffness=k)
-
 
     print(f"Built a {n_links}-link affine chain (grounded hinge + "
           f"{n_links - 1} body hinges).")
@@ -144,7 +137,7 @@ def main():
     p.add_argument("--links", type=int, default=5)
     p.add_argument("--steps", type=int, default=600)
     p.add_argument("--stiffness", type=float, default=1e8)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

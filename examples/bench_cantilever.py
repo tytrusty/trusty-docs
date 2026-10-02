@@ -2,7 +2,7 @@
 
 For each discretization (Q1/P1 linear, P2 tet, Q2 serendipity/Lagrange hex),
 sweep the corner-mesh resolution and report:
-  - ACCURACY: the quasi-static tip deflection under gravity (a single static
+  - ACCURACY: the static tip deflection under gravity (a single static
     Newton solve -- the true equilibrium, mesh-convergent), and its absolute
     error in metres vs a fine higher-order ground truth (Q2 Lagrange).
   - RUNTIME: the mean dynamic Newton-solve wall time per step (ms), measured
@@ -49,28 +49,27 @@ LINEAR = {"hex_q1", "tet_p1"}
 SIZE = (1.0, 0.1, 0.1)
 
 
-def _make_body(family, nx):
+def _make_body(family, nx, world_kwargs, consistent_mass=True):
     kind, order = FAMILIES[family]
     res = (nx, max(1, nx // 8), max(1, nx // 8))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
-    world = trusty.World()
+    world = trusty.World(**world_kwargs)
     if kind == "hex":
         mesh = trusty.make_beam_hex_mesh(size=SIZE, res=res)
-        body = trusty.fem.add_hex_solid(world, mesh, material, 1000.0, order=order)
+        body = trusty.fem.add_hex_solid(world, mesh, material, 1000.0, order=order,
+                                        consistent_mass=consistent_mass)
     else:
         mesh = trusty.make_beam_tet_mesh(size=SIZE, res=res)
-        body = trusty.fem.add_tet_solid(world, mesh, material, 1000.0, order=order)
+        body = trusty.fem.add_tet_solid(world, mesh, material, 1000.0, order=order,
+                                        consistent_mass=consistent_mass)
     trusty.fem.pin_face(world, body, axis=0, coord=0.0)
     return world, body
 
 
 def run_one(family, nx, backend, consistent, timing_steps):
-    # --- accuracy: quasi-static equilibrium (single static Newton solve) ---
-    world, body = _make_body(family, nx)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.dynamics = False  # solve the static equilibrium directly
+    # --- accuracy: static equilibrium (single static Newton solve) ---
+    base = dict(backend=backend, timestep=1.0 / 60.0)
+    world, body = _make_body(family, nx, dict(base, time_stepping="static"))
     world.step()
     converged = world.last_report().converged
     verts = np.asarray(trusty.fem.read_positions(world, body))
@@ -78,11 +77,7 @@ def run_one(family, nx, backend, consistent, timing_steps):
     deflection = float(-verts[tip, 2].max())
 
     # --- runtime: dynamic per-step cost under the chosen mass model ---
-    world2, body2 = _make_body(family, nx)
-    cfg2 = trusty.SimulatorConfig()
-    cfg2.backend = backend
-    cfg2.timestep = 1.0 / 60.0
-    cfg2.consistent_mass = consistent
+    world2, body2 = _make_body(family, nx, base, consistent_mass=consistent)
     world2.step()  # warm (first solve pays setup)
     t0 = time.perf_counter()
     for _ in range(timing_steps):
@@ -102,7 +97,7 @@ def main():
                              "curves reach the quadratic range")
     parser.add_argument("--timing-steps", type=int, default=15,
                         help="dynamic steps timed for the per-step runtime measurement")
-    parser.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     parser.add_argument("--lumped", action="store_true",
                         help="use lumped mass for the dynamic runtime (default: consistent). "
                              "Does not affect the static accuracy.")
@@ -129,7 +124,7 @@ def main():
             results[family][nx] = run_one(family, nx, args.backend, consistent, args.timing_steps)
 
     mass = "consistent" if consistent else "lumped"
-    print(f"\nCantilever {SIZE}: quasi-static accuracy, {mass}-mass dynamic runtime, "
+    print(f"\nCantilever {SIZE}: static accuracy, {mass}-mass dynamic runtime, "
           f"backend={args.backend}")
     print(f"static ground-truth tip deflection (hex_q2, nx={ref_nx}, {ref['nodes']} nodes): "
           f"{ref_defl:.6e} m\n")

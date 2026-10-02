@@ -103,18 +103,12 @@ def element_centres_x(mesh):
     return V[H, 0].mean(axis=1)
 
 
-def gravity_config(backend: str = "cpu"):
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.dynamics = False              # quasi-static: solve equilibrium each step
-    cfg.newton.max_iters = 60
-    return cfg
-
-
 def build_world(backend: str):
     """One world holding the four cantilevers, each clamped at x = 0."""
-    world = trusty.World(gravity_config(backend))
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 60.0,
+                         time_stepping="static",
+                         newton=trusty.NewtonConfig(max_iters=60))
     mesh = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
 
     full = {}
@@ -223,7 +217,7 @@ def run_viewer(world, beams, steps):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--steps", type=int, default=20)
-    ap.add_argument("--backend", default="cpu", choices=["cpu", "accelerate", "cuda"])
+    ap.add_argument("--backend", default="auto", choices=["auto", "cpu", "accelerate", "cuda"])
     ap.add_argument("--no-viewer", action="store_true")
     args = ap.parse_args()
 

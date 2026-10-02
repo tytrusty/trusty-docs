@@ -1,15 +1,15 @@
-"""Spring pins with moving targets + IPC contact.
+"""Spring pins with moving targets, and a floor in the way.
 
-A cantilever bar:
-  - Left face pinned at its rest position with high stiffness (acts as a
-    fixed clamp).
-  - Right face pinned to a target that follows a sinusoid in z.
-  - A floor below (IPC contact) prevents the bar from punching through
-    even when the prescribed motion would push it there.
+A soft cantilever bar:
+  - its left face is pinned at its rest position with a high stiffness, so it
+    acts as a clamp;
+  - its right face is pinned to targets that move up and down on a sine wave;
+  - a floor below stops the bar. The targets dip below the floor, but a spring
+    pin gives, so the bar rests on the floor instead of passing through it.
 
-By default opens a polyscope viewer that animates the bar following the
-prescribed sinusoid; ``--no-viewer`` writes PNG frames via the EGL
-backend.
+Usage:
+    python examples/boundary_conditions/moving_pin.py              # polyscope
+    python examples/boundary_conditions/moving_pin.py --no-viewer  # print the drive
 """
 
 from __future__ import annotations
@@ -39,16 +39,10 @@ def build_world(backend: str):
     mesh = trusty.make_beam_hex_mesh(size=BAR_SIZE, res=BAR_RES)
     material = trusty.StableNeoHookean(youngs_modulus=1e5, poisson_ratio=0.3)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.contact.enabled = True
-    cfg.contact.dhat = 5e-3
-    cfg.contact.kappa = 1e4
-
-    cfg.newton.max_iters = 60
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 60.0,
+                         newton=trusty.NewtonConfig(max_iters=60))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=5e-3, kappa=1e4))
     body = trusty.fem.add_hex_solid(world, mesh, material, density=1000.0)
 
     V = np.asarray(mesh.vertices)
@@ -73,6 +67,14 @@ def prescribed_targets(step: int, right_targets_init: np.ndarray):
     targets = right_targets_init.copy()
     targets[:, 2] += dz
     return targets, dz
+
+
+def drive(world, right_pin, right_targets_init, step: int):
+    """Move the right face's targets for this step, then advance."""
+    targets, dz = prescribed_targets(step, right_targets_init)
+    trusty.boundary_conditions.set_pin_targets(world, right_pin, targets)
+    world.step()
+    return dz
 
 
 def _register_visuals(ps, world, body):
@@ -105,9 +107,7 @@ def run_polyscope(backend: str, n_steps: int):
         psim.SameLine()
         if psim.Button("step") or state["playing"]:
             if state["i"] < n_steps:
-                targets, _ = prescribed_targets(state["i"], right_targets_init)
-                trusty.boundary_conditions.set_pin_targets(world, right_pin, targets)
-                world.step()
+                drive(world, right_pin, right_targets_init, state["i"])
                 state["i"] += 1
                 ps_mesh.update_vertex_positions(
                     np.asarray(trusty.fem.read_mesh(world, body).vertices))
@@ -122,43 +122,36 @@ def run_polyscope(backend: str, n_steps: int):
     ps.show()
 
 
-def run_screenshots(backend: str, n_steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    world, body, right_pin, _, right_targets_init = build_world(backend)
-    ps_mesh = _register_visuals(ps, world, body)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"moving_pin_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snapshot(0)
-    last_residual = float("nan")
+def run_headless(backend: str, n_steps: int):
+    world, body, right_pin, right_nodes, right_targets_init = build_world(backend)
+    print(f"{'step':>4}  {'target dz':>9}  {'face dz':>8}  {'lowest z':>8}  pin force z (N)")
+    lowest = np.inf
     for i in range(n_steps):
-        targets, _ = prescribed_targets(i, right_targets_init)
-        trusty.boundary_conditions.set_pin_targets(world, right_pin, targets)
-        world.step()
-        last_residual = world.last_report().final_residual
-        ps_mesh.update_vertex_positions(
-            np.asarray(trusty.fem.read_mesh(world, body).vertices))
-        snapshot(i + 1)
-
-    print(f"Wrote {n_steps + 1} screenshots to {out_dir}/")
-    print(f"Last residual: {last_residual:.3e}")
+        dz = drive(world, right_pin, right_targets_init, i)
+        if not world.last_report().converged:
+            raise SystemExit(f"step {i}: the solve did not converge")
+        x = np.asarray(trusty.fem.read_positions(world, body))
+        lowest = min(lowest, x[:, 2].min())
+        if i % 10 == 0:
+            face_dz = x[right_nodes, 2].mean() - right_targets_init[:, 2].mean()
+            fz = trusty.boundary_conditions.pin_total_force(world, right_pin)[2]
+            print(f"{i:4d}  {dz:+9.3f}  {face_dz:+8.3f}  {x[:, 2].min():+8.3f}  {fz:+.1f}")
+    print(f"Lowest point reached: z = {lowest:.3f} (floor at z = {FLOOR_Z})")
+    if lowest < FLOOR_Z - 1e-3:
+        raise SystemExit("the bar passed through the floor")
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--backend",
-                    choices=["cpu", "cuda", "accelerate"], default="cpu")
+                    choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     ap.add_argument("--steps", type=int, default=120)
-    ap.add_argument("--no-viewer", action="store_true")
-    ap.add_argument("--out", type=Path, default=Path("out_moving_pin"))
+    ap.add_argument("--no-viewer", action="store_true",
+                    help="headless: print the drive and the pin force every 10 steps")
     args = ap.parse_args()
 
     if args.no_viewer:
-        run_screenshots(args.backend, args.steps, args.out)
+        run_headless(args.backend, args.steps)
     else:
         run_polyscope(args.backend, args.steps)
 

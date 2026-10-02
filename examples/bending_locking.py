@@ -40,17 +40,14 @@ def add_body(world, kind, order, mesh, material, density):
     return trusty.fem.add_tet_solid(world, mesh, material, density, order=order)
 
 
-def build_world(size, res, backend="cpu"):
+def build_world(size, res, backend="auto"):
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     spacing = 1.5 * size[1]
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 30.0
-    cfg.zero_velocity_after_step = True
-    cfg.newton.tolerance = 1e-5
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 30.0,
+                         time_stepping="quasi_static",
+                         newton=trusty.NewtonConfig(tolerance=1e-5))
     bodies = {}
     for k, (family, (kind, order, _)) in enumerate(FAMILIES.items()):
         mesh = (trusty.make_beam_hex_mesh(size=size, res=res) if kind == "hex"
@@ -74,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--res", type=int, nargs=3, default=[6, 1, 1])
     parser.add_argument("--steps", type=int, default=200)
-    parser.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     parser.add_argument("--no-viewer", action="store_true",
                         help="headless: print the tip-deflection comparison instead of polyscope")
     args = parser.parse_args()

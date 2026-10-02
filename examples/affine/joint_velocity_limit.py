@@ -1,21 +1,20 @@
-"""Joint VELOCITY-limit test: two identical light grounded hinges given the SAME
-step command, one with a joint velocity limit and one without.
+"""Joint velocity limits: two identical light hinges given the same sudden
+jump in target angle, one with a velocity limit and one without.
 
-The actuator is an implicit position servo, so a step change in its target whips
-the (light) free bar to the new angle in a couple of steps -- an instantaneous
-joint speed of many rad/s, exactly the kind of motion that makes IPC contact
-stiff. The velocity-limited bar instead ramps toward the same target at no more
-than `omega_max`, because a one-sided penalty on the integrator-consistent joint
-rate (zero inside |theta_dot| <= omega_max, force only on the excess) resists
-moving faster. Both reach the target; only the rate differs.
+An actuator pulls its joint toward the target as hard as its stiffness
+allows, so a sudden jump in the target whips the light free bar to the new
+angle within a couple of steps: many rad/s. The limited bar turns toward the
+same target no faster than `omega_max`. Both end up at the target; only the
+speed differs.
 
-`--penalty-mode` picks the penalty shape; both choices here are soft caps, so
-the limited bar is allowed a small overshoot.
+`--penalty-mode` picks how the limit pushes back: `barrier` (the default) is
+a hard cap, and `quadratic` and `cubic` are softer caps that let the joint
+overshoot `omega_max` a little.
 
-Headless mode is a self-checking test: it asserts the limited bar's per-step
-angular speed never exceeds `omega_max` (plus a small soft-cap tolerance), the
-free bar's peak speed far exceeds it, and both bars reach the commanded targets.
-Polyscope mode shows the two bars side by side with a live speed readout.
+Headless mode checks this: the limited bar never turns faster than
+`omega_max` (plus a small tolerance for the soft caps), the free bar's peak
+speed is far higher, and both bars reach the target. Polyscope mode shows the
+two bars side by side with a live speed readout.
 
 Usage:
     python examples/affine/joint_velocity_limit.py                # polyscope
@@ -52,7 +51,7 @@ def make_box(center, half):
 
 def add_hinged_bar(world, center, omega_max, with_limit, mode):
     """A light bar grounded by a y-axis hinge at its left end, with a high-gain
-    servo and (optionally) a velocity limit. Returns (body, actuator)."""
+    actuator and (optionally) a velocity limit. Returns (body, actuator)."""
     L, r = 1.0, 0.12
     V, F = make_box(center, (L / 2, r, r))
     # Light body -> a step command would otherwise whip it at many rad/s.
@@ -70,27 +69,23 @@ def add_hinged_bar(world, center, omega_max, with_limit, mode):
 
 def build(omega_max, backend, mode):
     z0 = 2.0
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.gravity  = (0.0, 0.0, 0.0)   # actuator-only, so the contrast is clean
-    cfg.newton.max_iters = 60
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         gravity=(0.0, 0.0, 0.0),  # actuator-only, so the contrast is clean
+                         newton=trusty.NewtonConfig(max_iters=60))
     free_bar, act_free = add_hinged_bar(
         world, (0.0, -0.5, z0), omega_max, with_limit=False, mode=mode)
     limited_bar, act_limited = add_hinged_bar(
         world, (0.0,  0.5, z0), omega_max, with_limit=True, mode=mode)
 
     print(f"Two light hinges, same step command. One free, one limited to "
-          f"|theta_dot| <= {omega_max:.2f} rad/s.")
-
+          f"{omega_max:.2f} rad/s.")
     return world, free_bar, act_free, limited_bar, act_limited
 
 
 def target(t: float) -> float:
-    """A step to +1.2 rad, then a reversal to -0.6 rad -- exercises the cap both
-    directions. Each step is a jump the implicit servo would chase in ~1 step."""
+    """A jump to +1.2 rad, then back to -0.6 rad, to test the cap in both
+    directions. An unlimited actuator follows each jump in about one step."""
     return 1.2 if t < 1.0 else -0.6
 
 
@@ -118,7 +113,7 @@ def run_headless(world, act_free, act_limited, omega_max, steps, dt):
                   f"({free_rate:5.2f} rad/s)  limited {lim:+.3f} "
                   f"({lim_rate:5.2f} rad/s)")
 
-    tol = 1.35 * omega_max   # soft cap -> allow a small overshoot
+    tol = 1.35 * omega_max   # the soft caps may overshoot a little
     capped = lim_peak <= tol
     whipped = free_peak > 2.0 * omega_max
     reached = abs(lim - (-0.6)) < 0.1
@@ -200,17 +195,17 @@ def main():
     p.add_argument("--omega-max", type=float, default=3.0,
                    help="joint angular velocity cap (rad/s)")
     p.add_argument("--steps", type=int, default=200)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
-    p.add_argument("--penalty-mode", choices=["cubic", "quadratic"],
-                   default="quadratic",
-                   help="velocity-penalty shape: quadratic (default) is firmer at "
-                        "the cap and converges in fewer Newton iterations")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    p.add_argument("--penalty-mode", choices=["barrier", "quadratic", "cubic"],
+                   default="barrier",
+                   help="how the limit pushes back: barrier (a hard cap, the "
+                        "default), or the softer quadratic and cubic caps")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 
-    mode = {"cubic": trusty.affine.VelocityPenaltyMode.Cubic,
-            "quadratic": trusty.affine.VelocityPenaltyMode.Quadratic}[
-                args.penalty_mode]
+    mode = {"barrier": trusty.affine.VelocityPenaltyMode.Barrier,
+            "quadratic": trusty.affine.VelocityPenaltyMode.Quadratic,
+            "cubic": trusty.affine.VelocityPenaltyMode.Cubic}[args.penalty_mode]
 
     dt = 0.01
     world, free_bar, act_free, limited_bar, act_limited = build(

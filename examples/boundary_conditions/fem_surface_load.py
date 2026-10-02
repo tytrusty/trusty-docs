@@ -1,22 +1,18 @@
-"""Neumann surface load: a FEM bar stretched by an end-face traction (no contact).
+"""Surface load: a bar clamped at one end and pulled by a traction on the other.
 
-A hex (or tet) bar is pinned on its -x face and carries a prescribed traction
-(force per unit rest area, Pa) on its +x end face. The load is a *dead load* --
-a constant world-frame traction integrated over the loaded rest triangles and
-pulled back to the body's DOFs through the surface Jacobian (W^T f), exactly
-like gravity is a body load. It needs no contact: the boundary surface is
-published unconditionally, and the surface-load term reads it directly.
+A hex (or tet) bar is clamped on its x = 0 face and carries a traction (force
+per unit area, Pa) on its x = 1 end face. The traction is a *dead load*: it
+keeps its world direction and acts on the faces' rest area, like gravity acts
+on the body's mass.
 
-`attach_surface_load` prescribes the traction over the loaded faces, starting at
-zero. This demo ramps it from 0 to its target over the run via
-`set_tractions(world, body, ...)`, with no term rebuild -- the bar stretches
-further each step. Quasi-statics (no inertia, gravity off) so the deformation is
-purely the load's doing.
+`attach_surface_load` puts the load on the end faces, starting at zero, and
+the run ramps it up to its full value with `set_tractions`, stretching the bar
+a little further each step. Each step solves for static equilibrium (no
+inertia) with gravity off, so the stretch is the load's doing alone.
 
 Usage:
-    python examples/boundary_conditions/fem_surface_load.py             # polyscope
-    python examples/boundary_conditions/fem_surface_load.py --no-viewer # headless PNGs
-    python examples/boundary_conditions/fem_surface_load.py --check     # headless self-test
+    python examples/boundary_conditions/fem_surface_load.py              # polyscope
+    python examples/boundary_conditions/fem_surface_load.py --no-viewer  # print the stretch
     python examples/boundary_conditions/fem_surface_load.py --element tet
 """
 
@@ -35,92 +31,61 @@ from utils import init_polyscope  # noqa: E402
 
 BAR_SIZE = (1.0, 0.1, 0.1)
 BAR_RES = (20, 2, 2)
-TRACTION_MAX = 2.0e4  # Pa in +x, the fully-ramped end traction
+TRACTION_MAX = 1.0e5  # Pa in +x, the fully ramped end traction
+SOLIDS = {"hex": (trusty.make_beam_hex_mesh, trusty.fem.add_hex_solid),
+          "tet": (trusty.make_beam_tet_mesh, trusty.fem.add_tet_solid)}
 
 
-def _end_face_loads(world, body, x_max):
-    """Triangle indices into the body's boundary surface that lie on the +x end.
-
-    `read_surface_triangles` returns the boundary triangles in the same order as
-    the surface the simulator publishes, so these indices are exactly the
-    `load_faces` the surface-load term expects.
-    """
+def end_faces(world, body, x):
+    """Indices of the body's surface triangles that lie on the plane at `x`."""
     tris = np.asarray(trusty.fem.read_surface_triangles(world, body))
     verts = np.asarray(trusty.fem.read_positions(world, body))
-    faces = []
-    for f in range(tris.shape[0]):
-        if np.all(np.abs(verts[tris[f], 0] - x_max) < 1e-9):
-            faces.append(f)
-    return faces
+    on_plane = np.all(np.abs(verts[tris, 0] - x) < 1e-9, axis=1)
+    return np.flatnonzero(on_plane).tolist()
 
 
-def build_world(backend: str = "cpu", element: str = "hex"):
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.dynamics = False          # quasi-statics: the pinned end kills rigid modes
-    cfg.gravity = (0.0, 0.0, 0.0)  # isolate the surface load
+def build_world(backend: str = "auto", element: str = "hex"):
+    make_mesh, add_solid = SOLIDS[element]
+    world = trusty.World(backend=backend,
+                         time_stepping="static",   # solve for the equilibrium each step
+                         gravity=(0.0, 0.0, 0.0))  # the load is the only force
 
-    world = trusty.World(cfg)
+    mesh = make_mesh(size=BAR_SIZE, res=BAR_RES)
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
+    body = add_solid(world, mesh, material, density=1000.0)
 
-    if element == "hex":
-        mesh = trusty.make_beam_hex_mesh(size=BAR_SIZE, res=BAR_RES)
-        body = trusty.fem.add_hex_solid(world, mesh, material, density=1000.0)
-        verts = np.asarray(mesh.vertices)
-    else:
-        mesh = trusty.make_beam_tet_mesh(size=BAR_SIZE, res=BAR_RES)
-        body = trusty.fem.add_tet_solid(world, mesh, material, density=1000.0)
-        verts = np.asarray(mesh.vertices)
+    trusty.fem.pin_face(world, body, axis=0, coord=0.0)  # clamp the x = 0 end
 
-    x_min = float(verts[:, 0].min())
-    x_max = float(verts[:, 0].max())
-    trusty.fem.pin_face(world, body, axis=0, coord=x_min)
-
-    load_faces = _end_face_loads(world, body, x_max)
-    if not load_faces:
-        raise RuntimeError("no boundary triangles found on the +x end face")
-
-    # Start at zero traction; the run ramps it up with set_tractions.
+    load_faces = end_faces(world, body, x=BAR_SIZE[0])   # triangles on the x = 1 end
     trusty.boundary_conditions.attach_surface_load(
-        world, body, load_faces,
-        np.zeros((len(load_faces), 3)))
-
-    return world, body, x_min, x_max
+        world, body, load_faces, np.zeros((len(load_faces), 3)))  # Pa, one row per face
+    return world, body, mesh
 
 
-def _read_verts(world, body, element):
-    if element == "hex":
-        return np.asarray(trusty.fem.read_mesh(world, body).vertices)
-    return np.asarray(trusty.fem.read_tet_mesh(world, body).vertices)
-
-
-def _ramped_traction_x(step: int, steps: int) -> float:
+def traction_at(step: int, steps: int) -> float:
     return TRACTION_MAX * min(1.0, (step + 1) / max(1, steps))
 
 
-def _ramp(world, body, num_faces: int, step: int, steps: int):
-    trusty.boundary_conditions.set_tractions(
-        world, body,
-        np.tile(np.array([_ramped_traction_x(step, steps), 0.0, 0.0]), (num_faces, 1)))
+def ramp(world, body, step: int, steps: int):
+    """Set this step's traction on every loaded face, then advance."""
+    n = trusty.boundary_conditions.num_loaded_faces(world, body)
+    t = np.tile([traction_at(step, steps), 0.0, 0.0], (n, 1))
+    trusty.boundary_conditions.set_tractions(world, body, t)
+    world.step()
 
 
-def _register(ps, world, body, element):
-    if element == "hex":
-        mesh = trusty.fem.read_mesh(world, body)
-        ps_mesh = ps.register_volume_mesh(
-            "bar", np.asarray(mesh.vertices).copy(), hexes=np.asarray(mesh.hexes))
-    else:
-        mesh = trusty.fem.read_tet_mesh(world, body)
-        ps_mesh = ps.register_volume_mesh(
-            "bar", np.asarray(mesh.vertices).copy(), tets=np.asarray(mesh.tets))
+def _register(ps, world, body, mesh, element):
+    x = np.asarray(trusty.fem.read_positions(world, body)).copy()
+    cells = {"hexes": np.asarray(mesh.hexes)} if element == "hex" else \
+        {"tets": np.asarray(mesh.tets)}
+    ps_mesh = ps.register_volume_mesh("bar", x, **cells)
     ps_mesh.set_edge_width(1.0)
     return ps_mesh
 
 
-def run_polyscope(world, body, element, steps):
+def run_polyscope(world, body, mesh, element, steps):
     ps = init_polyscope(headless=False)
-    ps_mesh = _register(ps, world, body, element)
-    n_faces = trusty.boundary_conditions.num_loaded_faces(world, body)
+    ps_mesh = _register(ps, world, body, mesh, element)
     state = {"i": 0, "playing": False}   # play starts OFF
 
     def callback():
@@ -128,75 +93,55 @@ def run_polyscope(world, body, element, steps):
         _, state["playing"] = psim.Checkbox("play", state["playing"])
         psim.SameLine()
         if (psim.Button("step") or state["playing"]) and state["i"] < steps:
-            _ramp(world, body, n_faces, state["i"], steps)
-            world.step()
+            ramp(world, body, state["i"], steps)
             state["i"] += 1
-            ps_mesh.update_vertex_positions(_read_verts(world, body, element))
-        t = _ramped_traction_x(min(state["i"], steps) - 1, steps) if state["i"] else 0.0
+            ps_mesh.update_vertex_positions(trusty.fem.read_positions(world, body))
+        t = traction_at(state["i"] - 1, steps) if state["i"] else 0.0
         psim.Text(f"step {state['i']} / {steps}   traction_x = {t:.0f} Pa")
 
     ps.set_user_callback(callback)
     ps.show()
 
 
-def run_screenshots(world, body, element, steps, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_mesh = _register(ps, world, body, element)
-    n_faces = trusty.boundary_conditions.num_loaded_faces(world, body)
-    ps.reset_camera_to_home_view()
-    ps.screenshot(str(out_dir / "bar_0000.png"), transparent_bg=False)
+def run_headless(world, body, mesh, steps):
+    rest = np.asarray(mesh.vertices)
     for i in range(steps):
-        _ramp(world, body, n_faces, i, steps)
-        world.step()
-        ps_mesh.update_vertex_positions(_read_verts(world, body, element))
-        ps.screenshot(str(out_dir / f"bar_{i + 1:04d}.png"), transparent_bg=False)
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-
-
-def run_check(world, body, element, x_min, x_max, steps):
-    rest = _read_verts(world, body, element).copy()
-    n_faces = trusty.boundary_conditions.num_loaded_faces(world, body)
-    for i in range(steps):
-        _ramp(world, body, n_faces, i, steps)
-        world.step()
-        assert world.last_report().converged, f"step {i} did not converge"
-    deformed = _read_verts(world, body, element)
+        ramp(world, body, i, steps)
+        if not world.last_report().converged:
+            raise SystemExit(f"step {i}: the solve did not converge")
+    x = np.asarray(trusty.fem.read_positions(world, body))
+    tractions = trusty.boundary_conditions.tractions(world, body)
 
     def mean_dx(xref):
         on = np.abs(rest[:, 0] - xref) < 1e-9
-        return float((deformed[on, 0] - rest[on, 0]).mean())
+        return float((x[on, 0] - rest[on, 0]).mean())
 
-    dx_load = mean_dx(x_max)
-    dx_pin = mean_dx(x_min)
-    print(f"loaded (+x) end mean dx = {dx_load:.6e} m")
-    print(f"pinned (-x) end mean dx = {dx_pin:.6e} m")
-    assert dx_load > 1e-6, "loaded end did not stretch in +x"
-    assert abs(dx_pin) < 1e-9, "pinned end moved"
-    print("OK: bar stretched under the end traction, pinned end held.")
+    area = BAR_SIZE[1] * BAR_SIZE[2]
+    print(f"end traction {tractions[0, 0]:.0f} Pa on {len(tractions)} faces "
+          f"= {tractions[0, 0] * area:.0f} N in total")
+    print(f"loaded (x = 1) end moved {mean_dx(BAR_SIZE[0]):+.4f} m")
+    print(f"clamped (x = 0) end moved {mean_dx(0.0):+.4f} m")
+    if mean_dx(BAR_SIZE[0]) < 1e-3 or abs(mean_dx(0.0)) > 1e-9:
+        raise SystemExit("the bar did not stretch, or the clamp moved")
+    print("OK: the bar stretched under the end traction; the clamp held.")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
-    parser.add_argument("--element", choices=["hex", "tet"], default="hex")
-    parser.add_argument("--steps", type=int, default=120)
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    parser.add_argument("--element", choices=list(SOLIDS), default="hex")
+    parser.add_argument("--steps", type=int, default=20,
+                        help="load increments to reach the full traction")
     parser.add_argument("--no-viewer", action="store_true",
-                        help="headless: write PNG screenshots instead of showing polyscope")
-    parser.add_argument("--check", action="store_true",
-                        help="headless self-test: assert the bar stretches, no viewer")
-    parser.add_argument("--out", type=Path, default=Path("out"))
+                        help="headless: ramp the load, then print the stretch")
     args = parser.parse_args()
 
     trusty.check_capabilities("boundary_conditions")
-    world, body, x_min, x_max = build_world(args.backend, args.element)
-
-    if args.check:
-        run_check(world, body, args.element, x_min, x_max, args.steps)
-    elif args.no_viewer:
-        run_screenshots(world, body, args.element, args.steps, args.out)
+    world, body, mesh = build_world(args.backend, args.element)
+    if args.no_viewer:
+        run_headless(world, body, mesh, args.steps)
     else:
-        run_polyscope(world, body, args.element, args.steps)
+        run_polyscope(world, body, mesh, args.element, args.steps)
 
 
 if __name__ == "__main__":

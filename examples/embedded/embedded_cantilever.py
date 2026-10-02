@@ -5,11 +5,11 @@ or one loaded from disk via --mesh) is voxelized, one end weakly pinned
 via Nitsche to the rest positions, and the free end sags under gravity.
 
 Usage:
-    python examples/embedded_cantilever.py                       # built-in bar
-    python examples/embedded_cantilever.py --mesh bunny.obj      # custom mesh
-    python examples/embedded_cantilever.py --no-viewer           # write PNG frames
-    python examples/embedded_cantilever.py --steps 240
-    python examples/embedded_cantilever.py --order q2            # quadratic (Q2) elements
+    python examples/embedded/embedded_cantilever.py                    # built-in bar
+    python examples/embedded/embedded_cantilever.py --mesh bunny.obj   # custom mesh
+    python examples/embedded/embedded_cantilever.py --no-viewer        # write PNG frames
+    python examples/embedded/embedded_cantilever.py --steps 240
+    python examples/embedded/embedded_cantilever.py --order q2         # quadratic (Q2) elements
 """
 
 from __future__ import annotations
@@ -69,7 +69,7 @@ def pinned_face_indices(V: np.ndarray, F: np.ndarray) -> list[int]:
 
 
 def build_world(
-    backend: str = "cpu",
+    backend: str = "auto",
     *,
     mesh_path: Path | None = None,
     voxel_factor: float = VOXEL_FACTOR,
@@ -110,28 +110,26 @@ def build_world(
     print(f"[voxelize] mean_edge={avg_edge:.4f}  voxel_size="
           f"{voxel_size:.4f}  (factor={voxel_factor})")
 
-    pin_targets = V.copy()
     material = trusty.StableNeoHookean(youngs_modulus=youngs, poisson_ratio=0.4)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.newton.max_iters = 60
-    cfg.newton.tolerance = 1e-4
-    cfg.integrator = trusty.IntegratorType.BDF2
-
-    world    = trusty.World(cfg)
-    body     = trusty.embedded.add_embedded_solid(
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 60.0,
+                         newton=trusty.NewtonConfig(max_iters=60, tolerance=1e-4),
+                         time_stepping="bdf2")
+    # V (n, 3) and F (m, 3): the triangle surface. It is filled with hexes
+    # of edge voxel_size, which carry the simulation.
+    body = trusty.embedded.add_embedded_solid(
         world, V, F, voxel_size=voxel_size, material=material, density=1000.0,
         order=order)
 
+    # Clamp the end-cap triangles to their rest positions.
     trusty.embedded.attach_weak_pin(
-        world, body, pin_faces=pin_faces, initial_targets=pin_targets, gamma=gamma)
-
+        world, body, pin_faces=pin_faces, initial_targets=V.copy(), gamma=gamma)
 
     return world, body, V, F
 
 
 def _register_visuals(ps, world, body, show_hexes: bool = True):
+    # The deformed input surface: one row per vertex of V, and its triangles.
     V = np.asarray(trusty.embedded.read_embedded_surface(world, body))
     F = np.asarray(trusty.embedded.surface_triangles(world, body))
     ps_mesh = ps.register_surface_mesh("bar", V, F, smooth_shade=False)
@@ -140,6 +138,7 @@ def _register_visuals(ps, world, body, show_hexes: bool = True):
 
     ps_hex = None
     if show_hexes:
+        # The hex grid that carries the simulation, at its current positions.
         hex_mesh = trusty.fem.read_mesh(world, body)
         ps_hex = ps.register_volume_mesh(
             "voxel hexes",
@@ -221,7 +220,7 @@ def run_screenshots(world, body, steps: int, out_dir: Path,
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--order", choices=list(HEX_ORDERS), default="linear",
                         help="element order: q1 linear (default), q2 Lagrange, q2s serendipity")
     parser.add_argument("--steps", type=int, default=120)

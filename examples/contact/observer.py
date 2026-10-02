@@ -1,18 +1,20 @@
-"""Every `ContactObserver` hook, on a two-beam pile-up over a floor plane.
+"""Watch contact as it happens, with a contact observer.
 
-The upper beam falls crosswise onto the lower one, which settles onto the
-plane -- so the barrier sees mesh-vs-mesh stencils (VV/EV/EE/FV) and
-plane-vertex ones (PV) at the same time.
+One beam falls crosswise onto another, which rests on a floor plane. An
+observer receives a report from the contact solver at every Newton iteration
+and keeps what the viewer draws: the contact pairs in red and the vertices
+touching the floor in green.
 
-The three hooks, and what each is for:
+The observer's three hooks:
 
-- `on_prepare`   -- broadphase vs accepted counts and barrier energy. Cheap;
-                    fires for every installed observer.
-- `on_step_size` -- the CCD-clamped step the line search starts from.
-- `wants_stencils()` -- opts `report.stencils` in: the geometry behind those
-                    counts, for drawing exactly the pairs the barrier sees.
-                    It copies the whole candidate + active set, so it stays
-                    empty otherwise. The viewer's checkbox flips it live.
+- `on_prepare(report)`   -- counts of candidate and active contact pairs,
+                            and the contact energy.
+- `on_step_size(report)` -- the step the solver may take before anything
+                            would pass through anything else.
+- `wants_stencils()`     -- return True to also get `report.stencils`: the
+                            geometry of every pair, for drawing. It costs a
+                            copy, so it is empty otherwise; the viewer's
+                            checkbox turns it on and off.
 
 Usage:
     python examples/contact/observer.py                # polyscope
@@ -30,8 +32,9 @@ import trusty
 
 
 def _segments(groups):
-    """One curve-network segment per pair, drawn primitive-centre to
-    primitive-centre. `groups` is a list of (pairs, ends_a, ends_b)."""
+    """One curve-network segment per pair, drawn from the centre of one
+    primitive to the centre of the other. `groups` is a list of
+    (pairs, ends_a, ends_b)."""
     ends = [np.stack([a[p[:, 0]], b[p[:, 1]]], axis=1)
             for p, a, b in groups if p.size]
     if not ends:
@@ -44,16 +47,14 @@ class ContactViewObserver(trusty.contact.ContactObserver):
     """Keeps the latest report from each hook, in a form the viewer can draw."""
 
     def __init__(self, want_stencils: bool = True):
-        super().__init__()
+        super().__init__()               # required
         self.want_stencils = want_stencils
         self.n_prepare = 0
-        self.n_stencils = 0
         self.last_prepare = None
         self.last_step_size = None
-        self.surface = (None, None)      # (X, F) of the contact surface
-        self.candidates = (None, None)   # curve network
-        self.accepted = (None, None)     # curve network
-        self.plane_verts = None          # point cloud
+        self.accepted = (None, None)     # contact pairs, as a curve network
+        self.candidates = (None, None)   # pairs that are close, but not yet in contact
+        self.plane_verts = None          # vertices touching a plane
 
     def wants_stencils(self):
         return self.want_stencils
@@ -64,35 +65,31 @@ class ContactViewObserver(trusty.contact.ContactObserver):
     def on_prepare(self, report):
         self.n_prepare += 1
         self.last_prepare = report
-        st = report.stencils
-        if np.asarray(st.X).size == 0:
-            return
+        if np.asarray(report.stencils.X).size:
+            self.keep_stencils(report.stencils)
 
-        # `report` borrows the term's per-iter buffers, so everything kept
-        # here is built now -- it is gone once `prepare()` returns.
-        self.n_stencils += 1
-        X = np.asarray(st.X).copy()
+    def keep_stencils(self, st):
+        # The report is only valid during the call, so copy what we keep.
+        X = np.asarray(st.X).copy()           # contact-surface vertices
         E, F = np.asarray(st.E), np.asarray(st.F)
         edge_mid = X[E].mean(axis=1) if E.size else np.zeros((0, 3))
         face_mid = X[F].mean(axis=1) if F.size else np.zeros((0, 3))
-
-        self.surface = (X, F.copy())
+        self.accepted = _segments([
+            (np.asarray(st.active_vv), X,        X),         # vertex-vertex
+            (np.asarray(st.active_ev), edge_mid, X),         # edge-vertex
+            (np.asarray(st.active_ee), edge_mid, edge_mid),  # edge-edge
+            (np.asarray(st.active_fv), face_mid, X)])        # face-vertex
+        pv = np.asarray(st.active_pv)                        # vertex indices
+        self.plane_verts = X[pv] if pv.size else None
         self.candidates = _segments([
             (np.asarray(st.cand_ee), edge_mid, edge_mid),
             (np.asarray(st.cand_fv), face_mid, X)])
-        self.accepted = _segments([
-            (np.asarray(st.active_vv), X,        X),
-            (np.asarray(st.active_ev), edge_mid, X),
-            (np.asarray(st.active_ee), edge_mid, edge_mid),
-            (np.asarray(st.active_fv), face_mid, X)])
-        pv = np.asarray(st.active_pv)
-        self.plane_verts = X[pv] if pv.size else None
 
 
 def _beam(size, res, offset, crosswise: bool):
     """Hex beam centred on the origin, turned a quarter turn about z if asked,
-    then translated to `offset`. A rotation, not an axis swap -- reflecting
-    the vertices would invert every element (detJ <= 0)."""
+    then moved to `offset`. A rotation, not an axis swap: swapping axes would
+    turn every element inside out."""
     mesh = trusty.make_beam_hex_mesh(size=size, res=res)
     V = np.asarray(mesh.vertices, dtype=np.float64).copy()
     V -= V.mean(axis=0)
@@ -106,45 +103,37 @@ def build_sim(backend: str, want_stencils: bool):
     trusty.check_capabilities("contact")
 
     size, res = (0.6, 0.2, 0.15), (6, 2, 2)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 120.0
-    cfg.newton.max_iters = 50
-    cfg.contact.enabled = True
-    cfg.contact.dhat = 4e-3
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0,
+                         newton=trusty.NewtonConfig(max_iters=50))
 
     obs = ContactViewObserver(want_stencils)
-    cfg.contact.observer = obs
+    trusty.contact.enable(world, trusty.contact.Config(dhat=4e-3), observer=obs)
 
-    world = trusty.World(cfg)
     material = trusty.StableNeoHookean(youngs_modulus=5e5, poisson_ratio=0.3)
     lower = trusty.fem.add_hex_solid(
         world, _beam(size, res, (0.0, 0.0, 0.20), False), material, 1000.0)
     upper = trusty.fem.add_hex_solid(
         world, _beam(size, res, (0.0, 0.0, 0.50), True), material, 1000.0)
     trusty.add_floor_plane(world, 0.0)
-
-
-    # The observer is returned so the caller's frame keeps the Python
-    # subclass alive -- the C++ side holds only a `shared_ptr` to the base.
     return world, obs, (lower, upper)
 
 
 def _counts_line(obs) -> str:
     r = obs.last_prepare
     if r is None:
-        return "no prepare yet"
-    return (f"broadphase pt={r.n_pt_broadphase} ee={r.n_ee_broadphase} "
+        return "no report yet"
+    return (f"candidates pt={r.n_pt_broadphase} ee={r.n_ee_broadphase} "
             f"pv={r.n_pv_broadphase} | active vv={r.n_vv_active} "
             f"ev={r.n_ev_active} ee={r.n_ee_active} fv={r.n_fv_active} "
-            f"pv={r.n_pv_active} | E_barrier={r.barrier_energy:.3e}")
+            f"pv={r.n_pv_active} | energy={r.barrier_energy:.3e}")
 
 
 def _step_line(obs) -> str:
     s = obs.last_step_size
     if s is None:
-        return "no CCD query yet"
-    return f"CCD alpha_pv={s.alpha_pv:.3e} alpha_min={s.alpha_min:.3e}"
+        return "no step-size report yet"
+    return f"largest safe step: planes {s.alpha_pv:.3e}, overall {s.alpha_min:.3e}"
 
 
 def run_headless(world, obs, steps: int):
@@ -155,9 +144,8 @@ def run_headless(world, obs, steps: int):
             print(f"  step {i + 1:4d}  {_counts_line(obs)}")
             print(f"              {_step_line(obs)}")
     n_pairs = 0 if obs.accepted[0] is None else len(obs.accepted[0]) // 2
-    print(f"Done. on_prepare fired {obs.n_prepare} times, {obs.n_stencils} "
-          f"of them carrying stencils; {n_pairs} accepted pairs at the last "
-          f"iterate.")
+    print(f"Done. on_prepare ran {obs.n_prepare} times; {n_pairs} contact "
+          f"pairs at the last iteration.")
 
 
 def run_polyscope(world, obs, bodies, steps: int):
@@ -193,10 +181,10 @@ def run_polyscope(world, obs, bodies, steps: int):
 
         V, E = obs.accepted
         if V is not None:
-            ps.register_curve_network("accepted", V, E, radius=0.0025,
+            ps.register_curve_network("contact pairs", V, E, radius=0.0025,
                                       color=(0.95, 0.2, 0.2), enabled=True)
-        elif ps.has_curve_network("accepted"):
-            ps.get_curve_network("accepted").set_enabled(False)
+        elif ps.has_curve_network("contact pairs"):
+            ps.get_curve_network("contact pairs").set_enabled(False)
 
         V, E = obs.candidates
         if state["candidates"] and V is not None:
@@ -206,11 +194,11 @@ def run_polyscope(world, obs, bodies, steps: int):
             ps.get_curve_network("candidates").set_enabled(False)
 
         if obs.plane_verts is not None:
-            ps.register_point_cloud("plane_contacts", obs.plane_verts,
+            ps.register_point_cloud("on the floor", obs.plane_verts,
                                     radius=0.006, color=(0.2, 0.9, 0.3),
                                     enabled=True)
-        elif ps.has_point_cloud("plane_contacts"):
-            ps.get_point_cloud("plane_contacts").set_enabled(False)
+        elif ps.has_point_cloud("on the floor"):
+            ps.get_point_cloud("on the floor").set_enabled(False)
 
     def advance():
         if state["i"] < steps:
@@ -226,24 +214,24 @@ def run_polyscope(world, obs, bodies, steps: int):
         elif state["playing"]:
             advance()
 
-        # `wants_stencils()` is read at every prepare, so this takes effect
-        # on the next step -- the point of the gate is it costs nothing off.
+        # wants_stencils() is asked every iteration, so this takes effect on
+        # the next step; it costs nothing while off.
         changed, obs.want_stencils = psim.Checkbox("fill report.stencils",
                                                    obs.want_stencils)
         if changed and not obs.want_stencils:
             obs.candidates = obs.accepted = (None, None)
             obs.plane_verts = None
             refresh()
-        _, state["candidates"] = psim.Checkbox("show broadphase candidates",
+        _, state["candidates"] = psim.Checkbox("show candidate pairs",
                                                state["candidates"])
 
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
         psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}")
+                  f"{'ok' if r.converged else 'NOT converged'}")
         psim.Text(_counts_line(obs))
         psim.Text(_step_line(obs))
-        psim.Text(f"on_prepare x{obs.n_prepare}  with stencils x{obs.n_stencils}")
+        psim.Text(f"on_prepare x{obs.n_prepare}")
 
     refresh()
     ps.set_user_callback(callback)
@@ -253,10 +241,10 @@ def run_polyscope(world, obs, bodies, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=240)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"],
-                   default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
+                   default="auto")
     p.add_argument("--no-stencils", action="store_true",
-                   help="start with report.stencils gated off")
+                   help="start with report.stencils turned off")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

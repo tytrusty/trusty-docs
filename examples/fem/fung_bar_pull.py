@@ -38,14 +38,11 @@ def build_world(backend: str, mu1_pair):
     right = np.where(V[:, 0] > BAR_SIZE[0] - 1e-9)[0]
     right_rest = V[right].copy()
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.gravity = (0.0, 0.0, 0.0)      # isolate the tensile response
-    cfg.dynamics = False               # quasi-static: solve equilibrium each step
-    cfg.newton.max_iters = 80
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 60.0,
+                         gravity=(0.0, 0.0, 0.0),  # isolate the tensile response
+                         time_stepping="static",
+                         newton=trusty.NewtonConfig(max_iters=80))
     bars = []
     for mu1 in mu1_pair:
         gamma = GAMMA   # shared: mu0 dominates small strain; mu1 sets the nonlinearity
@@ -141,7 +138,7 @@ def run_screenshots(backend: str, n_steps: int, out_dir: Path, mu1_pair):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     ap.add_argument("--nonlinearity", type=float, default=18.0,
                     help="exponential hardening rate mu1 of the second bar; higher "
                          "stiffens faster at large stretch (both bars keep the same "

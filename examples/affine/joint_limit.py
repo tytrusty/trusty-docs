@@ -1,15 +1,12 @@
-"""Joint-limit test: two identical grounded hinges driven by the SAME swept
-position target, one with a joint-limit barrier and one without.
+"""Joint limits: two identical hinges driven by the same swept target angle,
+one with a joint limit and one without.
 
-The actuator on each bar is commanded a target angle that sweeps well past
-+/- limit. The unlimited bar follows the command; the limited bar clamps at its
-stop -- a C2 clamped log-barrier (IPC) that the implicit solve treats as a hard
-wall. Because the stop keeps the angle inside (-pi, pi), the hinge never reaches
-the atan2 branch cut, so it holds cleanly instead of wrapping.
+The target sweeps well past the limits. The free bar follows it; the limited
+bar stops at its limit and waits there until the target comes back.
 
-Headless mode is a self-checking test: it asserts the limited bar stays within
-[lo, hi] (plus the barrier margin) while the free bar swings past the stop, and
-prints PASS/FAIL. Polyscope mode shows the two bars side by side.
+Headless mode checks this: the limited bar stays within [lo, hi] (plus the
+limit's margin) while the free bar swings past, and prints PASS or FAIL.
+Polyscope mode shows the two bars side by side.
 
 Usage:
     python examples/affine/joint_limit.py                # polyscope
@@ -65,13 +62,10 @@ def add_hinged_bar(world, center, lo, hi, with_limit):
 def build(lo, hi, backend):
     trusty.check_capabilities("affine")
     z0 = 2.0
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.gravity  = (0.0, 0.0, 0.0)   # actuator-only, so the contrast is clean
-    cfg.newton.max_iters = 60
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         gravity=(0.0, 0.0, 0.0),  # actuator-only, so the contrast is clean
+                         newton=trusty.NewtonConfig(max_iters=60))
     free_bar, act_free = add_hinged_bar(
         world, (0.0, -0.5, z0), lo, hi, with_limit=False)
     limited_bar, act_limited = add_hinged_bar(
@@ -79,7 +73,6 @@ def build(lo, hi, backend):
 
     print(f"Two hinges, same command. One free, one limited to "
           f"[{lo:+.2f}, {hi:+.2f}] rad.")
-
     return world, free_bar, act_free, limited_bar, act_limited
 
 
@@ -180,7 +173,7 @@ def main():
     p.add_argument("--hi", type=float, default=0.5)
     p.add_argument("--amp", type=float, default=1.1, help="command amplitude (rad)")
     p.add_argument("--steps", type=int, default=700)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

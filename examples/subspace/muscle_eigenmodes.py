@@ -70,7 +70,7 @@ def weight_fields(basis):
 
 
 def build_world(modes: int, muscle_stiffness: float, fiber_angle: float,
-                activated: bool = False):
+                activated: bool = False, backend: str = "cpu"):
     beam = trusty.make_beam_hex_mesh(size=(0.8, 0.2, 0.2), res=(8, 2, 2))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     rest = np.asarray(beam.vertices).copy()
@@ -99,11 +99,9 @@ def build_world(modes: int, muscle_stiffness: float, fiber_angle: float,
     pack.save(tmp / "bicep.basis", basis_obj)
     basis = trusty.subspace.load(str(tmp / "bicep.basis"))
 
-    cfg = trusty.SimulatorConfig()
-    cfg.timestep = 1.0 / 120.0
-    cfg.gravity = (0.0, 0.0, 0.0)   # isolate the muscle
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0,
+                         gravity=(0.0, 0.0, 0.0))  # isolate the muscle
     base_c, fore_c = (0.0, 0.1, -0.3), (0.8, 0.1, -0.3)
     Vb, Fb = make_box(base_c, (0.2, 0.2, 0.2))
     Vf, Ff = make_box(fore_c, (0.3, 0.2, 0.2))
@@ -239,6 +237,12 @@ def main() -> int:
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
+    # 'auto' (Accelerate on a Mac) raises.
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
+                   default="cpu",
+                   help="solver backend (default: cpu); 'accelerate' uses "
+                        "Apple's sparse solver")
     p.add_argument("--modes", type=int, default=6)
     p.add_argument("--muscle-stiffness", type=float, default=2e5)
     p.add_argument("--fiber-angle", type=float, default=np.pi / 4,
@@ -251,9 +255,12 @@ def main() -> int:
     p.add_argument("--steps", type=int, default=120)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
+    if args.backend == "cuda" and "cuda" not in trusty.capabilities():
+        raise SystemExit("CUDA backend not available in this build")
 
     world, muscle, mus, basis, rest, hexes, fiber, base, forearm = build_world(
-        args.modes, args.muscle_stiffness, args.fiber_angle, args.activated)
+        args.modes, args.muscle_stiffness, args.fiber_angle, args.activated,
+        args.backend)
 
     if args.no_viewer:
         return run_headless(world, muscle, mus, basis, rest, forearm,

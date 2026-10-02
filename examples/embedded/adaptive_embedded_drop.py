@@ -91,7 +91,7 @@ def _report_grading(sizing, z_bottom: float, z_top: float, coarse: float,
 
 
 def build_world(
-    backend: str = "cpu",
+    backend: str = "auto",
     *,
     mesh_path: Path | None = None,
     voxel_factor: float = VOXEL_FACTOR,
@@ -124,17 +124,13 @@ def build_world(
     sizing   = make_sizing_field(z_bottom, z_top, coarse, max_level, grade)
 
     material = trusty.StableNeoHookean(youngs_modulus=youngs, poisson_ratio=0.4)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.newton.max_iters = 60
-    cfg.integrator = trusty.IntegratorType.BDF2
-
     # The barrier sees the smooth input surface (lifted through the body's
     # Prolongation), not the staircased hex faces.
-    cfg.contact.enabled = True
-
-    world    = trusty.World(cfg)
+    world    = trusty.World(backend=backend,
+                            timestep=1.0 / 60.0,
+                            newton=trusty.NewtonConfig(max_iters=60),
+                            time_stepping="bdf2")
+    trusty.contact.enable(world)
     body     = trusty.embedded.add_embedded_solid(
         world, V, F, voxel_size=coarse, material=material, density=1000.0,
         sizing_field=sizing, max_level=max_level)
@@ -146,13 +142,13 @@ def build_world(
 
     trusty.add_floor_plane(world, 0.0)
 
-    return world, body, cfg.contact
+    return world, body
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--steps", type=int, default=120)
     parser.add_argument("--no-viewer", action="store_true")
     parser.add_argument("--show-hexes", action="store_true")
@@ -174,7 +170,7 @@ def main():
                         default=Path("out_adaptive_embedded_drop"))
     args = parser.parse_args()
 
-    world, body, _ = build_world(
+    world, body = build_world(
         backend=args.backend,
         mesh_path=args.mesh,
         voxel_factor=args.voxel_factor,

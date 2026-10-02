@@ -1,25 +1,19 @@
-"""A 3-link affine arm exercising every joint type and a position-target
-actuator on each (Lan et al. 2022 affine bodies; actuators are stiff quadratic
-servos in a true joint coordinate, integrated implicitly -- "stable PD").
+"""A 3-link arm with one joint of each moving type, each driven by an
+actuator.
 
-The chain, grounded at the base, is:
+The chain is:
 
-    base  --prismatic(z)-->  world        (slides up/down)
-    base  --revolute(y)-->   link1        (hinges)
-    link1 --spherical-->     link2        (ball joint, free orientation)
+    world --prismatic (z)--> base    (slides up and down)
+    base  --revolute (y)-->  link1   (hinges)
+    link1 --spherical-->     link2   (ball joint, turns freely)
 
-Each joint carries an actuator. Every step we write a time-varying position
-target -- exactly the interface an RL controller drives (action -> target, held
-across the physics step) -- and the implicit Newton solve tracks it against
-gravity:
+Each joint carries an actuator. Every step the script sets a new target for
+each one (a slide in metres, an angle in radians, and an orientation as a
+rotation vector), and the joints follow it against gravity.
 
-    prismatic  slide   s*(t)
-    revolute   angle   theta*(t)
-    spherical  orient. R*(t)   (axis-angle command)
-
-The slider and hinge also carry joint-limit barriers (a C2 clamped log-barrier),
-so when the swept command exceeds the limit the joint clamps at the stop rather
-than following the command -- watch "act" plateau while "cmd" keeps moving.
+The slider and the hinge also have joint limits. The commands sweep further
+than the limits allow, so those two joints stop at their limits while the
+command keeps going: watch "act" level off while "cmd" keeps moving.
 
 Usage:
     python examples/affine/actuated_arm.py                # polyscope
@@ -60,12 +54,7 @@ def build_arm(backend: str):
     z0 = 2.0
     k_joint = 1e8
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 60
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.01, newton=trusty.NewtonConfig(max_iters=60))
 
     # Base block on a grounded vertical slider; two bars hanging off it.
     Vb, Fb = make_box((0.0, 0.0, z0), (0.30, 0.30, 0.30))
@@ -75,7 +64,7 @@ def build_arm(backend: str):
     link1 = trusty.affine.add_affine_body(world, V1, F1, density=400.0, stiffness=k_joint)
     link2 = trusty.affine.add_affine_body(world, V2, F2, density=400.0, stiffness=k_joint)
 
-    # Prismatic: base slides along world z through its centre.
+    # Prismatic: the base slides along world z through its centre.
     rail = trusty.affine.add_prismatic_joint(
         world, base, (0.0, 0.0, z0), (0.0, 0.0, 1.0), stiffness=k_joint)
     # Revolute: link1 hinges about y at the base's right face (x = 0.30).
@@ -91,11 +80,10 @@ def build_arm(backend: str):
     act_revolute  = trusty.affine.add_actuator(world, hinge, stiffness=2e5)
     act_spherical = trusty.affine.add_actuator(world, ball,  stiffness=8e4)
 
-    # Joint-limit barriers: the commands below sweep wider than these stops, so
-    # the slider and hinge clamp at the limit instead of following the command.
+    # Joint limits: the commands below sweep wider than these, so the slider
+    # and hinge stop at the limit instead of following the command.
     trusty.affine.add_joint_limit(world, rail,  -0.25, 0.25, margin=0.05, stiffness=2e4)
     trusty.affine.add_joint_limit(world, hinge, -0.45, 0.45, margin=0.08, stiffness=1e4)
-
 
     print(f"Built a 3-link arm: grounded prismatic base + revolute + spherical, "
           f"with {trusty.affine.num_actuators(world)} actuators.")
@@ -103,7 +91,7 @@ def build_arm(backend: str):
 
 
 def commands(t: float):
-    """Time-varying position targets -- the RL action stream."""
+    """Time-varying position targets, one per actuator."""
     slide  = 0.35 * math.sin(0.8 * t)                  # prismatic, metres
     angle  = 0.7 * math.sin(0.6 * t)                   # revolute, radians
     twist  = (0.6 * math.sin(0.5 * t),                 # spherical, axis-angle
@@ -114,9 +102,9 @@ def commands(t: float):
 def drive(world, acts, t: float):
     a_pri, a_rev, a_sph = acts
     slide, angle, twist = commands(t)
-    trusty.affine.set_actuator_target(world, a_pri, slide)
-    trusty.affine.set_actuator_target(world, a_rev, angle)
-    trusty.affine.set_actuator_rotation(world, a_sph, twist)
+    trusty.affine.set_actuator_target(world, a_pri, slide)    # metres
+    trusty.affine.set_actuator_target(world, a_rev, angle)    # radians
+    trusty.affine.set_actuator_rotation(world, a_sph, twist)  # rotation vector
     return slide, angle
 
 
@@ -191,7 +179,7 @@ def run_polyscope(world, acts, arm_bodies, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=800)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

@@ -8,6 +8,7 @@ sits off the hinge axis, the forearm flexes about the joint. The muscle replaces
 an affine actuator, and the affine bones and the reduced muscle are solved
 together in one implicit step.
 
+Usage:
     python examples/subspace/muscle_arm.py
     python examples/subspace/muscle_arm.py --no-viewer   # self-checking
 
@@ -16,13 +17,14 @@ Install polyscope with `pip install trusty-sim[viewer]`.
 from __future__ import annotations
 
 import argparse
-import math
 import sys
+import tempfile
+from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis
+from trusty.subspace.precompute import build_basis, pack
 
 
 def make_box(center, half):
@@ -40,7 +42,7 @@ def make_box(center, half):
     return V, F
 
 
-def build_world(modes: int, muscle_stiffness: float):
+def build_world(modes: int, muscle_stiffness: float, backend: str = "cpu"):
     # Muscle beam spans x in [0, 0.8] at z in [0, 0.2]; the bones sit below it.
     beam     = trusty.make_beam_hex_mesh(size=(0.8, 0.2, 0.2), res=(8, 2, 2))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
@@ -76,28 +78,22 @@ def build_world(modes: int, muscle_stiffness: float):
         trusty.boundary_conditions.attach(world, body, fore_end, bone_fore)
         return body, muscle_id, bone_base, bone_fore
 
-    # Offline precompute world: the same bodies, muscle, and bonds the runtime
-    # world declares, so the basis is decomposed from the operator that is
-    # actually simulated -- the bonds stiffen the beam's ends, and the weight
-    # eigenproblem sees that.
+    # Offline precompute world: the same bodies, muscle and attachments the
+    # runtime world declares. The muscle shapes the basis; the attachments do
+    # not (the basis leaves the attached ends free to follow their bones).
     pc = trusty.World()
     add_arm_bodies(pc)
     basis_obj = build_basis.build_skinning_eigenmodes(
         world=pc, num_nodes=rest.shape[0], rest_positions=rest,
         num_handles=modes,
         mesh_hash=build_basis.mesh_hash_sha256(rest, hexes))
-    import tempfile
-    from pathlib import Path
-    from trusty.subspace.precompute import pack
     tmp = Path(tempfile.mkdtemp())
     pack.save(tmp / "bicep.basis", basis_obj)
     basis = trusty.subspace.load(str(tmp / "bicep.basis"))
 
-    cfg = trusty.SimulatorConfig()
-    cfg.timestep = 1.0 / 120.0
-    cfg.gravity  = (0.0, 0.0, 0.0)   # isolate the muscle
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 120.0,
+                         gravity=(0.0, 0.0, 0.0))  # isolate the muscle
     muscle, mus, base, forearm = add_arm_bodies(world, basis=basis)
 
     # Ground the base rigidly (three non-collinear grounded spherical welds).
@@ -178,6 +174,12 @@ def main() -> int:
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
+    # 'auto' (Accelerate on a Mac) raises.
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
+                   default="cpu",
+                   help="solver backend (default: cpu); 'accelerate' uses "
+                        "Apple's sparse solver")
     p.add_argument("--modes", type=int, default=6)
     p.add_argument("--muscle-stiffness", type=float, default=2e5)
     p.add_argument("--amp", type=float, default=3.0, help="peak actuation")
@@ -185,9 +187,11 @@ def main() -> int:
     p.add_argument("--steps", type=int, default=120)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
+    if args.backend == "cuda" and "cuda" not in trusty.capabilities():
+        raise SystemExit("CUDA backend not available in this build")
 
     world, muscle, mus, bone_base, bone_fore = build_world(
-        args.modes, args.muscle_stiffness)
+        args.modes, args.muscle_stiffness, args.backend)
 
     if args.no_viewer:
         return run_headless(world, muscle, mus, bone_fore,

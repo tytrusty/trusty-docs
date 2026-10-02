@@ -32,20 +32,15 @@ HEX_ORDERS = {
 }
 
 
-def build_world(backend: str = "cpu", order=ORDER.Linear):
+def build_world(backend: str = "auto", order=ORDER.Linear):
     mesh = trusty.make_beam_hex_mesh(size=(1.0, 0.1, 0.1), res=(20, 2, 2))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 1.0 / 60.0
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=1.0 / 60.0)
     beam = trusty.fem.add_hex_solid(world, mesh, material, density=1000.0, order=order)
-    trusty.fem.pin_face(world, beam, axis=0, coord=0.0)
+    trusty.fem.pin_face(world, beam, axis=0, coord=0.0)  # clamp the x = 0 end
 
-
-    return world, beam, cfg
+    return world, beam
 
 
 def _register_visuals(ps, world, beam, order):
@@ -117,7 +112,7 @@ def run_screenshots(world, beam, steps: int, out_dir: Path, order):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--order", choices=list(HEX_ORDERS), default="linear",
                         help="element order: q1 linear (default), q2 Lagrange, q2s serendipity")
     parser.add_argument("--steps", type=int, default=120,
@@ -129,7 +124,7 @@ def main():
     args = parser.parse_args()
 
     order = HEX_ORDERS[args.order]
-    world, beam, _ = build_world(backend=args.backend, order=order)
+    world, beam = build_world(backend=args.backend, order=order)
 
     if args.no_viewer:
         run_screenshots(world, beam, args.steps, args.out, order)

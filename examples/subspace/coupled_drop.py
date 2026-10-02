@@ -1,19 +1,9 @@
-"""Coupled subspace + FEM drop: two beams in one simulator.
+"""Coupled subspace + FEM drop: a reduced beam lands on a full one.
 
-One hex beam is driven by a reduced-coordinate (subspace) basis;
-the second is driven by full-FEM. Both fall under gravity onto a
-floor; subspace<->FEM IPC contact is set up automatically when
-`sim_cfg.contact.enabled` is set, and both bodies are solved
-together in one implicit step (CPU or CUDA).
-
-Pipeline:
-  1. Build two translated hex beams in one world.
-  2. Precompute a basis on a single beam-rest configuration and
-     save it as a `.basis` file.
-  3. Build a coupled simulator: body 0 -> subspace (loads the
-     basis), body 1 -> FEM. Contact (FEM-floor, subspace-floor,
-     and cross-block subspace<->FEM) is governed entirely by
-     `sim_cfg.contact`.
+Two identical hex beams fall onto a floor. The upper one is a reduced
+(subspace) body, the lower one a full solid. They are solved together in
+one implicit step, and once `trusty.contact.enable` is called, contact
+between the two beams and with the floor needs no further setup.
 
 Usage:
     python examples/subspace/coupled_drop.py
@@ -36,16 +26,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils import init_polyscope   # noqa: E402
 
 
-BEAM_SIZE        = (0.4, 0.1, 0.1)
-BEAM_RES         = (8, 2, 2)
-DROP_HEIGHT      = 0.15
-FLOOR_Z          = 0.0
-BEAM_SEPARATION  = 0.0  # subspace stacked above fem in z, separated by 2*dhat
+BEAM_SIZE   = (0.4, 0.1, 0.1)
+BEAM_RES    = (8, 2, 2)
+DROP_HEIGHT = 0.15
+FLOOR_Z     = 0.0
 
 
 def build_basis(tmp_dir: Path, num_handles: int) -> Path:
-    """Precompute one skinning-eigenmodes basis on a one-body world of
-    the source rest mesh."""
+    """Precompute one skinning-eigenmode basis for the beam and save it."""
     from trusty.subspace.precompute import build_basis as bb, pack
     mesh     = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
@@ -53,13 +41,11 @@ def build_basis(tmp_dir: Path, num_handles: int) -> Path:
     trusty.fem.add_hex_solid(world, mesh, material, density=1000.0)
 
     rv    = np.asarray(mesh.vertices, dtype=np.float64)
-    hexes = np.asarray(mesh.hexes)
     basis = bb.build_skinning_eigenmodes(
         world=world,
         num_nodes=rv.shape[0],
         rest_positions=rv,
-        num_handles=num_handles,
-        mesh_hash=bb.mesh_hash_sha256(rv, hexes))
+        num_handles=num_handles)
     path = tmp_dir / "beam.basis"
     pack.save(path, basis)
     return path
@@ -67,7 +53,7 @@ def build_basis(tmp_dir: Path, num_handles: int) -> Path:
 
 def add_beam(world, z_offset: float, basis=None):
     """Add one hex beam translated to (0, 0, z_offset). Returns (body, mesh).
-    Pass `basis` to attach a subspace body; omit it for a fem body."""
+    Pass `basis` to add a subspace body; omit it for a full solid."""
     src   = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
     verts = np.asarray(src.vertices, dtype=np.float64).copy()
     verts[:, 2] += z_offset
@@ -81,115 +67,48 @@ def add_beam(world, z_offset: float, basis=None):
     return body, mesh
 
 
-def main():
-    trusty.check_capabilities("subspace", "contact", "fem")
-    p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "cuda", "accelerate"],
-                   default="cpu", help="solver backend (default: cpu)")
-    p.add_argument("--steps", type=int, default=180)
-    p.add_argument("--modes", type=int, default=6,
-                   help="skinning-handle count for the subspace basis "
-                        "(default: 6)")
-    p.add_argument("--no-viewer", action="store_true")
-    p.add_argument("--out", type=Path, default=Path("out_coupled"))
-    args = p.parse_args()
+def build_world(tmp_dir: Path, modes: int, backend: str = "auto"):
+    """Reduced beam above a full beam, above a floor.
+    Returns (world, body_sub, body_fem, hexes)."""
+    basis = trusty.subspace.load(str(build_basis(tmp_dir, modes)))
 
-    if args.backend == "cuda" and "cuda" not in trusty.capabilities():
-        raise SystemExit("CUDA backend not available in this build")
-
-    with tempfile.TemporaryDirectory() as td:
-        td = Path(td)
-        basis_path = build_basis(td, args.modes)
-        basis = trusty.subspace.load(str(basis_path))
-
-        sim_cfg = trusty.SimulatorConfig()
-        sim_cfg.timestep = 1.0 / 60.0
-        sim_cfg.backend  = args.backend
-        sim_cfg.contact.enabled = True
-
-        world = trusty.World(sim_cfg)
-        # body 0 -> subspace, sits above body 1 so they collide as they
-        # both drop under gravity (if --coupled-contact is on).
-        body_sub, mesh_sub = add_beam(
-            world, z_offset=DROP_HEIGHT * 2 + BEAM_SEPARATION, basis=basis)
-        # body 1 -> fem, the floor catches it.
-        body_fem, mesh_fem = add_beam(world, z_offset=DROP_HEIGHT)
-
-        # One contact knob covers every body in the simulator: the
-        # subspace bodies' floor, the FEM bodies' floor, and the
-        # cross-block subspace<->FEM IPC all live on `sim_cfg.contact`
-        # and are wired automatically by the contact module's
-        # surface-driven dispatch.
-        trusty.add_floor_plane(world, FLOOR_Z)
-
-        n_sub = trusty.subspace.num_bodies(world)
-        print(f"Coupled simulator: {n_sub} subspace body, 1 fem body")
-
-        if args.no_viewer:
-            run_screenshots(world, body_sub, body_fem,
-                            mesh_sub, mesh_fem,
-                            args.steps, args.out)
-        else:
-            run_polyscope(world, body_sub, body_fem,
-                          mesh_sub, mesh_fem, args.steps)
+    world = trusty.World(timestep=1.0 / 60.0, backend=backend)
+    trusty.contact.enable(world)     # floor, and reduced <-> full contact
+    body_sub, mesh = add_beam(world, z_offset=2 * DROP_HEIGHT, basis=basis)
+    body_fem, _    = add_beam(world, z_offset=DROP_HEIGHT)
+    trusty.add_floor_plane(world, FLOOR_Z)
+    return world, body_sub, body_fem, np.asarray(mesh.hexes)
 
 
-def _floor_quad(extent: float = 1.0):
-    return (
-        np.array([
-            [-extent, -extent, FLOOR_Z], [ extent, -extent, FLOOR_Z],
-            [ extent,  extent, FLOOR_Z], [-extent,  extent, FLOOR_Z]],
-            dtype=np.float64),
-        np.array([[0, 1, 2], [0, 2, 3]], dtype=np.int32))
+def positions(world, body_sub, body_fem):
+    return (trusty.subspace.deformed_positions(world, body_sub),
+            trusty.fem.read_positions(world, body_fem))
 
 
-def _register_visuals(ps, world, body_fem, mesh_sub, mesh_fem):
-    fv, ff = _floor_quad()
-    ps.register_surface_mesh("floor", fv, ff, color=(0.6, 0.6, 0.6))
-
-    rest_sub = np.asarray(mesh_sub.vertices)
-    ps_sub = ps.register_volume_mesh(
-        "subspace_beam", rest_sub, hexes=np.asarray(mesh_sub.hexes))
-    ps_sub.set_edge_width(1.0)
-
-    fem_verts = np.asarray(trusty.fem.read_mesh(world, body_fem).vertices).copy()
-    ps_fem = ps.register_volume_mesh(
-        "fem_beam", fem_verts, hexes=np.asarray(mesh_fem.hexes))
-    ps_fem.set_edge_width(1.0)
-    return ps_sub, ps_fem
-
-
-def _update_visuals(world, body_sub, body_fem, ps_sub, ps_fem):
-    ps_sub.update_vertex_positions(
-        np.asarray(trusty.subspace.deformed_positions(world, body=body_sub)))
-    ps_fem.update_vertex_positions(
-        np.asarray(trusty.fem.read_mesh(world, body_fem).vertices))
-
-
-def run_screenshots(world, body_sub, body_fem, mesh_sub, mesh_fem,
-                    steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_sub, ps_fem = _register_visuals(ps, world, body_fem, mesh_sub, mesh_fem)
-    ps.reset_camera_to_home_view()
-
-    def snap(idx):
-        ps.screenshot(str(out_dir / f"coupled_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snap(0)
-    for i in range(1, steps + 1):
+def run_headless(world, body_sub, body_fem, steps: int):
+    for i in range(steps):
         world.step()
-        _update_visuals(world, body_sub, body_fem, ps_sub, ps_fem)
-        snap(i)
+        if not world.last_report().converged:
+            print(f"step {i}: did not converge")
+    x_sub, x_fem = positions(world, body_sub, body_fem)
+    print(f"after {steps} steps: reduced beam bottom {x_sub[:, 2].min():.4f} m, "
+          f"full beam bottom "
+          f"{x_fem[:, 2].min():.4f} m (floor at {FLOOR_Z})")
 
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
 
-
-def run_polyscope(world, body_sub, body_fem, mesh_sub, mesh_fem,
-                  steps: int):
+def run_polyscope(world, body_sub, body_fem, hexes, steps: int):
     ps = init_polyscope(headless=False)
-    ps_sub, ps_fem = _register_visuals(ps, world, body_fem, mesh_sub, mesh_fem)
+    ex = 1.0
+    ps.register_surface_mesh(
+        "floor",
+        np.array([[-ex, -ex, FLOOR_Z], [ex, -ex, FLOOR_Z],
+                  [ex, ex, FLOOR_Z], [-ex, ex, FLOOR_Z]]),
+        np.array([[0, 1, 2], [0, 2, 3]]), color=(0.6, 0.6, 0.6))
+    x_sub, x_fem = positions(world, body_sub, body_fem)
+    ps_sub = ps.register_volume_mesh("subspace_beam", x_sub, hexes=hexes)
+    ps_fem = ps.register_volume_mesh("fem_beam", x_fem, hexes=hexes)
+    for m in (ps_sub, ps_fem):
+        m.set_edge_width(1.0)
     state = {"i": 0, "simulate": False}
 
     def callback():
@@ -200,16 +119,38 @@ def run_polyscope(world, body_sub, body_fem, mesh_sub, mesh_fem,
         if (step_now or state["simulate"]) and state["i"] < steps:
             world.step()
             state["i"] += 1
-            _update_visuals(world, body_sub, body_fem, ps_sub, ps_fem)
+            x_sub, x_fem = positions(world, body_sub, body_fem)
+            ps_sub.update_vertex_positions(x_sub)
+            ps_fem.update_vertex_positions(x_fem)
         psim.Text(f"step {state['i']} / {steps}")
-        rep = world.last_report()
-        psim.Text(
-            f"last solve: iters={rep.iterations}  "
-            f"residual={rep.final_residual:.3e}  "
-            f"{'converged' if rep.converged else 'DIVERGED'}")
 
     ps.set_user_callback(callback)
     ps.show()
+
+
+def main():
+    trusty.check_capabilities("subspace", "contact", "fem")
+    p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
+                   default="auto", help="solver backend (default: auto)")
+    p.add_argument("--steps", type=int, default=180)
+    p.add_argument("--modes", type=int, default=6,
+                   help="skinning-handle count for the subspace basis "
+                        "(default: 6)")
+    p.add_argument("--no-viewer", action="store_true",
+                   help="run headless and print where the beams end up")
+    args = p.parse_args()
+
+    if args.backend == "cuda" and "cuda" not in trusty.capabilities():
+        raise SystemExit("CUDA backend not available in this build")
+
+    with tempfile.TemporaryDirectory() as td:
+        world, body_sub, body_fem, hexes = build_world(
+            Path(td), args.modes, args.backend)
+        if args.no_viewer:
+            run_headless(world, body_sub, body_fem, args.steps)
+        else:
+            run_polyscope(world, body_sub, body_fem, hexes, args.steps)
 
 
 if __name__ == "__main__":

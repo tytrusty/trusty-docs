@@ -1,13 +1,10 @@
-"""Soft FEM flag stitched to a pinned embedded post (DOF elimination).
+"""Soft FEM flag stitched to a clamped embedded post.
 
-An embedded (voxelized) cube acts as a stiff post: its back face is pinned to
+An embedded (voxelized) cube acts as a stiff post: its back face is clamped to
 the world. A soft FEM beam ("flag") reaches out in +x; its root cap sits
-inside the post's voxel cage and is *stitched* onto it. Those root vertices
-carry no DOFs — the stitch eliminates them and lifts their elastic energy onto
-the post's hex-cage DOFs via the embedded trilinear prolongation. Under
-gravity the flag cantilevers off the anchored post and sags.
-
-This exercises the embedded-anchor stitch path (FEM follower, embedded anchor).
+inside the post's hex grid and is *stitched* onto it, so the root vertices
+move exactly with the post, as if they were points of it. Under gravity the
+flag cantilevers off the anchored post and sags.
 
 Usage:
     python examples/boundary_conditions/fem_embedded_flag.py                # polyscope
@@ -37,22 +34,21 @@ FLAG_SIZE   = (1.0, 0.15, 0.15)
 FLAG_RES    = (12, 2, 2)
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("boundary_conditions", "embedded")
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.newton.max_iters = 50
-
-    world    = trusty.World(cfg)
+    world    = trusty.World(backend=backend,
+                            timestep=1.0 / 60.0,
+                            newton=trusty.NewtonConfig(max_iters=50))
     material = trusty.StableNeoHookean(youngs_modulus=1e5, poisson_ratio=0.3)
 
-    # -- Anchor: stiff embedded post, back (x = min) face pinned. ---------
+    # -- Anchor: stiff embedded post, back (x = min) face clamped. ---------
     stiff  = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     pV, pF = make_bar_trimesh(POST_SIZE, res=(4, 4, 4), origin=POST_ORIGIN)
     post   = trusty.embedded.add_embedded_solid(
         world, pV, pF, VOXEL_SIZE, stiff, density=1000.0)
+    # Clamp the hex-grid nodes within `tol` of the post's back face: the grid
+    # need not line up with the surface, so allow up to about half a hex.
     trusty.fem.pin_face(world, post, axis=0, coord=POST_ORIGIN[0], tol=0.06)
 
     # -- Follower: soft FEM flag reaching out in +x, root at x = 0. ----------
@@ -68,9 +64,7 @@ def build_world(backend: str = "cpu"):
     root = np.where(np.abs(V[:, 0]) < 1e-9)[0].tolist()
     trusty.boundary_conditions.stitch(world, flag, root, post)
 
-
-    print(f"Embedded post + soft FEM flag, {len(root)} root verts "
-          f"stitched (eliminated).")
+    print(f"Embedded post + soft FEM flag, {len(root)} root verts stitched.")
     return world, post, flag
 
 
@@ -125,7 +119,7 @@ def run_polyscope(world, post, flag, steps: int):
 def run_headless(world, post, flag, steps: int):
     print(f"Running {steps} steps headless...")
     V0   = np.asarray(trusty.fem.read_tet_mesh(world, flag).vertices).copy()
-    root = np.where(np.abs(V0[:, 0]) < 1e-9)[0]          # bonded (eliminated) verts
+    root = np.where(np.abs(V0[:, 0]) < 1e-9)[0]          # bonded (stitched) verts
     tip  = np.where(np.abs(V0[:, 0] - FLAG_SIZE[0]) < 1e-9)[0]
     for i in range(steps):
         world.step()
@@ -147,12 +141,12 @@ def run_headless(world, post, flag, steps: int):
     if tip_sag < 0.05:
         raise SystemExit("flag did not sag — check the setup")
     if root_move > 0.05:
-        raise SystemExit("bonded root drifted — stitch elimination looks wrong")
+        raise SystemExit("bonded root drifted — the stitch did not hold")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--steps", type=int, default=300)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()

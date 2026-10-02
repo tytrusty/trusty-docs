@@ -1,17 +1,12 @@
-"""Square shell sheet dropped onto a static sphere via IPC contact.
+"""A square sheet dropped onto a fixed sphere, with contact.
 
-A horizontal sheet falls under gravity and lands on a kinematic sphere
-(a `ContactWall`). IPC barriers between the sheet's triangles and the
-sphere's triangles keep them apart.
-
-Backend: CPU, CUDA, or Accelerate (``--backend cuda``). A shells body's
-mixed K=3 (positions) + K=1 (edge alphas) layout routes to the mixed
-scalar assembler + sparse Cholesky on every backend (Eigen / cuDSS /
-Apple Accelerate), and the IPC contact term runs on the chosen backend too.
+A flat sheet falls under gravity and lands on a sphere, a fixed contact wall,
+then drapes over it. ``--no-viewer`` prints where the sheet rests and how
+far its corners hang.
 
 Usage:
     python examples/shells/shell_drop.py
-    python examples/shells/shell_drop.py --backend cuda
+    python examples/shells/shell_drop.py --backend accelerate
     python examples/shells/shell_drop.py --no-viewer --steps 240
 """
 
@@ -96,21 +91,15 @@ def make_uv_sphere(center, radius: float, n_lat: int = 12, n_lon: int = 24):
     return V, np.asarray(tris, dtype=np.int32)
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("shells", "contact")
 
     V_sh, F_sh = make_square_sheet(SIDE, RES, DROP_Z)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 120.0
-    cfg.newton.max_iters = 50
-    cfg.integrator = trusty.IntegratorType.BDF2
-    # cfg.newton.linear_solver = trusty.LinearSolverType.Pcg
-
-    cfg.contact.enabled = True
-    cfg.contact.kappa   = 1.0e4
-
-    world  = trusty.World(cfg)
+    world  = trusty.World(backend=backend,
+                          timestep=1.0 / 120.0,
+                          newton=trusty.NewtonConfig(max_iters=50),
+                          time_stepping="bdf2")
+    trusty.contact.enable(world, trusty.contact.Config(kappa=1.0e4))
     sh_cfg = trusty.shells.ShellConfig()
     sh_cfg.youngs_modulus = 1.0e5
     sh_cfg.poisson_ratio  = 0.3
@@ -120,8 +109,6 @@ def build_world(backend: str = "cpu"):
 
     V_sp, F_sp = make_uv_sphere(SPHERE_CENTER, SPHERE_RADIUS)
     trusty.contact.add_wall(world, "sphere", V_sp, F_sp)
-
-
     return world, body, (V_sp, F_sp)
 
 
@@ -167,41 +154,26 @@ def run_polyscope(world, body, sphere, steps: int):
     ps.show()
 
 
-def run_screenshots(world, body, sphere, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    ps_mesh = _register_visuals(ps, world, body, sphere)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"shell_{idx:04d}.png"), transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
-        world.step()
-        ps_mesh.update_vertex_positions(
-            np.asarray(trusty.shells.read_positions(world, body)))
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "cuda", "accelerate"], default="cpu")
+                        choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     parser.add_argument("--steps", type=int, default=180)
-    parser.add_argument("--no-viewer", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("out_shell_drop"))
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print where the sheet ends up")
     args = parser.parse_args()
 
     world, body, sphere = build_world(backend=args.backend)
     if args.no_viewer:
-        run_screenshots(world, body, sphere, args.steps, args.out)
+        unconverged = 0
+        for _ in range(args.steps):
+            world.step()
+            unconverged += not world.last_report().converged
+        x = trusty.shells.read_positions(world, body)
+        top = SPHERE_CENTER[2] + SPHERE_RADIUS
+        print(f"after {args.steps} steps: the sheet rests at z = {x[:, 2].max():.4f} m "
+              f"on the sphere's top at {top:.4f} m; its corners hang down to "
+              f"z = {x[:, 2].min():.3f} m. {unconverged} step(s) not converged")
     else:
         run_polyscope(world, body, sphere, args.steps)
 

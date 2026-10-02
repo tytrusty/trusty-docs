@@ -1,14 +1,11 @@
-"""Soft FEM beam stitched to a swinging affine bar (DOF elimination).
+"""Soft FEM beam stitched to a swinging affine bar.
 
 A near-rigid affine bar spans x in [0, 1] and is hinged to the world at its
 left end by a grounded revolute joint. A soft FEM beam extends the arm from
 x = 1 to x = 2; its root cap (the x = 1 face) is *stitched* onto the affine
-bar. Those root vertices carry no DOFs — the stitch eliminates them and lifts
-their elastic energy onto the bar's 12 affine DOFs via the affine
-prolongation x = A*x_bar + p. Released horizontal, the bar swings down like a
-pendulum and the bonded soft beam whips and sags behind it.
-
-This exercises the affine-anchor stitch path (FEM follower, affine anchor).
+bar. The stitched vertices stop being unknowns of their own: they move exactly
+with the bar, as if they were points of it. Released horizontal, the bar swings
+down like a pendulum and the bonded soft beam whips and sags behind it.
 
 Usage:
     python examples/boundary_conditions/fem_affine_pendulum.py                # polyscope
@@ -54,15 +51,10 @@ def make_box(center, half):
     return V, F
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("boundary_conditions", "affine")
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 50
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.01, newton=trusty.NewtonConfig(max_iters=50))
 
     # -- Anchor: near-rigid affine bar, hinged to the world at x = 0. -----
     bar_V, bar_F = make_box((BAR_LEN / 2, 0.0, Z0), (BAR_LEN / 2, BAR_HALF, BAR_HALF))
@@ -90,9 +82,7 @@ def build_world(backend: str = "cpu"):
     root = np.where(np.abs(V[:, 0] - BAR_LEN) < 1e-9)[0].tolist()
     trusty.boundary_conditions.stitch(world, beam, root, bar)
 
-
-    print(f"Affine bar (12 DOF) + soft FEM beam, {len(root)} root verts "
-          f"stitched (eliminated).")
+    print(f"Affine bar + soft FEM beam, {len(root)} root verts stitched.")
     return world, bar, beam
 
 
@@ -178,12 +168,12 @@ def run_headless(world, bar, beam, steps: int):
     if z_tip > Z0 - 0.1:
         raise SystemExit("beam did not swing/sag — check the setup")
     if strain > 0.02:
-        raise SystemExit("bonded root cap deformed — stitch elimination looks wrong")
+        raise SystemExit("bonded root cap deformed — the stitch did not hold")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--steps", type=int, default=300)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()

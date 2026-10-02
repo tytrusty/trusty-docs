@@ -1,16 +1,17 @@
-"""Wrecking ball: a 4-link articulated affine chain with a heavy dense cube
-on the end, released horizontal and swinging down to smash a grid of blocks
-(Lan et al. 2022, Fig. 1/3). Everything is near-rigid affine-body dynamics
-with IPC contact + friction; the chain joints are stiff-penalty hinges.
+"""Wrecking ball: a 4-link chain of hinged affine bars with a heavy cube on
+the end, released horizontal, swings down into a wall of blocks.
 
-NOTE: the wall is `--grid`^3 blocks, so it grows fast. The default 8 is 512
-blocks (+5 chain bodies); 16 is 4096, a large enough contact problem for the
-CPU solver to take seconds-to-minutes per step. Use `--grid 6` (216 blocks)
-for a comfortable interactive run.
+The chain, the ball and every block are near-rigid affine bodies, colliding
+through contact with friction.
+
+The wall is `--grid`^3 blocks, so it grows fast: the default 4 is 64 blocks
+and takes under a minute headless; 8 (512 blocks) takes well over half an
+hour.
 
 Usage:
     python examples/affine/wrecking_ball.py                 # polyscope
-    python examples/affine/wrecking_ball.py --grid 16 --no-viewer
+    python examples/affine/wrecking_ball.py --no-viewer     # headless
+    python examples/affine/wrecking_ball.py --grid 6
 """
 
 from __future__ import annotations
@@ -58,14 +59,16 @@ def build_world(grid: int, mu: float, backend: str):
     wall_cx    = grid * SPACING / 2.0 + 0.8
     base_z     = 0.55 * BLOCK
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 50
-    cfg.contact.enabled = True
-    cfg.contact.mu      = mu
+    if backend == "cuda" and mu > 0:
+        print("note: the cuda backend has no friction; running with mu = 0.")
+        mu = 0.0
 
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=50))
+    trusty.contact.enable(world)
+    # Friction is per body: each block, link and the ball below is added with
+    # friction_mu=mu, and so is the floor.
 
     # -- The block wall: grid^3 light "wooden" blocks on the floor. --------
     n_blocks = 0
@@ -78,9 +81,9 @@ def build_world(grid: int, mu: float, backend: str):
                 cz = base_z + k * SPACING
                 V, F = make_box((cx, cy, cz), (BLOCK / 2,) * 3)
                 blocks.append(trusty.affine.add_affine_body(
-                    world, V, F, density=500.0, stiffness=1e8))
+                    world, V, F, density=500.0, stiffness=1e8, friction_mu=mu))
                 n_blocks += 1
-    trusty.add_floor_plane(world, 0.0)
+    trusty.add_floor_plane(world, 0.0, friction_mu=mu)
 
     # -- The chain: links extend in -x from a grounded pivot at (0,0,z). ---
     links = []
@@ -88,12 +91,13 @@ def build_world(grid: int, mu: float, backend: str):
         cx = -(i + 0.5) * LINK_LEN
         V, F = make_box((cx, 0.0, z_pivot), (LINK_LEN / 2, LINK_R, LINK_R))
         links.append(trusty.affine.add_affine_body(
-            world, V, F, density=1000.0, stiffness=1e9))
+            world, V, F, density=1000.0, stiffness=1e9, friction_mu=mu))
 
     # -- The dense wrecking ball welded to the chain's far end. ------------
     ball_cx = -chain_len - BALL / 2
     Vb, Fb = make_box((ball_cx, 0.0, z_pivot), (BALL / 2,) * 3)
-    ball = trusty.affine.add_affine_body(world, Vb, Fb, density=8000.0, stiffness=1e9)
+    ball = trusty.affine.add_affine_body(
+        world, Vb, Fb, density=8000.0, stiffness=1e9, friction_mu=mu)
 
     # Revolute joints: world pivot at link 0's near end, then shared ends
     # down the chain, then the ball to the last link.
@@ -111,7 +115,6 @@ def build_world(grid: int, mu: float, backend: str):
         world, links[-1], (x, -LINK_R, z_pivot), (x, LINK_R, z_pivot),
         body_j=ball, stiffness=k)
 
-
     print(f"Built wrecking ball: {N_LINKS}-link chain + dense ball vs "
           f"{n_blocks} blocks ({grid}x{grid}x{grid}).")
     return world, ball, blocks, links
@@ -119,14 +122,17 @@ def build_world(grid: int, mu: float, backend: str):
 
 def run_headless(world, ball, steps: int):
     print(f"Running {steps} steps headless...")
+    unconverged = 0
     for i in range(steps):
         world.step()
-        if (i + 1) % 10 == 0:
+        r = world.last_report()
+        unconverged += not r.converged
+        if (i + 1) % 10 == 0 or not r.converged:
             c = np.asarray(trusty.affine.surface(world, ball)[0]).mean(0)
-            r = world.last_report()
             print(f"  step {i + 1:4d}  ball=({c[0]:+.2f},{c[1]:+.2f},{c[2]:+.2f}) "
-                  f"iters={r.iterations} res={r.final_residual:.2e}")
-    print("Done.")
+                  f"iters={r.iterations} res={r.final_residual:.2e} "
+                  f"{'ok' if r.converged else 'NOT CONVERGED'}")
+    print(f"Done. {unconverged} of {steps} steps did not converge.")
 
 
 def run_polyscope(world, ball, blocks, links, steps: int):
@@ -143,8 +149,7 @@ def run_polyscope(world, ball, blocks, links, steps: int):
 
     meshes = []
     rng = np.random.default_rng(0)
-    # Chain + ball in red; blocks in earthy tones. Grouped by the handle list
-    # each was built into, not by a position in `bodies()`.
+    # Chain + ball in red; blocks in earthy tones.
     for i, body in enumerate(blocks):
         V, F = trusty.affine.surface(world, body)
         m = ps.register_surface_mesh(f"block_{i}", np.asarray(V), np.asarray(F))
@@ -184,11 +189,11 @@ def run_polyscope(world, ball, blocks, links, steps: int):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--grid", type=int, default=8,
-                   help="blocks per axis (grid^3 total; default 8 -> 512)")
+    p.add_argument("--grid", type=int, default=4,
+                   help="blocks per axis (grid^3 total; default 4 -> 64)")
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--mu", type=float, default=0.3)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

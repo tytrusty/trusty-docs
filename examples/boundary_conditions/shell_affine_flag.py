@@ -1,16 +1,11 @@
-"""Shell flag stitched to a swinging affine pole (DOF elimination).
+"""Shell flag stitched to a swinging affine pole.
 
 A near-rigid affine bar (the pole) spans x in [0, 1] and is hinged to the world
 at its left end by a grounded revolute joint. A thin triangle-mesh *shell* flag
 extends from the pole's tip (x = 1) outward; its root edge (the x = 1 verts) is
-*stitched* onto the pole. Those root vertices are position DOFs the solver
-eliminates -- they follow the pole's 12 affine DOFs via x = A*x_bar + p, while
+*stitched* onto the pole. The root vertices move exactly with the pole, while
 the rest of the flag flutters and droops under gravity. Released horizontal, the
 pole swings down and the bonded flag whips behind it.
-
-This exercises a SHELL follower (previously only FEM bodies could be stitched):
-the shell's vertex positions are nodal DOFs, so they eliminate just like FEM
-nodes; the shell stays a normal shell body (membrane + bending as usual).
 
 Usage:
     python examples/boundary_conditions/shell_affine_flag.py                # polyscope
@@ -77,15 +72,10 @@ def make_sheet(x0, x1, y0, y1, z, resx, resy):
     return V, np.asarray(tris, dtype=np.int32)
 
 
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("boundary_conditions", "affine", "shells")
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 50
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend, timestep=0.01, newton=trusty.NewtonConfig(max_iters=50))
 
     # -- Anchor: near-rigid affine pole, hinged to the world at x = 0. ----
     bar_V, bar_F = make_box((BAR_LEN / 2, 0.0, Z0), (BAR_LEN / 2, BAR_HALF, BAR_HALF))
@@ -108,9 +98,7 @@ def build_world(backend: str = "cpu"):
     root = np.where(np.abs(V[:, 0] - BAR_LEN) < 1e-9)[0].tolist()
     trusty.boundary_conditions.stitch(world, flag, root, pole)
 
-
-    print(f"Affine pole (12 DOF) + shell flag, {len(root)} root-edge verts "
-          f"stitched (eliminated).")
+    print(f"Affine pole + shell flag, {len(root)} root-edge verts stitched.")
     return world, pole, flag
 
 
@@ -192,12 +180,12 @@ def run_headless(world, pole, flag, steps: int):
     if z_tip > Z0 - 0.1:
         raise SystemExit("flag did not swing/droop — check the setup")
     if strain > 0.02:
-        raise SystemExit("bonded root edge deformed — stitch elimination looks wrong")
+        raise SystemExit("bonded root edge deformed — the stitch did not hold")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--steps", type=int, default=300)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()

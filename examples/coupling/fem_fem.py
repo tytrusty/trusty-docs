@@ -1,7 +1,7 @@
 """fem x fem contact -- two soft hex beams colliding.
 
-Two deformable FEM beams fall onto a floor and onto each other, with IPC
-contact between them.
+Two deformable FEM beams fall onto a floor and onto each other, with contact
+between them.
 
 
 Usage:
@@ -37,14 +37,10 @@ def build_world(backend: str):
                                (-0.15, -0.15, floor_z + 0.15 + 0.06))
     mat     = trusty.StableNeoHookean(youngs_modulus=3e5, poisson_ratio=0.40)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.01
-    cfg.newton.max_iters = 60
-    cfg.contact.enabled  = True
-    cfg.contact.dhat     = 2e-3
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=60))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=2e-3))
     lo = trusty.fem.add_hex_solid(world, lo_mesh, mat, density=1000.0)
     hi = trusty.fem.add_hex_solid(world, hi_mesh, mat, density=1000.0)
 
@@ -80,7 +76,7 @@ def run_headless(world, bodies, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=80)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, bodies = build_world(args.backend)

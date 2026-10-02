@@ -1,25 +1,23 @@
-"""Load a URDF as an affine-body articulation -- one near-rigid affine body per
-link, a stiff-penalty revolute joint per URDF joint, a clamped-log-barrier
-joint limit from each `<limit lower upper>`, and a position-target actuator per
-joint driven by a gentle per-joint wave.
+"""Load a robot from a URDF file as a set of jointed affine bodies, and drop
+a pit of balls onto it.
 
-Design choices (single self-contained script, stdlib XML + numpy only):
+The URDF is read with the standard library's XML parser. Each link becomes
+one near-rigid affine body, each revolute joint a revolute joint with the
+URDF's `<limit lower upper>` as a joint limit, and each limited joint gets an
+actuator that waves it gently back and forth.
 
-  * Inertials are IGNORED. The affine module computes each body's consistent
-    12x12 mass from the geometry (exact Mirtich polyhedral moments) given a
-    uniform density, so the URDF <inertial> mass/inertia is redundant.
-  * Geometry only -- the <visual> primitives ARE the simulated body. <collision>
-    geoms are ignored (no separate collision representation). box / sphere /
-    cylinder / capsule are tessellated inline; a link's visuals are merged into
-    one closed surface soup (overlapping parts are fine -- the affine module
-    disables self-contact for its rigid bodies; total volume = sum of parts).
-  * The root link is pinned to the world (three grounded spherical welds) so the
-    arms articulate against a fixed base while gravity pulls everything down.
-  * Ball pit: the robot sits in an open-top box of static contact planes (floor
-    + 4 walls sized to its footprint), and a grid of free affine spheres is
-    dropped onto it -- IPC contact + a little friction lets them bounce off the
-    arms and pile up. --no-contact removes the box/balls; --grid nx,ny,nz sizes
-    the drop.
+  * Only the `<visual>` geometry is used, and it is what gets simulated:
+    boxes, spheres, cylinders and capsules are meshed here, and a link's
+    visuals are merged into one surface (they may overlap; a body never
+    collides with itself). `<collision>` geometry is ignored.
+  * `<inertial>` is ignored too: each body's mass and inertia come from its
+    surface and a uniform density.
+  * The root link is held in place by three spherical joints to the world,
+    so the arms move against a fixed base while gravity pulls on them.
+  * The robot sits in an open box (a floor and four walls) and a grid of free
+    affine balls is dropped onto it; they bounce off the arms and pile up.
+    `--no-contact` leaves out the box and the balls, and `--grid nx,ny,nz`
+    sizes the drop.
 
 Usage:
     python examples/affine/articulation.py                       # polyscope
@@ -31,32 +29,26 @@ from __future__ import annotations
 
 import argparse
 import math
-import os
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import numpy as np
 
 import trusty
 
+DEFAULT_URDF = Path(__file__).resolve().parent.parent / "data" / "affine_sample.urdf"
 
 # -- tunable constants, with their SI units ----------------------------------
 #
-# Each stiffness is the coefficient of a specific energy term, so its units come
-# from that term's residual:
-#
-#   ACTUATOR_KP   N*m/rad : position servo. E = 0.5 k_p (theta - theta*)^2 in the
-#                           joint ANGLE, so dE/dtheta = k_p (theta - theta*) is a
-#                           TORQUE -- k_p is the restoring torque per radian of
-#                           error. Real robot joints use ~50-500; a few x10^3
-#                           here is stiff (sub-degree droop under the ~20-30 N*m
-#                           arm+ball load); 1e6 (the binding default) ~ a weld.
-#   JOINT_LIMIT_K N*m     : weight of the clamped log-barrier on the joint angle
-#                           (a torque scale; for a prismatic slide it'd be N/m).
-#   BODY/BALL_STIFFNESS Pa: affine orthogonality rigidity kappa, in the energy
-#                           density kappa*vol*||A A^T - I||^2; large => near-rigid.
-#   JOINT_STIFFNESS N/m   : stiff-penalty weld/hinge -- a LINEAR spring (N/m) on
-#                           the separation of the two coincident joint points
-#                           (its residual J*q = A*c + p is a world position, m).
+#   ACTUATOR_KP   N*m/rad : actuator stiffness: the restoring torque per radian
+#                           of error. A few x10^3 holds the arms to within a
+#                           degree under their own weight and the balls'; the
+#                           default, 1e6, is close to a weld.
+#   JOINT_LIMIT_K N*m     : joint-limit stiffness (for a prismatic slide, N/m).
+#   BODY/BALL_STIFFNESS Pa: how strongly a body resists deforming; large values
+#                           are effectively rigid.
+#   JOINT_STIFFNESS N/m   : joint stiffness: a spring on the gap between the two
+#                           points a joint holds together.
 #   *_DENSITY     kg/m^3
 ACTUATOR_KP     = 5.0e3
 JOINT_LIMIT_K   = 5.0e3
@@ -267,26 +259,31 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
     base_T = (np.eye(3), np.array([0.0, 0.0, 1.3]))   # lift the robot up
     root_name, link_T = world_transforms(links, joints, base_T)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.gravity  = (0.0, 0.0, -9.81) if gravity else (0.0, 0.0, 0.0)
-    cfg.newton.max_iters = 100
-    cfg.integrator = trusty.IntegratorType.BDF2
-    cfg.contact.enabled = contact
-
+    contact_cfg = trusty.contact.Config()
+    friction_mu = 0.0
     if contact:
-        cfg.contact.dhat  = 5e-3
-        cfg.contact.mu    = 0.3       # a little friction so the balls pile
-        # All bodies here are rigid affine (self-pairs excluded), so the
-        # relative-frame broadphase is the fastest correct choice (default).
-        cfg.contact.broadphase = {
-            "affine":    trusty.contact.BroadphaseKind.AffineRelative,
-            "two-level": trusty.contact.BroadphaseKind.TwoLevel,
-            "flat":      trusty.contact.BroadphaseKind.FlatQbvh,
-        }[broadphase]
+        friction_mu = 0.3                        # a little friction so the balls pile
+        if backend == "cuda":
+            friction_mu = 0.0
+            print("cuda: friction is CPU-only; running frictionless.")
+        contact_cfg = trusty.contact.Config(
+            dhat=5e-3,
+            # All bodies here are rigid affine (self-pairs excluded), so the
+            # relative-frame broadphase is the fastest correct choice (default).
+            broadphase={
+                "affine":    trusty.contact.BroadphaseKind.AffineRelative,
+                "two-level": trusty.contact.BroadphaseKind.TwoLevel,
+                "flat":      trusty.contact.BroadphaseKind.FlatQbvh,
+            }[broadphase],
+        )
 
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         gravity=(0.0, 0.0, -9.81) if gravity else (0.0, 0.0, 0.0),
+                         newton=trusty.NewtonConfig(max_iters=100),
+                         time_stepping="bdf2")
+    if contact:
+        trusty.contact.enable(world, contact_cfg)
 
     body_id, render = {}, []
     lo_xyz = np.full(3, np.inf)
@@ -296,33 +293,41 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
         lo_xyz = np.minimum(lo_xyz, Vw.min(0))
         hi_xyz = np.maximum(hi_xyz, Vw.max(0))
         body_id[name] = trusty.affine.add_affine_body(
-            world, Vw, F, density=ROBOT_DENSITY, stiffness=BODY_STIFFNESS)
+            world, Vw, F, density=ROBOT_DENSITY, stiffness=BODY_STIFFNESS,
+            friction_mu=friction_mu)
         render.append((name, colors.get(name, [0.7, 0.7, 0.75]), body_id[name]))
 
-    # Pin the root rigidly: three grounded spherical welds at non-collinear
-    # points inside it (fully constrains the base).
+    # Weld the root link to the world (no body_j), so the base stays put.
     Rr, tr = link_T[root_name]
-    for off in ([0.08, 0.08, 0.0], [-0.08, 0.08, 0.0], [0.08, -0.08, 0.0]):
-        trusty.affine.add_spherical_joint(
-            world, body_id[root_name], tuple(tr + Rr @ np.array(off)),
-            stiffness=JOINT_STIFFNESS)
+    trusty.affine.add_fixed_joint(
+        world, body_id[root_name], tuple(tr), axis_u=tuple(0.1 * Rr[:, 0]),
+        axis_v=tuple(0.1 * Rr[:, 1]), stiffness=JOINT_STIFFNESS)
 
     actuators = []
     for k, j in enumerate(joints):
+        Rc, tc = link_T[j["child"]]               # joint pivot = child frame origin
+        if j["type"] == "fixed":
+            trusty.affine.add_fixed_joint(
+                world, body_id[j["parent"]], tuple(tc), axis_u=tuple(0.1 * Rc[:, 0]),
+                axis_v=tuple(0.1 * Rc[:, 1]), body_j=body_id[j["child"]],
+                stiffness=JOINT_STIFFNESS)
+            continue
         if j["type"] not in ("revolute", "continuous"):
             print(f"  skipping joint '{j['name']}' (type {j['type']})")
             continue
-        Rc, tc = link_T[j["child"]]               # joint pivot = child frame origin
         axis_w = Rc @ j["axis"]
         axis_w = axis_w / (np.linalg.norm(axis_w) + 1e-12)
         p0, p1 = tuple(tc), tuple(tc + 0.1 * axis_w)
+        # The joint angle is body_i's rotation relative to body_j, so pass the
+        # child first: then it is the URDF's angle, the child's rotation
+        # relative to its parent about the axis.
         jid = trusty.affine.add_revolute_joint(
-            world, body_id[j["parent"]], p0, p1,
-            body_j=body_id[j["child"]], stiffness=JOINT_STIFFNESS)
+            world, body_id[j["child"]], p0, p1,
+            body_j=body_id[j["parent"]], stiffness=JOINT_STIFFNESS)
 
         lo, hi = j["lower"], j["upper"]
         if lo is not None and hi is not None and hi > lo:
-            # Our angle coordinate is single-chart; keep limits inside (-pi, pi).
+            # Joint limits must lie inside (-pi, pi).
             lo = max(lo, -3.1)
             hi = min(hi, 3.1)
             margin = min(0.1, 0.4 * (hi - lo))
@@ -349,7 +354,8 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
                   ((0, box_hi[1], 0),      (0, -1, 0)),    # +y wall
                   ((0, box_lo[1], 0),      (0, 1, 0))]     # -y wall
         for o, n in planes:
-            trusty.contact.add_plane(world, np.array(o, float), np.array(n, float))
+            trusty.contact.add_plane(
+                world, np.array(o, float), np.array(n, float), friction_mu=friction_mu)
 
         r = 0.07
         nx, ny, nz = grid
@@ -365,21 +371,22 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
                     V, F = sphere_mesh(r, nlat=6, nlon=10)
                     ball = trusty.affine.add_affine_body(
                         world, V + c, F.astype(np.int32),
-                        density=BALL_DENSITY, stiffness=BALL_STIFFNESS)
+                        density=BALL_DENSITY, stiffness=BALL_STIFFNESS,
+                        friction_mu=friction_mu)
                     render.append((f"ball_{n_balls}",
                                    palette[(ix + iy + k) % len(palette)], ball))
                     n_balls += 1
 
-    print(f"Built articulation: {len(links)} links, {len(joints)} revolute "
-          f"joints, {len(actuators)} actuators, {n_balls} balls "
+    print(f"Built articulation: {len(links)} links, {len(joints)} joints, "
+          f"{len(actuators)} actuators, {n_balls} balls "
           f"(gravity {'on' if gravity else 'off'}, contact {'on' if contact else 'off'}).")
     return world, actuators, render
 
 
 def drive(world, actuators, t):
-    # Ease the amplitude in from 0 over the first ~1.5 s (smoothstep, zero slope
-    # at t=0) so the targets start at the rest angle (0) instead of stepping to
-    # amp*sin(phase) and jerking the arms.
+    # Ease the amplitude in from 0 over the first 0.5 s, so the targets start
+    # at the rest angle (0) instead of jumping to amp*sin(phase) and jerking
+    # the arms.
     s = min(1.0, t / 0.5)
     ramp = s * s * (3.0 - 2.0 * s)
     for act, amp, phase in actuators:
@@ -456,23 +463,22 @@ def run_polyscope(world, actuators, render, steps):
 
 
 def main():
-    here = os.path.dirname(os.path.abspath(__file__))
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--urdf", default=os.path.join(here, "sample.urdf"))
+    p.add_argument("--urdf", type=Path, default=DEFAULT_URDF)
     p.add_argument("--steps", type=int, default=800)
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--grid", default="4,6,3",
                    help="ball-pit grid 'nx,ny,nz' dropped onto the robot")
     p.add_argument("--no-gravity", action="store_true",
                    help="turn gravity off (mostly useful with --no-contact)")
     p.add_argument("--no-actuators", action="store_true")
     p.add_argument("--no-contact", action="store_true",
-                   help="disable IPC contact (no box, no balls)")
+                   help="turn contact off (no box, no balls)")
     p.add_argument("--no-viewer", action="store_true")
     p.add_argument("--broadphase", choices=["affine", "two-level", "flat"],
                    default="affine",
-                   help="contact broadphase: affine relative-frame (default), "
-                        "two-level world BLAS, or flat global QBVH")
+                   help="contact broadphase: affine (default, fastest when "
+                        "every body is an affine body), two-level, or flat")
     args = p.parse_args()
 
     grid = tuple(int(v) for v in args.grid.split(","))

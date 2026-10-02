@@ -1,11 +1,8 @@
-"""64 affine (near-rigid) cubes dropped onto a ground plane via IPC contact.
+"""64 affine (near-rigid) cubes dropped onto a floor plane.
 
-Affine Body Dynamics (Lan et al. 2022): each cube is a near-rigid affine
-body (12 DOFs) represented internally by a 4-node virtual tetrahedron. Its
-triangle surface is embedded in that tet, so contact reuses the full IPC
-barrier/friction/CCD pipeline through an `AffineCoupling` (fanout 4). This
-stresses body-vs-body contact: a 4x4x4 lattice of cubes settles into a pile,
-intersection-free, held up by the floor and each other with friction.
+A 4x4x4 lattice of cubes, released with small gaps between them, falls and
+settles into a stack held up by the floor and by each other through contact,
+without the cubes passing into one another.
 
 Usage:
     python examples/affine/stacked_cubes.py                 # polyscope
@@ -45,14 +42,14 @@ def build_world(grid: int, mu: float, stiffness: float, backend: str):
     spacing = 1.06 * size       # small gaps so cubes start separated
     base_z = 0.55 * size        # bottom layer just above the floor
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 0.01
-    cfg.newton.max_iters = 50
-    cfg.contact.enabled = True
-    cfg.contact.mu      = mu
+    if backend == "cuda" and mu > 0:
+        print("note: the cuda backend has no friction; running with mu = 0.")
+        mu = 0.0
 
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=50))
+    trusty.contact.enable(world)
     n = 0
     cubes = []
     for k in range(grid):           # layers (z)
@@ -63,11 +60,11 @@ def build_world(grid: int, mu: float, stiffness: float, backend: str):
                 cz = base_z + k * spacing
                 V, F = make_cube((cx, cy, cz), size)
                 cubes.append(trusty.affine.add_affine_body(
-                    world, V, F, density=1000.0, stiffness=stiffness))
+                    world, V, F, density=1000.0, stiffness=stiffness,
+                    friction_mu=mu))
                 n += 1
 
-    trusty.add_floor_plane(world, 0.0)
-
+    trusty.add_floor_plane(world, 0.0, friction_mu=mu)
 
     print(f"Built {n} affine cubes (grid {grid}x{grid}x{grid}), mu={mu}.")
 
@@ -149,8 +146,8 @@ def main():
     p.add_argument("--steps", type=int, default=400)
     p.add_argument("--mu", type=float, default=0.0, help="friction coefficient")
     p.add_argument("--stiffness", type=float, default=1e9,
-                   help="orthogonality (rigidity) stiffness in Pa")
-    p.add_argument("--backend", choices=["cpu", "accelerate", "cuda"], default="cpu")
+                   help="body stiffness in Pa (large is near-rigid)")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
 

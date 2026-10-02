@@ -79,22 +79,19 @@ def build_world(backend: str, names):
     """One pinned beam per named model, all in the same world."""
     mesh = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    # Settle rather than swing: a large step plus zeroed velocity makes each
-    # solve a descent towards the gravity equilibrium, which the beams then
-    # hold -- the sag below is bit-stable from step 20 onwards.
-    cfg.timestep = 0.25
-    cfg.zero_velocity_after_step = True
-    cfg.newton.max_iters = 80
-
     # Free-end nodes, indexed on the rest mesh: they move in x as the beam
     # sags, so the selection cannot be redone on deformed positions.
     V0 = np.asarray(mesh.vertices)
     tip = np.where(V0[:, 0] > V0[:, 0].max() - 1e-9)[0]
     tip_rest_z = float(V0[tip, 2].mean())
 
-    world = trusty.World(cfg)
+    # Settle rather than swing: a large step plus zeroed velocity makes each
+    # solve a descent towards the gravity equilibrium, which the beams then
+    # hold -- the sag below is bit-stable from step 20 onwards.
+    world = trusty.World(backend=backend,
+                         timestep=0.25,
+                         time_stepping="quasi_static",
+                         newton=trusty.NewtonConfig(max_iters=80))
     beams = []
     for name in names:
         material = MODELS[name]
@@ -188,7 +185,7 @@ def run_report(backend: str, steps: int, names):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     ap.add_argument("--steps", type=int, default=40,
                     help="settling steps; the beams reach equilibrium by ~20")
     ap.add_argument("--no-viewer", action="store_true",

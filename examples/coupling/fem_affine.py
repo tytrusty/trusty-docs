@@ -42,21 +42,16 @@ def build_world(backend: str):
     slab_h  = 0.15
     slab_z0 = floor_z + 0.005          # small gap so the barrier isn't singular
 
-    # Soft FEM slab resting on the floor. res (3,3,1) -> 4*4*2 = 32 nodes
-    # (% 4 == 0), so the affine block (placed after fem) lands 12-aligned.
+    # Soft FEM slab resting on the floor.
     m         = trusty.make_beam_hex_mesh(size=(0.8, 0.8, slab_h), res=(3, 3, 1))
     Vs        = np.asarray(m.vertices).copy()
     Vs        = Vs - Vs.min(axis=0) + np.array([-0.4, -0.4, slab_z0])
     slab_mesh = trusty.make_hex_mesh(Vs, np.asarray(m.hexes))
     material  = trusty.StableNeoHookean(youngs_modulus=2e5, poisson_ratio=0.40)
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.01
-    cfg.newton.max_iters = 60
-    cfg.contact.enabled  = True
-    cfg.contact.dhat     = 2e-3
-
-    world     = trusty.World(cfg)
+    world     = trusty.World(backend=backend,
+                             timestep=0.01,
+                             newton=trusty.NewtonConfig(max_iters=60))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=2e-3))
     slab = trusty.fem.add_hex_solid(world, slab_mesh, material, density=1000.0)
 
     # Near-rigid affine cube dropped from just above the slab top.
@@ -68,9 +63,6 @@ def build_world(backend: str):
                                         stiffness=1e9)
 
     trusty.add_floor_plane(world, floor_z)
-    globals()["_SLAB_TOP"] = slab_top
-
-
     return world, slab, cube
 
 
@@ -79,6 +71,7 @@ def cube_min_z(world, cube) -> float:
 
 
 def run_headless(world, slab, cube, steps: int):
+    slab_top = float(np.asarray(trusty.fem.read_mesh(world, slab).vertices)[:, 2].max())
     print(f"fem x affine contact: {steps} steps")
     diverged = 0
     for i in range(steps):
@@ -91,16 +84,14 @@ def run_headless(world, slab, cube, steps: int):
             print(f"  step {i + 1:4d}  cube_min_z={cz:+.4f}  "
                   f"iters={r.iterations}  res={r.final_residual:.2e}")
     cz        = cube_min_z(world, cube)
-    slab_top  = globals().get("_SLAB_TOP", 0.155)
     print(f"Done. cube_min_z={cz:+.4f} m (slab top ~{slab_top:.3f}), "
           f"{diverged} non-converged steps.")
-    # The cube must rest ON the slab (well above the floor at ~0), proving the
-    # 12x3 affine<->fem cross block actually carries the contact force. Allow
-    # some slab compression under the cube.
+    # The cube must rest ON the slab, well above the floor at ~0. Allow some
+    # slab compression under the cube.
     assert cz > slab_top - 0.07, \
         f"affine cube sank through the fem slab (min_z={cz}, slab_top={slab_top})"
     assert diverged == 0, f"{diverged} steps did not converge"
-    print("OK: affine cube rests on the fem slab (12x3 cross-block contact holds).")
+    print("OK: the affine cube rests on the fem slab.")
 
 
 def run_polyscope(world, slab, cube, steps: int):
@@ -138,7 +129,7 @@ def run_polyscope(world, slab, cube, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=120)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, slab, cube = build_world(args.backend)

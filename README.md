@@ -90,22 +90,23 @@ In the environment where trusty-sim is installed:
 
 ```bash
 uv pip install polyscope trimesh matplotlib scipy
-python examples/beam_hex_drop.py              # opens the polyscope viewer
-python examples/beam_hex_drop.py --no-viewer  # most examples also run headless
+python examples/contact/beam_drop.py              # opens the polyscope viewer
+python examples/contact/beam_drop.py --no-viewer  # most examples also run headless
 ```
 
 | Folder | Examples |
 |---|---|
-| `examples/` | FEM beams, dam break (MPM), benchmarks |
-| `examples/fem/` | material models, graded materials and stress visualization |
-| `examples/contact/` | inspecting contact through the contact observer |
+| `examples/` | the cantilever beam, element-locking demo and a benchmark |
+| `examples/fem/` | mesh types, material models, graded materials and stress visualization |
+| `examples/contact/` | dropping onto a floor, friction on a ramp, contact exclusion, resting gaps and the contact observer |
 | `examples/boundary_conditions/` | pins, stitches, attachments and surface loads |
 | `examples/affine/` | articulated bodies, joints, limits, actuators and URDF loading |
 | `examples/rods/` | elastic rods and rod muscles |
 | `examples/shells/` | shells and cloth |
 | `examples/embedded/` | voxelized (embedded) solids |
 | `examples/subspace/` | reduced-order bodies and muscles |
-| `examples/coupling/` | different body types interacting in one simulation |
+| `examples/mpm/` | MPM dam break (fluid or elastic) and its benchmark |
+| `examples/coupling/` | different body types interacting in one simulation, including the Trusty logo from the docs home page |
 
 Each script's docstring describes the scene and its command-line options.
 

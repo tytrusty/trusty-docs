@@ -48,10 +48,10 @@ CORE_HEIGHT   = 0.16
 SLEEVE_LENGTH = 0.07
 SLEEVE_WALL   = 0.016
 
-# Voxel edges are set in absolute terms, not from the input triangle size:
-# `add_embedded_solid` fills the interior (SDF <= 0), so a thin-walled tube
-# needs at least ~2 cells THROUGH the wall or it voxelizes into a solid blob
-# spanning the bore and the sleeve stops behaving like a sleeve.
+# Voxel edges are set in absolute terms, not from the input triangle size.
+# `add_embedded_solid` fills the inside of the surface with hexes, so a
+# thin-walled tube needs at least ~2 cells THROUGH the wall; coarser, and it
+# voxelizes into a solid blob spanning the bore.
 VOXEL_CORE   = CORE_RADIUS / 3.0
 VOXEL_SLEEVE = SLEEVE_WALL / 2.0
 
@@ -145,28 +145,21 @@ def build_world(args):
     z_sleeve = 0.5 * (CORE_HEIGHT - SLEEVE_LENGTH)
     V_slv, F_slv = tube_trimesh(r_bore, SLEEVE_WALL, SLEEVE_LENGTH, z0=z_sleeve)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = args.backend
-    cfg.timestep = 1.0 / 100.0
-    cfg.gravity = (0.0, 0.0, 0.0)
-    cfg.zero_velocity_after_step = True     # quasi-static relaxation
-    cfg.newton.max_iters = args.newton_iters
-    cfg.newton.tolerance = 1e-4
-    cfg.contact.enabled = True
-    cfg.contact.dhat = DHAT
-    cfg.contact.kappa = KAPPA
-    cfg.contact.mu = MU
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=args.backend,
+                         timestep=1.0 / 100.0,
+                         gravity=(0.0, 0.0, 0.0),
+                         time_stepping="quasi_static",
+                         newton=trusty.NewtonConfig(max_iters=args.newton_iters, tolerance=1e-4))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=DHAT, kappa=KAPPA))
     core_mat = trusty.StableNeoHookean(youngs_modulus=CORE_E, poisson_ratio=CORE_NU)
     slv_mat = trusty.StableNeoHookean(youngs_modulus=SLEEVE_E, poisson_ratio=SLEEVE_NU)
 
     core = trusty.embedded.add_embedded_solid(
         world, V_core, F_core, voxel_size=VOXEL_CORE,
-        material=core_mat, density=CORE_RHO)
+        material=core_mat, density=CORE_RHO, friction_mu=MU)
     sleeve = trusty.embedded.add_embedded_solid(
         world, V_slv, F_slv, voxel_size=VOXEL_SLEEVE,
-        material=slv_mat, density=SLEEVE_RHO)
+        material=slv_mat, density=SLEEVE_RHO, friction_mu=MU)
 
     # Hold the core's top cap so the assembly has something to react against.
     z_hi = V_core[:, 2].max() - PIN_TOP_FRAC * CORE_HEIGHT
@@ -192,11 +185,11 @@ def build_world(args):
 
 def surface_energy(world, body):
     """Strain energy density (unit material) on the body's input surface."""
+    # One value per hex node ...
     nodal = trusty.fem.read_strain_energy_density(world, body,
                                                   unit_material=True)
-    return np.asarray(
-        trusty.embedded.prolong_nodal_field(world, body, np.asarray(nodal))
-    ).ravel()
+    # ... interpolated to one value per vertex of the input surface.
+    return trusty.embedded.prolong_nodal_field(world, body, nodal)
 
 
 def fit_radii(world, core, sleeve):
@@ -241,10 +234,8 @@ def fit_radii(world, core, sleeve):
 
 def step_once(world, core, sleeve, state, args):
     """Advance one step, detaching the pin on the scheduled step."""
-    if args.release_at >= 0 and state["i"] == args.release_at \
-            and not state["released"]:
-        trusty.embedded.detach_weak_pin(world, core)
-        state["released"] = True
+    if state["i"] == args.release_at and not trusty.embedded.pin_detached(world, core):
+        trusty.embedded.detach_weak_pin(world, core)  # free from the next step
         print(f"[step {state['i']:4d}] weak pin detached -- free boundary")
 
     world.step()
@@ -290,7 +281,7 @@ def run_polyscope(world, core, sleeve, args):
         m_slv.add_scalar_quantity("strain energy", surface_energy(world, sleeve),
                                   enabled=True, cmap="turbo")
 
-    state = {"i": 0, "playing": False, "released": False}   # play starts OFF
+    state = {"i": 0, "playing": False}   # play starts OFF
     refresh()
 
     def advance_one():
@@ -312,7 +303,8 @@ def run_polyscope(world, core, sleeve, args):
         r_core, r_bore = fit_radii(world, core, sleeve)
         psim.Text(f"core radius {r_core * 1e3:6.2f} mm   "
                   f"gap {(r_bore - r_core) * 1e3:+5.2f} mm")
-        psim.Text("pin: " + ("detached" if state["released"] else "attached"))
+        detached = trusty.embedded.pin_detached(world, core)
+        psim.Text("pin: " + ("detached" if detached else "attached"))
         rep = world.last_report()
         psim.Text(f"iters={rep.iterations}  res={rep.final_residual:.2e}")
 
@@ -320,7 +312,7 @@ def run_polyscope(world, core, sleeve, args):
     ps.show()
 
 
-def main():
+def parse_args(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--steps", type=int, default=150)
     ap.add_argument("--newton-iters", type=int, default=8)
@@ -331,15 +323,18 @@ def main():
     ap.add_argument("--release-at", type=int, default=-1,
                     help="step at which to detach the core's weak pin "
                          "(-1 = never)")
-    ap.add_argument("--backend", default="cpu",
-                    choices=["cpu", "accelerate", "cuda"])
+    ap.add_argument("--backend", default="auto",
+                    choices=["auto", "cpu", "accelerate", "cuda"])
     ap.add_argument("--no-viewer", action="store_true")
-    args = ap.parse_args()
+    return ap.parse_args(argv)
 
+
+def main():
+    args = parse_args()
     world, core, sleeve = build_world(args)
 
     if args.no_viewer:
-        state = {"i": 0, "released": False}
+        state = {"i": 0}
         for _ in range(args.steps):
             step_once(world, core, sleeve, state, args)
         report_grip(world, core, sleeve)

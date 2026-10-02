@@ -5,10 +5,10 @@ Combines `embedded_drop.py` (voxelized FEM body + IPC contact) with
 contact + embedded + fem + static walls + mpm in one go at its first step.
 
 Usage:
-    python examples/embedded_drop_in_fluid.py
-    python examples/embedded_drop_in_fluid.py --backend cpu
-    python examples/embedded_drop_in_fluid.py --mesh bunny.obj
-    python examples/embedded_drop_in_fluid.py --no-viewer
+    python examples/coupling/embedded_drop_in_fluid.py
+    python examples/coupling/embedded_drop_in_fluid.py --backend cpu
+    python examples/coupling/embedded_drop_in_fluid.py --mesh bunny.obj
+    python examples/coupling/embedded_drop_in_fluid.py --no-viewer
 """
 
 from __future__ import annotations
@@ -108,35 +108,15 @@ def rotate_mesh(V: np.ndarray, axis: str, angle_deg: float) -> np.ndarray:
 
 # -- Build ------------------------------------------------------------
 
-_BACKENDS = {
-    "cpu":        trusty.Backend.CPU,
-    "cuda":       trusty.Backend.CUDA,
-    "accelerate": trusty.Backend.ACCELERATE,
-}
-
-
-def build_world(mesh_path: Path | None, backend: str = "cuda",
+def build_world(mesh_path: Path | None, backend: str = "auto",
                 log: bool = False):
     caps = ("mpm", "contact", "embedded")
     trusty.check_capabilities(*(("cuda",) + caps if backend == "cuda" else caps))
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = _BACKENDS[backend]
-    cfg.timestep = DT
-    cfg.newton.tolerance = NEWTON_TOL
-    cfg.newton.max_iters = NEWTON_ITERS
-
-    cfg.contact.enabled = True
-    cfg.contact.dhat    = DHAT
-    cfg.contact.kappa   = KAPPA
-
-    mpm_cfg = trusty.mpm.MpmConfig()
-    mpm_cfg.cell_size         = CELL_SIZE
-    mpm_cfg.cdpi_domain_scale = 0.5
-    mpm_cfg.reset_cdpi_domain = True
-    cfg.mpm = mpm_cfg
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=DT,
+                         newton=trusty.NewtonConfig(tolerance=NEWTON_TOL, max_iters=NEWTON_ITERS))
+    trusty.contact.enable(world, trusty.contact.Config(dhat=DHAT, kappa=KAPPA))
 
     # 1) MPM fluid column.
     fluid_xyz = make_column(COLUMN_NX, COLUMN_NY, COLUMN_NZ,
@@ -153,7 +133,10 @@ def build_world(mesh_path: Path | None, backend: str = "cuda",
     fluid_mat.lam     = FLUID_LAM
     fluid_mat.mu      = 0.0
     fluid_mat.model   = trusty.MaterialModel.QuadraticVolume
-    trusty.mpm.add_mpm_particles(world, fluid_xyz, particle_volume, fluid_mat)
+    trusty.mpm.add_mpm_particles(world, fluid_xyz, particle_volume, fluid_mat,
+                                 cell_size=CELL_SIZE,
+                                 cdpi_domain_scale=0.5,
+                                 reset_cdpi_domain=True)
 
     # 2) Embedded body, lifted so its bottom sits at DROP_HEIGHT.
     if mesh_path is not None:
@@ -364,8 +347,8 @@ def run_screenshots(world, body, steps: int, out_dir: Path,
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=("cpu", "accelerate", "cuda"),
-                   default="cpu",
+    p.add_argument("--backend", choices=("auto", "cpu", "accelerate", "cuda"),
+                   default="auto",
                    help="compute backend (accelerate on Apple, cuda on NVIDIA)")
     p.add_argument("--mesh", type=Path, default=None,
                    help="Triangle mesh to drop (default: built-in bar). "

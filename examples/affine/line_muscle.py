@@ -1,22 +1,21 @@
-"""Hill-type line muscle: a "biceps" curling a two-link arm.
+"""Line muscle: a "biceps" curling a two-link arm.
 
-A grounded upper arm and a forearm joined by a revolute elbow, with one line
-muscle running from a point on the upper arm to a point on the forearm, both
-offset above the hinge axis so the muscle has a moment arm. There is no actuator
-and no gravity: the muscle is the only thing that can move the arm, so the elbow
-angle reads out muscle force directly. Joint limits give the elbow a range of
-motion, as a real one has.
+An upper arm welded to the world and a forearm hinged to it at the elbow, with
+one line muscle running from a point on the upper arm to a point on the
+forearm. Both points sit above the hinge axis, so the muscle has a lever arm.
+There is no actuator and no gravity: the muscle is the only thing that can
+move the arm. Joint limits give the elbow a range of motion, as a real one
+has.
 
-The muscle is a conservative energy `U(L) = integral T dL` in the total path
-length, so activation does not command a position -- it raises the tension the
-path pulls with, and the arm moves until something balances it. Unopposed, that
-is the flexion stop: activation curls the arm up and holds it there, and the
-reported tension is what the muscle is pulling with.
+Activation does not command a position. It sets how hard the muscle pulls,
+and the arm moves until something balances that pull. Here nothing opposes
+it, so the muscle curls the arm up to the flexion limit and holds it there,
+and the reported tension is how hard it is pulling.
 
-Headless mode is a self-checking test: it asserts the passive arm stays
-straight, that activation curls it to the flexion stop, and that doing so
-shortens the path and raises the reported tension. Polyscope mode draws the
-muscle path over the two bodies with a live activation slider.
+Headless mode checks this: the passive arm stays straight, activation curls
+it to the flexion limit, and doing so shortens the muscle and raises its
+tension. Polyscope mode draws the muscle over the two bodies, with a live
+activation slider.
 
 Usage:
     python examples/affine/line_muscle.py                # polyscope
@@ -66,26 +65,24 @@ def make_box(center, half):
 
 
 def build(f_max, backend, model):
-    cfg = trusty.SimulatorConfig()
-    cfg.backend = backend
-    cfg.timestep = 0.01
-    cfg.gravity = (0.0, 0.0, 0.0)   # muscle-only, so nothing else can move the arm
-    cfg.newton.max_iters = 60
-    cfg.newton.tolerance = 1e-4
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         gravity=(0.0, 0.0, 0.0),  # muscle-only, so nothing else can move the arm
+                         newton=trusty.NewtonConfig(max_iters=60, tolerance=1e-4))
 
     Vu, Fu = make_box(UPPER_CENTER, ARM_HALF)
     upper = trusty.affine.add_affine_body(world, Vu, Fu, density=50.0, stiffness=1e8)
     Vf, Ff = make_box(FORE_CENTER, ARM_HALF)
     fore = trusty.affine.add_affine_body(world, Vf, Ff, density=50.0, stiffness=1e8)
 
-    # Ground the upper arm, then hinge the forearm to it about y through the origin.
+    # Weld the upper arm to the world, then hinge the forearm to it about y
+    # through the origin.
     trusty.affine.add_fixed_joint(world, upper, UPPER_CENTER,
-                                  (UPPER_CENTER[0] + 0.1, 0.0, 0.0),
-                                  (UPPER_CENTER[0], 0.1, 0.0), stiffness=1e8)
+                                  axis_u=(0.1, 0.0, 0.0), axis_v=(0.0, 0.1, 0.0),
+                                  stiffness=1e8)
     elbow = trusty.affine.add_revolute_joint(world, upper, (0.0, -0.12, 0.0),
-                                             (0.0, 0.12, 0.0), fore, stiffness=1e8)
+                                             (0.0, 0.12, 0.0), body_j=fore,
+                                             stiffness=1e8)
     # A real elbow has a range of motion; without stops the unopposed muscle
     # would curl the forearm straight over the top.
     trusty.affine.add_joint_limit(world, elbow, lo=ELBOW_LO, hi=ELBOW_HI,
@@ -93,14 +90,13 @@ def build(f_max, backend, model):
 
     points = np.array([ORIGIN_POINT, INSERTION_POINT], dtype=np.float64)
     rest_length = float(np.linalg.norm(points[1] - points[0]))
-    # Rigid tendon + a fiber sitting at its optimal length at rest, so activation
-    # starts on the plateau of the force-length curve where force is greatest.
+    # The fiber starts at its optimal length (the rest path minus the tendon),
+    # where it pulls hardest.
     l_tendon_slack = 0.30
     l_opt = rest_length - l_tendon_slack
     muscle = trusty.affine.add_line_muscle(
         world, [upper, fore], points, f_max=f_max, l_opt=l_opt,
         l_tendon_slack=l_tendon_slack, pennation=0.0, activation=0.0, model=model)
-
 
     print(f"Two-link arm, one line muscle: f_max={f_max:.0f} N, "
           f"rest path {rest_length:.3f} m (l_opt {l_opt:.3f}, "
@@ -126,8 +122,8 @@ def settle(world, muscle, fore, activation, steps):
     for _ in range(steps):
         world.step()
     return (elbow_angle(world, fore),
-            trusty.affine.muscle_length(world, muscle),
-            trusty.affine.muscle_force(world, muscle))
+            trusty.affine.muscle_length(world, muscle),   # m
+            trusty.affine.muscle_force(world, muscle))    # N
 
 
 def run_headless(world, muscle, fore, steps):
@@ -228,7 +224,7 @@ def main():
                    help="peak isometric muscle force (N)")
     p.add_argument("--steps", type=int, default=120,
                    help="settle steps per activation level (headless)")
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--muscle-model", choices=["hill", "polynomial"], default="hill",
                    help="force-length law; polynomial is exp-free and better "
                         "conditioned under overstretch")

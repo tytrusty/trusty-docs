@@ -5,8 +5,13 @@ at rest, and the right face Nitsche-pinned to a target that follows a
 vertical sinusoid. The beam bends elastically as the right end is
 driven up and down.
 
-Defaults open a polyscope viewer; ``--no-viewer`` writes PNG frames via
-the EGL backend.
+Defaults open a polyscope viewer; ``--no-viewer`` writes PNG frames
+instead.
+
+Usage:
+    python examples/embedded/moving_nitsche.py
+    python examples/embedded/moving_nitsche.py --steps 360
+    python examples/embedded/moving_nitsche.py --no-viewer
 """
 
 from __future__ import annotations
@@ -68,14 +73,10 @@ def build_world(backend: str):
     avg_edge   = mean_edge_length(V, F)
     voxel_size = VOXEL_FACTOR * avg_edge
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
-    cfg.gravity  = (0.0, 0.0, 0.0)
-    cfg.newton.max_iters = 80
-    cfg.newton.tolerance = 1e-6
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=1.0 / 60.0,
+                         gravity=(0.0, 0.0, 0.0),
+                         newton=trusty.NewtonConfig(max_iters=80, tolerance=1e-6))
     mat   = trusty.StableNeoHookean(youngs_modulus=2e6, poisson_ratio=0.4)
     body  = trusty.embedded.add_embedded_solid(
         world, V, F, voxel_size=voxel_size, material=mat, density=1000.0)
@@ -100,7 +101,7 @@ def prescribed_targets(step: int, V_rest: np.ndarray, right_verts):
     those get pulled up/down along z by a sinusoid."""
     phase = (2 * np.pi * step) / DRIVE_PERIOD_STEPS
     dz    = DRIVE_AMP * np.sin(phase)
-    targets = V_rest.copy()
+    targets = V_rest.copy()             # one row per surface vertex
     targets[right_verts, 2] += dz
     return targets, dz
 
@@ -182,7 +183,7 @@ def run_screenshots(backend: str, n_steps: int, out_dir: Path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--backend",
-                    choices=["cpu", "cuda", "accelerate"], default="cpu")
+                    choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     ap.add_argument("--steps", type=int, default=180)
     ap.add_argument("--no-viewer", action="store_true")
     ap.add_argument("--out", type=Path, default=Path("out_moving_nitsche"),

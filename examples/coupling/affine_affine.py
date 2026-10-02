@@ -1,7 +1,7 @@
 """affine x affine contact -- two near-rigid cubes colliding.
 
-Two affine (near-rigid) cubes fall onto a floor and onto each other, with IPC
-contact between them.
+Two affine (near-rigid) cubes fall onto a floor and onto each other, with contact
+between them.
 
 
 Usage:
@@ -36,13 +36,10 @@ def make_box(center, half):
 def build_world(backend: str):
     trusty.check_capabilities("contact")
     half = 0.12
-    cfg = trusty.SimulatorConfig()
-    cfg.backend          = backend
-    cfg.timestep         = 0.01
-    cfg.newton.max_iters = 60
-    cfg.contact.enabled  = True
-
-    world = trusty.World(cfg)
+    world = trusty.World(backend=backend,
+                         timestep=0.01,
+                         newton=trusty.NewtonConfig(max_iters=60))
+    trusty.contact.enable(world)
     # Bottom cube on the floor; top cube dropped onto it.
     cubes = []
     for cz in (half + 0.005, 3 * half + 0.10):
@@ -76,7 +73,7 @@ def run_headless(world, top_cube, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=100)
-    p.add_argument("--backend", choices=["cpu", "accelerate"], default="cpu")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, cubes = build_world(args.backend)

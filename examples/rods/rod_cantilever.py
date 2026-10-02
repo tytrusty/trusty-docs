@@ -1,11 +1,12 @@
 """Rod cantilever.
 
-An elastic rod clamped at one end droops under gravity, using the discrete
-elastic rods (DER) discretization.
+A straight elastic rod, clamped at one end, droops under gravity and settles.
+The headless run prints the tip sag next to the small-deflection beam formula
+q L^4 / (8 E I).
 
 Usage:
     python examples/rods/rod_cantilever.py
-    python examples/rods/rod_cantilever.py --no-viewer --steps 240
+    python examples/rods/rod_cantilever.py --no-viewer --steps 300
 """
 
 from __future__ import annotations
@@ -23,41 +24,34 @@ from utils import init_polyscope   # noqa: E402
 
 
 N, LENGTH, RADIUS = 24, 1.0, 0.02
+YOUNGS, DENSITY = 1e8, 1000.0
 
 
-def build_rod(n: int, length: float, arc: float) -> np.ndarray:
-    """A rod of `n` vertices clamped at the origin, curving down by `arc` rad."""
-    X = np.zeros((n, 3))
-    seg = length / (n - 1)
-    pos = np.zeros(3)
-    X[0] = pos
-    for i in range(1, n):
-        ang = arc * (i - 0.5) / (n - 1)
-        pos = pos + seg * np.array([np.cos(ang), 0.0, -np.sin(ang)])
-        X[i] = pos
-    return X
-
-
-def build_world(backend: str = "cpu"):
+def build_world(backend: str = "auto"):
     trusty.check_capabilities("rods")
 
-    X = build_rod(N, LENGTH, 0.0)
+    world = trusty.World(backend=backend, timestep=1.0 / 60.0)
 
-    cfg = trusty.SimulatorConfig()
-    cfg.backend  = backend
-    cfg.timestep = 1.0 / 60.0
+    # The rod's centerline: N points in order, here straight along x.
+    X = np.zeros((N, 3))
+    X[:, 0] = np.linspace(0.0, LENGTH, N)
 
-    world = trusty.World(cfg)
     mat = trusty.rods.RodMaterial()
-    mat.youngs_modulus = 1e8      # ~10% static tip droop for this geometry
-    mat.radius = RADIUS
-    mat.density = 1000.0
+    mat.youngs_modulus = YOUNGS   # Pa
+    mat.radius = RADIUS           # m
+    mat.density = DENSITY         # kg/m^3
 
     rod = trusty.rods.add_rod(world, X, mat)
-    trusty.rods.pin_vertices(world, rod, [0, 1])   # clamp the base
-
+    trusty.rods.pin_vertices(world, rod, [0, 1])   # clamp the first edge
 
     return world, rod
+
+
+def beam_theory_sag() -> float:
+    """Small-deflection tip sag of a uniform cantilever under its own weight."""
+    q = DENSITY * np.pi * RADIUS**2 * 9.81    # weight per length (N/m)
+    EI = YOUNGS * np.pi * RADIUS**4 / 4       # bending stiffness (N m^2)
+    return q * LENGTH**4 / (8 * EI)
 
 
 def _rod_edges(n: int) -> np.ndarray:
@@ -65,10 +59,13 @@ def _rod_edges(n: int) -> np.ndarray:
 
 
 def _register_visuals(ps, world, rod):
-    X   = np.asarray(trusty.rods.read_positions(world, rod))
-    net = ps.register_curve_network("rod", X, _rod_edges(len(X)),
-                                    color=(0.85, 0.55, 0.25))
+    # read_positions returns the centerline, (N, 3). Draw it as a curve
+    # network with the rod's own radius.
+    X = trusty.rods.read_positions(world, rod)
+    edges = [[i, i + 1] for i in range(len(X) - 1)]
+    net = ps.register_curve_network("rod", X, np.array(edges))
     net.set_radius(RADIUS, relative=False)
+    net.set_color((0.85, 0.55, 0.25))
     return net
 
 
@@ -103,42 +100,28 @@ def run_polyscope(world, rod, steps: int):
     ps.show()
 
 
-def run_screenshots(world, rod, steps: int, out_dir: Path):
-    ps = init_polyscope(headless=True)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    net = _register_visuals(ps, world, rod)
-    ps.reset_camera_to_home_view()
-
-    def snapshot(idx: int):
-        ps.screenshot(str(out_dir / f"rod_cantilever_{idx:04d}.png"),
-                      transparent_bg=False)
-
-    snapshot(0)
-    for i in range(1, steps + 1):
+def run_headless(world, rod, steps: int):
+    for i in range(steps):
         world.step()
-        net.update_node_positions(
-            np.asarray(trusty.rods.read_positions(world, rod)))
-        snapshot(i)
-
-    report = world.last_report()
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
+        if not world.last_report().converged:
+            raise SystemExit(f"step {i}: DIVERGED")
+    sag = -float(np.asarray(trusty.rods.read_positions(world, rod))[-1, 2])
+    print(f"tip sag after {steps} steps: {sag:.4f} m "
+          f"(beam formula: {beam_theory_sag():.4f} m)")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["cpu", "accelerate"], default="cpu")
-    parser.add_argument("--steps", type=int, default=180)
-    parser.add_argument("--no-viewer", action="store_true")
-    parser.add_argument("--out", type=Path, default=Path("out_rod_cantilever"))
+                        choices=["auto", "cpu", "accelerate"], default="auto")
+    parser.add_argument("--steps", type=int, default=300)
+    parser.add_argument("--no-viewer", action="store_true",
+                        help="headless: print the tip sag")
     args = parser.parse_args()
 
     world, rod = build_world(backend=args.backend)
     if args.no_viewer:
-        run_screenshots(world, rod, args.steps, args.out)
+        run_headless(world, rod, args.steps)
     else:
         run_polyscope(world, rod, args.steps)
 
