@@ -237,6 +237,7 @@ def build_world(backend: str = "auto", dt: float = 0.02):
         material=trusty.StableNeoHookean(youngs_modulus=E_Y, poisson_ratio=Y_NU),
         density=1000.0, friction_mu=MU)
 
+
     # Two rod loops, low and high, each pulled tight by a muscle running
     # all the way round it (back to vertex 0, closing the loop).
     rmat = trusty.rods.RodMaterial()
