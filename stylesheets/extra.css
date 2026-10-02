@@ -35,6 +35,10 @@
   margin: 0.4rem 0 0.4rem 50%;
   transform: translateX(-50%);
 }
+/* A wide animation on a page with sidebars: the full content column. */
+.md-typeset video.shot.wide {
+  width: 100%;
+}
 .md-typeset p.caption {
   text-align: center;
   color: var(--md-default-fg-color--light);
