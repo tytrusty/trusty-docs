@@ -39,6 +39,11 @@
 .md-typeset video.shot.wide {
   width: 100%;
 }
+/* Module cards on the landing page: each card's animation spans the card. */
+.md-typeset .grid.cards.modules video.shot {
+  width: 100%;
+  margin: 0 0 0.6rem;
+}
 .md-typeset p.caption {
   text-align: center;
   color: var(--md-default-fg-color--light);
