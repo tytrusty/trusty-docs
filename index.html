@@ -1470,8 +1470,9 @@ grid, all squeezed together by elastic rods.
 <p>Install (pre-release builds are on TestPyPI; see <a href="getting_started/install/">Install</a>),
 then run a cantilever beam sagging under gravity and look at it in the
 <a href="https://polyscope.run/py/">polyscope</a> viewer:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>polyscope
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>trusty-sim
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>polyscope
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>trusty-sim
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">polyscope</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trusty</span>
@@ -1492,7 +1493,8 @@ then run a cantilever beam sagging under gravity and look at it in the
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="n">ps</span><span class="o">.</span><span class="n">register_volume_mesh</span><span class="p">(</span><span class="s2">"beam"</span><span class="p">,</span> <span class="n">sagged</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">hexes</span><span class="o">=</span><span class="n">sagged</span><span class="o">.</span><span class="n">hexes</span><span class="p">)</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<p>Save it as <code>quickstart.py</code> and run it; the viewer opens on the sagged beam:</p>
+<p>Save it as <code>quickstart.py</code> and run it in the same terminal, with the environment
+still active; the viewer opens on the sagged beam:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>quickstart.py
 </code></pre></div>
 <p><a class="md-button md-button--primary" href="getting_started/install/">Install</a>
