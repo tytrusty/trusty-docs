@@ -6,7 +6,7 @@ A physics simulation library for deformable solids, shells, rods, articulated
 affine bodies, reduced-order (subspace) bodies and MPM, with IPC-style frictional
 contact between them. You drive it from Python and step it with numpy arrays.
 
-> **Pre-release test build (0.1.0a2).** The API will change between releases, and
+> **Pre-release test build (0.1.0a3).** The API will change between releases, and
 > only macOS on Apple Silicon is supported for now.
 
 ## Install
@@ -17,7 +17,7 @@ This build is published on TestPyPI only. With [uv](https://docs.astral.sh/uv/):
 curl -LsSf https://astral.sh/uv/install.sh | sh     # once, if you don't have uv
 uv venv && source .venv/bin/activate
 uv pip install numpy                                 # from PyPI
-uv pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a2
+uv pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a3
 ```
 
 Installing numpy first and then trusty-sim with `--no-deps` keeps every other
