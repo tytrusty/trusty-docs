@@ -9,9 +9,9 @@ limit's margin) while the free bar swings past, and prints PASS or FAIL.
 Polyscope mode shows the two bars side by side.
 
 Usage:
-    python examples/affine/joint_limit.py                # polyscope
-    python examples/affine/joint_limit.py --no-viewer    # headless test
-    python examples/affine/joint_limit.py --lo -0.5 --hi 0.5
+    uv run examples/affine/joint_limit.py                # polyscope
+    uv run examples/affine/joint_limit.py --no-viewer    # headless test
+    uv run examples/affine/joint_limit.py --lo -0.5 --hi 0.5
 """
 
 from __future__ import annotations

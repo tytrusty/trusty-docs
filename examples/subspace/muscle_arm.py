@@ -9,8 +9,8 @@ an affine actuator, and the affine bones and the reduced muscle are solved
 together in one implicit step.
 
 Usage:
-    python examples/subspace/muscle_arm.py
-    python examples/subspace/muscle_arm.py --no-viewer   # self-checking
+    uv run examples/subspace/muscle_arm.py
+    uv run examples/subspace/muscle_arm.py --no-viewer   # self-checking
 
 Install polyscope with `pip install trusty-sim[viewer]`.
 """

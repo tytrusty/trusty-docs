@@ -6,8 +6,8 @@ stitched to the sphere, so it moves with it. Released from horizontal, the
 sphere swings down about the anchor and the rod holds it like a chain.
 
 Usage:
-    python examples/rods/wrecking_ball.py                # polyscope
-    python examples/rods/wrecking_ball.py --no-viewer    # headless self-check
+    uv run examples/rods/wrecking_ball.py                # polyscope
+    uv run examples/rods/wrecking_ball.py --no-viewer    # headless self-check
 """
 
 from __future__ import annotations

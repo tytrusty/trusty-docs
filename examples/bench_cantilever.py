@@ -15,10 +15,10 @@ changes the dynamic per-step cost, so `--lumped` vs the default consistent mass
 differs only in the runtime panels.
 
 Usage:
-    python examples/bench_cantilever.py
-    python examples/bench_cantilever.py --levels 2 4 8 --linear-levels 4 8 16 32 48
-    python examples/bench_cantilever.py --lumped
-    python examples/bench_cantilever.py --plot out/bench.png
+    uv run examples/bench_cantilever.py
+    uv run examples/bench_cantilever.py --levels 2 4 8 --linear-levels 4 8 16 32 48
+    uv run examples/bench_cantilever.py --lumped
+    uv run examples/bench_cantilever.py --plot out/bench.png
 """
 
 from __future__ import annotations

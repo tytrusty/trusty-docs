@@ -8,8 +8,8 @@ it was given. ``graded_material.py`` compares several grids side by side,
 including what happens when the grid does not cover the body.
 
 Usage:
-    python examples/fem/graded_beam.py              # live polyscope
-    python examples/fem/graded_beam.py --no-viewer  # print the sag
+    uv run examples/fem/graded_beam.py              # live polyscope
+    uv run examples/fem/graded_beam.py --no-viewer  # print the sag
 """
 
 from __future__ import annotations

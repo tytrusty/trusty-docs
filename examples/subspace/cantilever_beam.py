@@ -11,11 +11,11 @@ stiffer than the real beam once the sag is large. `--no-viewer` runs headless
 and compares the tip sag with the full solid.
 
 Usage:
-    python examples/subspace/cantilever_beam.py
-    python examples/subspace/cantilever_beam.py --basis modal --modes 12
-    python examples/subspace/cantilever_beam.py --basis-file beam.basis
-    python examples/subspace/cantilever_beam.py --backend accelerate
-    python examples/subspace/cantilever_beam.py --no-viewer
+    uv run examples/subspace/cantilever_beam.py
+    uv run examples/subspace/cantilever_beam.py --basis modal --modes 12
+    uv run examples/subspace/cantilever_beam.py --basis-file beam.basis
+    uv run examples/subspace/cantilever_beam.py --backend accelerate
+    uv run examples/subspace/cantilever_beam.py --no-viewer
 
 Install polyscope with ``pip install trusty-sim[viewer]``.
 """

@@ -8,9 +8,9 @@ with the bar, as if they were points of it. Released horizontal, the bar swings
 down like a pendulum and the bonded soft beam whips and sags behind it.
 
 Usage:
-    python examples/boundary_conditions/fem_affine_pendulum.py                # polyscope
-    python examples/boundary_conditions/fem_affine_pendulum.py --no-viewer    # headless
-    python examples/boundary_conditions/fem_affine_pendulum.py --steps 400
+    uv run examples/boundary_conditions/fem_affine_pendulum.py                # polyscope
+    uv run examples/boundary_conditions/fem_affine_pendulum.py --no-viewer    # headless
+    uv run examples/boundary_conditions/fem_affine_pendulum.py --steps 400
 """
 
 from __future__ import annotations

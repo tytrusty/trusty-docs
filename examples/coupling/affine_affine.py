@@ -5,7 +5,7 @@ between them.
 
 
 Usage:
-    python examples/coupling/affine_affine.py --no-viewer
+    uv run examples/coupling/affine_affine.py --no-viewer
 """
 
 from __future__ import annotations

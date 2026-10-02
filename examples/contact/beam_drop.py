@@ -4,12 +4,12 @@ It lands on one end, tips over, and comes to rest lying flat. Contact keeps
 it on the floor.
 
 Usage:
-    python examples/contact/beam_drop.py                  # polyscope
-    python examples/contact/beam_drop.py --no-viewer      # headless
-    python examples/contact/beam_drop.py --steps 240
-    python examples/contact/beam_drop.py --element tet    # tet mesh
-    python examples/contact/beam_drop.py --order quadratic
-    python examples/contact/beam_drop.py --mesh foo.vtu   # your own hex mesh
+    uv run examples/contact/beam_drop.py                  # polyscope
+    uv run examples/contact/beam_drop.py --no-viewer      # headless
+    uv run examples/contact/beam_drop.py --steps 240
+    uv run examples/contact/beam_drop.py --element tet    # tet mesh
+    uv run examples/contact/beam_drop.py --order quadratic
+    uv run examples/contact/beam_drop.py --mesh foo.vtu   # your own hex mesh
 """
 
 from __future__ import annotations

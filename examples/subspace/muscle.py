@@ -8,8 +8,8 @@ Pick the fiber direction with ``--direction`` to see the beam shorten along
 x / y / z; the actuation pulses smoothly from 0 to ``--amp`` and back.
 
 Usage:
-    python examples/subspace/muscle.py --direction x
-    python examples/subspace/muscle.py --no-viewer --direction y
+    uv run examples/subspace/muscle.py --direction x
+    uv run examples/subspace/muscle.py --no-viewer --direction y
 
 Install polyscope with ``pip install trusty-sim[viewer]``.
 """

@@ -11,9 +11,9 @@ degrees of freedom each; the affine cube stays stiff (1e9) as the base of the st
 
 
 Usage:
-    python examples/coupling/all_bodies.py                       # viewer (opens paused)
-    python examples/coupling/all_bodies.py --no-viewer           # headless
-    python examples/coupling/all_bodies.py --backend accelerate  # Apple solver
+    uv run examples/coupling/all_bodies.py                       # viewer (opens paused)
+    uv run examples/coupling/all_bodies.py --no-viewer           # headless
+    uv run examples/coupling/all_bodies.py --backend accelerate  # Apple solver
 """
 
 from __future__ import annotations

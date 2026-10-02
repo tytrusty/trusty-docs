@@ -11,9 +11,9 @@ a little further each step. Each step solves for static equilibrium (no
 inertia) with gravity off, so the stretch is the load's doing alone.
 
 Usage:
-    python examples/boundary_conditions/fem_surface_load.py              # polyscope
-    python examples/boundary_conditions/fem_surface_load.py --no-viewer  # print the stretch
-    python examples/boundary_conditions/fem_surface_load.py --element tet
+    uv run examples/boundary_conditions/fem_surface_load.py              # polyscope
+    uv run examples/boundary_conditions/fem_surface_load.py --no-viewer  # print the stretch
+    uv run examples/boundary_conditions/fem_surface_load.py --element tet
 """
 
 from __future__ import annotations

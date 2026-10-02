@@ -16,9 +16,9 @@ than the limits allow, so those two joints stop at their limits while the
 command keeps going: watch "act" level off while "cmd" keeps moving.
 
 Usage:
-    python examples/affine/actuated_arm.py                # polyscope
-    python examples/affine/actuated_arm.py --no-viewer    # headless
-    python examples/affine/actuated_arm.py --steps 800
+    uv run examples/affine/actuated_arm.py                # polyscope
+    uv run examples/affine/actuated_arm.py --no-viewer    # headless
+    uv run examples/affine/actuated_arm.py --steps 800
 """
 
 from __future__ import annotations

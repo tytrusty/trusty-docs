@@ -6,9 +6,9 @@ fraction of the contact distance `dhat`. With the default stiffness the gap is
 close to `dhat`; a low stiffness lets a heavy body sink further into it.
 
 Usage:
-    python examples/contact/resting_gap.py                 # polyscope
-    python examples/contact/resting_gap.py --no-viewer     # print the table
-    python examples/contact/resting_gap.py --density 8000  # a heavier cube
+    uv run examples/contact/resting_gap.py                 # polyscope
+    uv run examples/contact/resting_gap.py --no-viewer     # print the table
+    uv run examples/contact/resting_gap.py --density 8000  # a heavier cube
 """
 
 from __future__ import annotations

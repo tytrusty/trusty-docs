@@ -22,10 +22,10 @@ contact-on-eliminated-node -- the barrier Hessian for a hanging node folds onto
 its parents rather than being dropped.
 
 Usage:
-    python examples/embedded/adaptive_embedded_drop.py
-    python examples/embedded/adaptive_embedded_drop.py --max-level 3
-    python examples/embedded/adaptive_embedded_drop.py --grade 2.0
-    python examples/embedded/adaptive_embedded_drop.py --no-viewer
+    uv run examples/embedded/adaptive_embedded_drop.py
+    uv run examples/embedded/adaptive_embedded_drop.py --max-level 3
+    uv run examples/embedded/adaptive_embedded_drop.py --grade 2.0
+    uv run examples/embedded/adaptive_embedded_drop.py --no-viewer
 """
 
 from __future__ import annotations

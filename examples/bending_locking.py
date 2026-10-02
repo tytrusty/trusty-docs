@@ -8,9 +8,9 @@ tessellation of their curved surface that contact uses
 (`fem.read_surface_triangles`).
 
 Usage:
-    python examples/bending_locking.py                # live polyscope
-    python examples/bending_locking.py --no-viewer    # print comparison
-    python examples/bending_locking.py --res 8 1 1    # finer corner mesh
+    uv run examples/bending_locking.py                # live polyscope
+    uv run examples/bending_locking.py --no-viewer    # print comparison
+    uv run examples/bending_locking.py --res 8 1 1    # finer corner mesh
 """
 
 from __future__ import annotations

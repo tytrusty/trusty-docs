@@ -9,8 +9,8 @@ every step moves each column straight to its hanging equilibrium, so
 ``--steps 10`` is already settled.
 
 Usage:
-    python examples/fem/hanging_materials.py              # live polyscope
-    python examples/fem/hanging_materials.py --no-viewer  # print lengths
+    uv run examples/fem/hanging_materials.py              # live polyscope
+    uv run examples/fem/hanging_materials.py --no-viewer  # print lengths
 """
 
 from __future__ import annotations

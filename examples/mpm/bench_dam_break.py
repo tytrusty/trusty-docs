@@ -4,11 +4,11 @@ Builds the world from dam_break.py (every one of its flags works here too),
 runs a few warm-up steps, then times each step and prints a summary.
 
 Usage:
-    python examples/mpm/bench_dam_break.py
-    python examples/mpm/bench_dam_break.py --steps 60 --spacing 0.025 --cell-size 0.05
-    python examples/mpm/bench_dam_break.py --linear-solver pcg
-    python examples/mpm/bench_dam_break.py --backend accelerate
-    python examples/mpm/bench_dam_break.py --backend cuda
+    uv run examples/mpm/bench_dam_break.py
+    uv run examples/mpm/bench_dam_break.py --steps 60 --spacing 0.025 --cell-size 0.05
+    uv run examples/mpm/bench_dam_break.py --linear-solver pcg
+    uv run examples/mpm/bench_dam_break.py --backend accelerate
+    uv run examples/mpm/bench_dam_break.py --backend cuda
 """
 
 from __future__ import annotations

@@ -10,9 +10,9 @@ The Nitsche weak pin is a surface energy (not a hard hex-node pin), so hanging
 nodes near the root are fine.
 
 Usage:
-    python examples/embedded/adaptive_embedded_cantilever.py
-    python examples/embedded/adaptive_embedded_cantilever.py --max-level 2
-    python examples/embedded/adaptive_embedded_cantilever.py --no-viewer
+    uv run examples/embedded/adaptive_embedded_cantilever.py
+    uv run examples/embedded/adaptive_embedded_cantilever.py --max-level 2
+    uv run examples/embedded/adaptive_embedded_cantilever.py --no-viewer
 """
 
 from __future__ import annotations

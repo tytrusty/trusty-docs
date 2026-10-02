@@ -11,10 +11,10 @@ cylinder: a smaller cylinder lets the fixed-length rods wrap further around it.
 The headless run prints how close the rods come to the cylinder.
 
 Usage:
-    python examples/rods/rod_cylinder_wrap.py
-    python examples/rods/rod_cylinder_wrap.py --num-rods 12
-    python examples/rods/rod_cylinder_wrap.py --cylinder-radius 0.15
-    python examples/rods/rod_cylinder_wrap.py --no-viewer --steps 240
+    uv run examples/rods/rod_cylinder_wrap.py
+    uv run examples/rods/rod_cylinder_wrap.py --num-rods 12
+    uv run examples/rods/rod_cylinder_wrap.py --cylinder-radius 0.15
+    uv run examples/rods/rod_cylinder_wrap.py --no-viewer --steps 240
 """
 
 from __future__ import annotations

@@ -18,9 +18,9 @@ tension. Polyscope mode draws the muscle over the two bodies, with a live
 activation slider.
 
 Usage:
-    python examples/affine/line_muscle.py                # polyscope
-    python examples/affine/line_muscle.py --no-viewer    # headless test
-    python examples/affine/line_muscle.py --f-max 600
+    uv run examples/affine/line_muscle.py                # polyscope
+    uv run examples/affine/line_muscle.py --no-viewer    # headless test
+    uv run examples/affine/line_muscle.py --f-max 600
 """
 
 from __future__ import annotations

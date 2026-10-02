@@ -5,8 +5,8 @@ floor. The embedded body's contact surface follows its voxel grid.
 
 
 Usage:
-    python examples/coupling/fem_embedded.py
-    python examples/coupling/fem_embedded.py --no-viewer
+    uv run examples/coupling/fem_embedded.py
+    uv run examples/coupling/fem_embedded.py --no-viewer
 """
 
 from __future__ import annotations

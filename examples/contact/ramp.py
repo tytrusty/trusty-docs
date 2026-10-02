@@ -8,10 +8,10 @@ and across the floor into the backstop, the middle one creeps, and the grippy
 one stays put.
 
 Usage:
-    python examples/contact/ramp.py                # polyscope
-    python examples/contact/ramp.py --no-viewer    # headless
-    python examples/contact/ramp.py --steps 300
-    python examples/contact/ramp.py --mu 0.6       # ramp and middle block friction
+    uv run examples/contact/ramp.py                # polyscope
+    uv run examples/contact/ramp.py --no-viewer    # headless
+    uv run examples/contact/ramp.py --steps 300
+    uv run examples/contact/ramp.py --mu 0.6       # ramp and middle block friction
 """
 
 from __future__ import annotations

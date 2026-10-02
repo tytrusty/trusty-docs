@@ -8,8 +8,8 @@ A soft cantilever bar:
     pin gives, so the bar rests on the floor instead of passing through it.
 
 Usage:
-    python examples/boundary_conditions/moving_pin.py              # polyscope
-    python examples/boundary_conditions/moving_pin.py --no-viewer  # print the drive
+    uv run examples/boundary_conditions/moving_pin.py              # polyscope
+    uv run examples/boundary_conditions/moving_pin.py --no-viewer  # print the drive
 """
 
 from __future__ import annotations

@@ -8,9 +8,9 @@ the rest of the flag flutters and droops under gravity. Released horizontal, the
 pole swings down and the bonded flag whips behind it.
 
 Usage:
-    python examples/boundary_conditions/shell_affine_flag.py                # polyscope
-    python examples/boundary_conditions/shell_affine_flag.py --no-viewer    # headless
-    python examples/boundary_conditions/shell_affine_flag.py --steps 400
+    uv run examples/boundary_conditions/shell_affine_flag.py                # polyscope
+    uv run examples/boundary_conditions/shell_affine_flag.py --no-viewer    # headless
+    uv run examples/boundary_conditions/shell_affine_flag.py --steps 400
 """
 
 from __future__ import annotations

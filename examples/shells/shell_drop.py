@@ -5,9 +5,9 @@ then drapes over it. ``--no-viewer`` prints where the sheet rests and how
 far its corners hang.
 
 Usage:
-    python examples/shells/shell_drop.py
-    python examples/shells/shell_drop.py --backend accelerate
-    python examples/shells/shell_drop.py --no-viewer --steps 240
+    uv run examples/shells/shell_drop.py
+    uv run examples/shells/shell_drop.py --backend accelerate
+    uv run examples/shells/shell_drop.py --no-viewer --steps 240
 """
 
 from __future__ import annotations

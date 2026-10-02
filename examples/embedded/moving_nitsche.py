@@ -9,9 +9,9 @@ Defaults open a polyscope viewer; ``--no-viewer`` writes PNG frames
 instead.
 
 Usage:
-    python examples/embedded/moving_nitsche.py
-    python examples/embedded/moving_nitsche.py --steps 360
-    python examples/embedded/moving_nitsche.py --no-viewer
+    uv run examples/embedded/moving_nitsche.py
+    uv run examples/embedded/moving_nitsche.py --steps 360
+    uv run examples/embedded/moving_nitsche.py --no-viewer
 """
 
 from __future__ import annotations

@@ -6,9 +6,9 @@ own tetrahedralized geometry. Nothing is pinned, so stepping
 lets all three fall under gravity.
 
 Usage:
-    python examples/fem/mesh_types.py                   # live polyscope
-    python examples/fem/mesh_types.py --no-viewer       # print mesh sizes
-    python examples/fem/mesh_types.py --mesh my.msh     # your own tet mesh
+    uv run examples/fem/mesh_types.py                   # live polyscope
+    uv run examples/fem/mesh_types.py --no-viewer       # print mesh sizes
+    uv run examples/fem/mesh_types.py --mesh my.msh     # your own tet mesh
 """
 
 from __future__ import annotations

@@ -20,9 +20,9 @@ actuator that waves it gently back and forth.
     sizes the drop.
 
 Usage:
-    python examples/affine/articulation.py                       # polyscope
-    python examples/affine/articulation.py --no-viewer --grid 5,6,3
-    python examples/affine/articulation.py --urdf path/to.urdf
+    uv run examples/affine/articulation.py                       # polyscope
+    uv run examples/affine/articulation.py --no-viewer --grid 5,6,3
+    uv run examples/affine/articulation.py --urdf path/to.urdf
 """
 
 from __future__ import annotations

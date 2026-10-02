@@ -12,8 +12,8 @@ The example drives the actuation on a sinusoid, so the beam twists and untwists
 periodically.
 
 Usage:
-    python examples/subspace/muscle_twist.py
-    python examples/subspace/muscle_twist.py --no-viewer   # self-checking
+    uv run examples/subspace/muscle_twist.py
+    uv run examples/subspace/muscle_twist.py --no-viewer   # self-checking
 
 Install polyscope with `pip install trusty-sim[viewer]`.
 """

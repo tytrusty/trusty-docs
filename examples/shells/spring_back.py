@@ -7,9 +7,9 @@ Released without gravity, the plate unrolls and swings back and forth about
 flat. ``--no-viewer`` prints how far the plate is from flat as it goes.
 
 Usage:
-    python examples/shells/spring_back.py              # live polyscope
-    python examples/shells/spring_back.py --no-viewer  # print the unrolling
-    python examples/shells/spring_back.py --steps 240
+    uv run examples/shells/spring_back.py              # live polyscope
+    uv run examples/shells/spring_back.py --no-viewer  # print the unrolling
+    uv run examples/shells/spring_back.py --steps 240
 """
 
 from __future__ import annotations

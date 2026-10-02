@@ -17,9 +17,9 @@ values) and `unit_material=` (evaluate at mu = lam = 1, a stiffness-independent
 strain measure, so soft and stiff regions are directly comparable).
 
 Usage:
-    python examples/fem/visualize_stress.py              # live polyscope
-    python examples/fem/visualize_stress.py --no-viewer  # print ranges
-    python examples/fem/visualize_stress.py --squeeze 0.4
+    uv run examples/fem/visualize_stress.py              # live polyscope
+    uv run examples/fem/visualize_stress.py --no-viewer  # print ranges
+    uv run examples/fem/visualize_stress.py --squeeze 0.4
 """
 
 from __future__ import annotations

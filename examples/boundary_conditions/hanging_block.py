@@ -9,8 +9,8 @@ solves for the hanging equilibrium, so the example raises the stiffness with
 pin's reaction force (`pin_total_force`) stays equal to the block's weight.
 
 Usage:
-    python examples/boundary_conditions/hanging_block.py              # live polyscope
-    python examples/boundary_conditions/hanging_block.py --no-viewer  # print the table
+    uv run examples/boundary_conditions/hanging_block.py              # live polyscope
+    uv run examples/boundary_conditions/hanging_block.py --no-viewer  # print the table
 """
 
 from __future__ import annotations

@@ -6,9 +6,9 @@ with its centerline about one radius above the ground. The headless run prints
 that resting height.
 
 Usage:
-    python examples/rods/rod_drop.py
-    python examples/rods/rod_drop.py --backend accelerate
-    python examples/rods/rod_drop.py --no-viewer --steps 240
+    uv run examples/rods/rod_drop.py
+    uv run examples/rods/rod_drop.py --backend accelerate
+    uv run examples/rods/rod_drop.py --no-viewer --steps 240
 """
 
 from __future__ import annotations

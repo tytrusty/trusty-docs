@@ -13,8 +13,8 @@ settles the arm at activations 0, 0.5 and 1 in turn and prints each pose; the
 viewer has an activation slider.
 
 Usage:
-    python examples/rods/muscle_arm.py                 # polyscope + slider
-    python examples/rods/muscle_arm.py --no-viewer     # print the poses
+    uv run examples/rods/muscle_arm.py                 # polyscope + slider
+    uv run examples/rods/muscle_arm.py --no-viewer     # print the poses
 """
 
 from __future__ import annotations

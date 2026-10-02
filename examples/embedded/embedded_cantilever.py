@@ -5,11 +5,11 @@ or one loaded from disk via --mesh) is voxelized, one end weakly pinned
 via Nitsche to the rest positions, and the free end sags under gravity.
 
 Usage:
-    python examples/embedded/embedded_cantilever.py                    # built-in bar
-    python examples/embedded/embedded_cantilever.py --mesh bunny.obj   # custom mesh
-    python examples/embedded/embedded_cantilever.py --no-viewer        # write PNG frames
-    python examples/embedded/embedded_cantilever.py --steps 240
-    python examples/embedded/embedded_cantilever.py --order q2         # quadratic (Q2) elements
+    uv run examples/embedded/embedded_cantilever.py                    # built-in bar
+    uv run examples/embedded/embedded_cantilever.py --mesh bunny.obj   # custom mesh
+    uv run examples/embedded/embedded_cantilever.py --no-viewer        # write PNG frames
+    uv run examples/embedded/embedded_cantilever.py --steps 240
+    uv run examples/embedded/embedded_cantilever.py --order q2         # quadratic (Q2) elements
 """
 
 from __future__ import annotations

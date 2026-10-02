@@ -11,9 +11,9 @@ nodes drift from the points of the bar they are tied to; raise `--stiffness`
 and the gap shrinks in proportion.
 
 Usage:
-    python examples/boundary_conditions/attach_pendulum.py                # polyscope
-    python examples/boundary_conditions/attach_pendulum.py --no-viewer    # headless
-    python examples/boundary_conditions/attach_pendulum.py --no-viewer --stiffness 1e4
+    uv run examples/boundary_conditions/attach_pendulum.py                # polyscope
+    uv run examples/boundary_conditions/attach_pendulum.py --no-viewer    # headless
+    uv run examples/boundary_conditions/attach_pendulum.py --no-viewer --stiffness 1e4
 """
 
 from __future__ import annotations

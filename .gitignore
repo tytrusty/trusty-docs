@@ -8,3 +8,5 @@ out_*/
 .DS_Store
 imgui.ini
 .polyscope.ini
+!examples/data/*.npz
+uv.lock

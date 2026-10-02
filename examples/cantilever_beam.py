@@ -4,10 +4,10 @@ Steps the simulator and, unless
 ``--no-viewer`` is passed, shows the deforming beam in polyscope.
 
 Usage:
-    python examples/cantilever_beam.py                # live polyscope
-    python examples/cantilever_beam.py --no-viewer    # write PNG sequence
-    python examples/cantilever_beam.py --steps 240    # run longer
-    python examples/cantilever_beam.py --order q2     # quadratic (Q2) elements
+    uv run examples/cantilever_beam.py                # live polyscope
+    uv run examples/cantilever_beam.py --no-viewer    # write PNG sequence
+    uv run examples/cantilever_beam.py --steps 240    # run longer
+    uv run examples/cantilever_beam.py --order q2     # quadratic (Q2) elements
 
 Install polyscope with ``pip install trusty-sim[viewer]`` (or directly
 ``pip install polyscope``).

@@ -11,12 +11,18 @@ contact between them. You drive it from Python and step it with numpy arrays.
 
 ## Install
 
-This build is published on TestPyPI only. With [uv](https://docs.astral.sh/uv/):
+This build is published on TestPyPI only. If you don't have
+[uv](https://docs.astral.sh/uv/) yet, install it once:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh     # once, if you don't have uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Then, in a new environment:
+
+```bash
 uv venv && source .venv/bin/activate
-uv pip install numpy                                 # from PyPI
+uv pip install numpy
 uv pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a3
 ```
 
@@ -85,14 +91,26 @@ trusty.capabilities()   # {'fem', 'contact', 'affine', 'rods', 'shells', ...}
 
 ## Running the examples
 
-The examples use the optional viewer, and the subspace examples need scipy.
-In the environment where trusty-sim is installed:
+From the root of this repository, `uv run` sets up an environment with
+trusty-sim, the polyscope viewer and everything else the examples need the
+first time you use it:
 
 ```bash
-uv pip install polyscope trimesh matplotlib scipy
-python examples/contact/beam_drop.py              # opens the polyscope viewer
-python examples/contact/beam_drop.py --no-viewer  # most examples also run headless
+git clone https://github.com/tytrusty/trusty-docs
+cd trusty-docs
+uv run examples/contact/beam_drop.py
 ```
+
+That opens the polyscope viewer. Most examples also run headless with
+`--no-viewer`:
+
+```bash
+uv run examples/contact/beam_drop.py --no-viewer
+```
+
+Without uv, install trusty-sim as above, then
+`pip install polyscope trimesh matplotlib scipy` and run
+`python examples/contact/beam_drop.py` from the repository root.
 
 | Folder | Examples |
 |---|---|

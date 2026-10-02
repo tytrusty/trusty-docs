@@ -21,11 +21,11 @@ density is computed per node and pushed through each body's prolongation with
 `embedded.prolong_nodal_field`.
 
 Usage:
-    python examples/embedded/interference_fit.py
-    python examples/embedded/interference_fit.py --no-viewer --steps 120
-    python examples/embedded/interference_fit.py --interference 0.15
-    python examples/embedded/interference_fit.py --release-at 60
-    python examples/embedded/interference_fit.py --backend accelerate
+    uv run examples/embedded/interference_fit.py
+    uv run examples/embedded/interference_fit.py --no-viewer --steps 120
+    uv run examples/embedded/interference_fit.py --interference 0.15
+    uv run examples/embedded/interference_fit.py --release-at 60
+    uv run examples/embedded/interference_fit.py --backend accelerate
 """
 
 from __future__ import annotations

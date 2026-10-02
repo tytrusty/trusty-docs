@@ -27,8 +27,8 @@ several times as far as the beam above it. Nothing reports this: a material is
 not read back, only its effects are, so the box is the author's responsibility.
 
 Usage:
-    python examples/fem/graded_material.py
-    python examples/fem/graded_material.py --no-viewer
+    uv run examples/fem/graded_material.py
+    uv run examples/fem/graded_material.py --no-viewer
 """
 
 from __future__ import annotations

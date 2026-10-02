@@ -26,10 +26,10 @@ composed -- it is the law MPM bodies run. ``--models ... quadratic_volume``
 puts it in the row.
 
 Usage:
-    python examples/fem/material_models.py               # polyscope
-    python examples/fem/material_models.py --no-viewer   # PNG frames
-    python examples/fem/material_models.py --report      # tip sag table
-    python examples/fem/material_models.py --models arap corotational
+    uv run examples/fem/material_models.py               # polyscope
+    uv run examples/fem/material_models.py --no-viewer   # PNG frames
+    uv run examples/fem/material_models.py --report      # tip sag table
+    uv run examples/fem/material_models.py --models arap corotational
 """
 
 from __future__ import annotations
