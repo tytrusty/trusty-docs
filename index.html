@@ -1461,10 +1461,11 @@ bodies and soft tissue.</p>
   <source src="assets/video/teaser.mp4" type="video/mp4">
 </video>
 
-<p class="caption"><em>One simulation, every body type:</em> <strong>T</strong> tetrahedra, <strong>r</strong> jointed affine
-bodies, <strong>u</strong> aluminium shell, <strong>s</strong> elastic MPM particles, <strong>t</strong> hexahedra,
-<strong>y</strong> embedded solid in its voxel grid, all squeezed by elastic rods.
-<a href="examples/trusty_logo/">See how it's built →</a></p>
+<p class="caption"><em>Fully coupled simulation</em> with a <strong>T</strong> composed of tetrahedra, an <strong>r</strong> of
+jointed affine bodies, a <strong>u</strong> of an aluminium shell, an <strong>s</strong> of elastic MPM
+particles, a <strong>t</strong> of hexahedra and a <strong>y</strong> of an embedded solid in its voxel
+grid, all squeezed together by elastic rods.
+<a href="examples/trusty_logo/">See the code →</a></p>
 <h2 id="try-it">Try it<a class="headerlink" href="#try-it" title="Permanent link">&para;</a></h2>
 <p>Install (pre-release builds are on TestPyPI; see <a href="getting_started/install/">Install</a>),
 then run a cantilever beam sagging under gravity and look at it in the
@@ -1490,6 +1491,9 @@ then run a cantilever beam sagging under gravity and look at it in the
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="n">sagged</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">read_mesh</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">beam</span><span class="p">)</span>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="n">ps</span><span class="o">.</span><span class="n">register_volume_mesh</span><span class="p">(</span><span class="s2">"beam"</span><span class="p">,</span> <span class="n">sagged</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">hexes</span><span class="o">=</span><span class="n">sagged</span><span class="o">.</span><span class="n">hexes</span><span class="p">)</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+<p>Save it as <code>quickstart.py</code> and run it; the viewer opens on the sagged beam:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>quickstart.py
 </code></pre></div>
 <p><a class="md-button md-button--primary" href="getting_started/install/">Install</a>
 <a class="md-button" href="modules/solids/">Solids</a></p>
