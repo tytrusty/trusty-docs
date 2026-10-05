@@ -6,24 +6,17 @@ A physics simulation library for deformable solids, shells, rods, articulated
 affine bodies, reduced-order (subspace) bodies and MPM, with IPC-style frictional
 contact between them. You drive it from Python and step it with numpy arrays.
 
-> **Pre-release test build (0.1.0a3).** The API will change between releases, and
+> **Pre-release test build (0.1.0a4).** The API will change between releases, and
 > only macOS on Apple Silicon is supported for now.
 
 ## Install
 
-This build is published on TestPyPI only. If you don't have
-[uv](https://docs.astral.sh/uv/) yet, install it once:
+This build is published on TestPyPI only:
 
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-Then, in a new environment:
-
-```bash
-uv venv && source .venv/bin/activate
-uv pip install numpy
-uv pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a3
+python -m venv .venv && source .venv/bin/activate
+pip install numpy
+pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a4
 ```
 
 Installing numpy first and then trusty-sim with `--no-deps` keeps every other
@@ -31,11 +24,12 @@ package coming from the real PyPI rather than TestPyPI.
 
 Optional extras:
 
-- `uv pip install polyscope trimesh matplotlib` for the interactive viewer used
+- `pip install polyscope trimesh matplotlib` for the interactive viewer used
   by the examples.
-- `uv pip install scipy` for building subspace bases.
+- `pip install scipy` for building subspace bases.
 
-Using pip instead works the same way: replace `uv pip` with `pip`.
+With [uv](https://docs.astral.sh/uv/), use `uv venv` and replace `pip` with
+`uv pip`.
 
 ## Requirements
 
@@ -91,26 +85,26 @@ trusty.capabilities()   # {'fem', 'contact', 'affine', 'rods', 'shells', ...}
 
 ## Running the examples
 
-From the root of this repository, `uv run` sets up an environment with
-trusty-sim, the polyscope viewer and everything else the examples need the
-first time you use it:
+Clone this repository, install trusty-sim as above, add the packages the
+examples use, and run any of them from the repository root:
 
 ```bash
 git clone https://github.com/tytrusty/trusty-docs
 cd trusty-docs
-uv run examples/contact/beam_drop.py
+pip install trimesh matplotlib scipy
+python examples/contact/beam_drop.py
 ```
 
 That opens the polyscope viewer. Most examples also run headless with
 `--no-viewer`:
 
 ```bash
-uv run examples/contact/beam_drop.py --no-viewer
+python examples/contact/beam_drop.py --no-viewer
 ```
 
-Without uv, install trusty-sim as above, then
-`pip install polyscope trimesh matplotlib scipy` and run
-`python examples/contact/beam_drop.py` from the repository root.
+With [uv](https://docs.astral.sh/uv/), skip the installs: `uv run
+examples/contact/beam_drop.py` sets up an environment with trusty-sim, the
+viewer and everything else the examples need the first time you use it.
 
 | Folder | Examples |
 |---|---|

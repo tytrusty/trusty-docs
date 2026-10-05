@@ -2,11 +2,11 @@
 # use: trusty-sim from TestPyPI, everything else from PyPI.
 [project]
 name = "trusty-sim-examples"
-version = "0.1.0a3"
+version = "0.1.0a4"
 description = "Examples for trusty-sim"
 requires-python = ">=3.11"
 dependencies = [
-    "trusty-sim==0.1.0a3",
+    "trusty-sim==0.1.0a4",
     "numpy>=1.26",
     "polyscope",
     "scipy",

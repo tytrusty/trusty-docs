@@ -5,5 +5,5 @@ type: software
 authors:
   - family-names: "Trusty"
     given-names: "Ty"
-version: "0.1.0a3"
+version: "0.1.0a4"
 date-released: "2026-10-02"
