@@ -5,8 +5,8 @@ The headless run prints the tip sag next to the small-deflection beam formula
 q L^4 / (8 E I).
 
 Usage:
-    uv run examples/rods/rod_cantilever.py
-    uv run examples/rods/rod_cantilever.py --no-viewer --steps 300
+    python examples/rods/rod_cantilever.py
+    python examples/rods/rod_cantilever.py --no-viewer --steps 300
 """
 
 from __future__ import annotations

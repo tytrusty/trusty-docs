@@ -12,9 +12,9 @@ material model handles that. Runs on the CPU and CUDA backends.
 
 
 Usage:
-    uv run examples/coupling/fem_mpm.py                     # polyscope viewer
-    uv run examples/coupling/fem_mpm.py --backend cuda      # on CUDA
-    uv run examples/coupling/fem_mpm.py --no-viewer         # headless self-check
+    python examples/coupling/fem_mpm.py                     # polyscope viewer
+    python examples/coupling/fem_mpm.py --backend cuda      # on CUDA
+    python examples/coupling/fem_mpm.py --no-viewer         # headless self-check
 """
 
 from __future__ import annotations

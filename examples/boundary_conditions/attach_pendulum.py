@@ -11,9 +11,9 @@ nodes drift from the points of the bar they are tied to; raise `--stiffness`
 and the gap shrinks in proportion.
 
 Usage:
-    uv run examples/boundary_conditions/attach_pendulum.py                # polyscope
-    uv run examples/boundary_conditions/attach_pendulum.py --no-viewer    # headless
-    uv run examples/boundary_conditions/attach_pendulum.py --no-viewer --stiffness 1e4
+    python examples/boundary_conditions/attach_pendulum.py                # polyscope
+    python examples/boundary_conditions/attach_pendulum.py --no-viewer    # headless
+    python examples/boundary_conditions/attach_pendulum.py --no-viewer --stiffness 1e4
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def make_beam_basis(mesh, material):
 
 
 def build_world(stiffness: float, backend: str = "cpu"):
-    trusty.check_capabilities("boundary_conditions", "affine", "subspace")
+    trusty.check_capabilities("affine", "subspace")
 
     world = trusty.World(backend=backend, timestep=0.01,
                          newton=trusty.NewtonConfig(max_iters=50))

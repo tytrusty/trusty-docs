@@ -5,10 +5,10 @@ Combines `embedded_drop.py` (voxelized FEM body + IPC contact) with
 contact + embedded + fem + static walls + mpm in one go at its first step.
 
 Usage:
-    uv run examples/coupling/embedded_drop_in_fluid.py
-    uv run examples/coupling/embedded_drop_in_fluid.py --backend cpu
-    uv run examples/coupling/embedded_drop_in_fluid.py --mesh bunny.obj
-    uv run examples/coupling/embedded_drop_in_fluid.py --no-viewer
+    python examples/coupling/embedded_drop_in_fluid.py
+    python examples/coupling/embedded_drop_in_fluid.py --backend cpu
+    python examples/coupling/embedded_drop_in_fluid.py --mesh bunny.obj
+    python examples/coupling/embedded_drop_in_fluid.py --no-viewer
 """
 
 from __future__ import annotations

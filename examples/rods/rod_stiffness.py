@@ -9,8 +9,8 @@ small-deflection beam formula q L^4 / (8 E I), which only holds while the sag
 is small compared with the length.
 
 Usage:
-    uv run examples/rods/rod_stiffness.py              # live polyscope
-    uv run examples/rods/rod_stiffness.py --no-viewer  # print the sags
+    python examples/rods/rod_stiffness.py              # live polyscope
+    python examples/rods/rod_stiffness.py --no-viewer  # print the sags
 """
 
 from __future__ import annotations

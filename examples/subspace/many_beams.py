@@ -9,8 +9,8 @@ the fastest option on macOS for many bodies.
 
 Usage:
 
-    uv run examples/subspace/many_beams.py
-    uv run examples/subspace/many_beams.py --num-beams 12 \
+    python examples/subspace/many_beams.py
+    python examples/subspace/many_beams.py --num-beams 12 \
         --backend accelerate --no-viewer --steps 240
 """
 

@@ -17,10 +17,10 @@ Pick the element kind with ``--element hex|tet``: hex bodies use
 
 Usage:
 
-    uv run examples/subspace/beam_drop.py
-    uv run examples/subspace/beam_drop.py --element tet
-    uv run examples/subspace/beam_drop.py --backend cuda --modes 8
-    uv run examples/subspace/beam_drop.py --no-viewer --steps 240
+    python examples/subspace/beam_drop.py
+    python examples/subspace/beam_drop.py --element tet
+    python examples/subspace/beam_drop.py --backend cuda --modes 8
+    python examples/subspace/beam_drop.py --no-viewer --steps 240
 
 Install polyscope with ``pip install trusty-sim[viewer]``.
 """

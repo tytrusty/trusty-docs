@@ -6,9 +6,9 @@ revolute joint fixed in space; each following bar is hinged to the one before
 it. Released horizontal, the chain swings down like a multi-link pendulum.
 
 Usage:
-    uv run examples/affine/pendulum.py                # polyscope
-    uv run examples/affine/pendulum.py --no-viewer    # headless
-    uv run examples/affine/pendulum.py --links 6 --steps 600
+    python examples/affine/pendulum.py                # polyscope
+    python examples/affine/pendulum.py --no-viewer    # headless
+    python examples/affine/pendulum.py --links 6 --steps 600
 """
 
 from __future__ import annotations

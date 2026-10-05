@@ -22,8 +22,8 @@ shin, the pair rests on the floor, and the foot compresses on impact. It
 prints PASS or FAIL. Polyscope mode shows the drop.
 
 Usage:
-    uv run examples/affine/fixed_joint.py                # polyscope
-    uv run examples/affine/fixed_joint.py --no-viewer    # headless test
+    python examples/affine/fixed_joint.py                # polyscope
+    python examples/affine/fixed_joint.py --no-viewer    # headless test
 """
 
 from __future__ import annotations

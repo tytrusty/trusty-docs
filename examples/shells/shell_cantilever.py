@@ -11,9 +11,9 @@ shape.
 estimate.
 
 Usage:
-    uv run examples/shells/shell_cantilever.py              # live polyscope
-    uv run examples/shells/shell_cantilever.py --no-viewer  # print the sags
-    uv run examples/shells/shell_cantilever.py --backend cuda
+    python examples/shells/shell_cantilever.py              # live polyscope
+    python examples/shells/shell_cantilever.py --no-viewer  # print the sags
+    python examples/shells/shell_cantilever.py --backend cuda
 """
 
 from __future__ import annotations

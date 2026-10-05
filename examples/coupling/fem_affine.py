@@ -5,8 +5,8 @@ floor. Contact couples the two body types in one implicit solve.
 
 
 Usage:
-    uv run examples/coupling/fem_affine.py --no-viewer
-    uv run examples/coupling/fem_affine.py            # polyscope
+    python examples/coupling/fem_affine.py --no-viewer
+    python examples/coupling/fem_affine.py            # polyscope
 """
 
 from __future__ import annotations

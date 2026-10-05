@@ -5,9 +5,9 @@ settles into a stack held up by the floor and by each other through contact,
 without the cubes passing into one another.
 
 Usage:
-    uv run examples/affine/stacked_cubes.py                 # polyscope
-    uv run examples/affine/stacked_cubes.py --no-viewer     # headless
-    uv run examples/affine/stacked_cubes.py --grid 4 --steps 400
+    python examples/affine/stacked_cubes.py                 # polyscope
+    python examples/affine/stacked_cubes.py --no-viewer     # headless
+    python examples/affine/stacked_cubes.py --grid 4 --steps 400
 """
 
 from __future__ import annotations

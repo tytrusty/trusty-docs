@@ -31,10 +31,10 @@ neighbouring letters is in contact and that the T, s, t and y visibly deform.
 topology.npz, frame_NNNN.npz), for rendering offline.
 
 Usage:
-    uv run examples/coupling/trusty_logo.py                       # viewer (opens paused)
-    uv run examples/coupling/trusty_logo.py --no-viewer           # headless self-check
-    uv run examples/coupling/trusty_logo.py --export frames/      # headless, save frames
-    uv run examples/coupling/trusty_logo.py --backend accelerate  # Apple solver
+    python examples/coupling/trusty_logo.py                       # viewer (opens paused)
+    python examples/coupling/trusty_logo.py --no-viewer           # headless self-check
+    python examples/coupling/trusty_logo.py --export frames/      # headless, save frames
+    python examples/coupling/trusty_logo.py --backend accelerate  # Apple solver
 """
 
 from __future__ import annotations

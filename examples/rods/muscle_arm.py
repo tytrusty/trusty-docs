@@ -13,8 +13,8 @@ settles the arm at activations 0, 0.5 and 1 in turn and prints each pose; the
 viewer has an activation slider.
 
 Usage:
-    uv run examples/rods/muscle_arm.py                 # polyscope + slider
-    uv run examples/rods/muscle_arm.py --no-viewer     # print the poses
+    python examples/rods/muscle_arm.py                 # polyscope + slider
+    python examples/rods/muscle_arm.py --no-viewer     # print the poses
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def make_box(center, half):
 
 
 def build_world(backend: str = "auto"):
-    trusty.check_capabilities("rods", "affine", "boundary_conditions")
+    trusty.check_capabilities("rods", "affine")
     world = trusty.World(backend=backend,
                          timestep=0.1,
                          time_stepping="quasi_static",  # settle to each pose, no swinging

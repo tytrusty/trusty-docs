@@ -5,7 +5,7 @@ floor, and drapes over it.
 
 
 Usage:
-    uv run examples/coupling/affine_shell.py --no-viewer
+    python examples/coupling/affine_shell.py --no-viewer
 """
 
 from __future__ import annotations

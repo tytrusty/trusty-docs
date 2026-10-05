@@ -5,9 +5,9 @@ the shelf only, so it falls through it and lands on the floor. The third is
 excluded from contact entirely and falls through everything.
 
 Usage:
-    uv run examples/contact/exclude.py                # polyscope
-    uv run examples/contact/exclude.py --no-viewer    # headless
-    uv run examples/contact/exclude.py --steps 60
+    python examples/contact/exclude.py                # polyscope
+    python examples/contact/exclude.py --no-viewer    # headless
+    python examples/contact/exclude.py --steps 60
 """
 
 from __future__ import annotations

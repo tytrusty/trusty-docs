@@ -17,9 +17,9 @@ speed is far higher, and both bars reach the target. Polyscope mode shows the
 two bars side by side with a live speed readout.
 
 Usage:
-    uv run examples/affine/joint_velocity_limit.py                # polyscope
-    uv run examples/affine/joint_velocity_limit.py --no-viewer    # headless test
-    uv run examples/affine/joint_velocity_limit.py --omega-max 2.0
+    python examples/affine/joint_velocity_limit.py                # polyscope
+    python examples/affine/joint_velocity_limit.py --no-viewer    # headless test
+    python examples/affine/joint_velocity_limit.py --omega-max 2.0
 """
 
 from __future__ import annotations

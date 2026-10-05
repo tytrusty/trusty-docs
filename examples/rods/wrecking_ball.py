@@ -6,8 +6,8 @@ stitched to the sphere, so it moves with it. Released from horizontal, the
 sphere swings down about the anchor and the rod holds it like a chain.
 
 Usage:
-    uv run examples/rods/wrecking_ball.py                # polyscope
-    uv run examples/rods/wrecking_ball.py --no-viewer    # headless self-check
+    python examples/rods/wrecking_ball.py                # polyscope
+    python examples/rods/wrecking_ball.py --no-viewer    # headless self-check
 """
 
 from __future__ import annotations
@@ -67,7 +67,7 @@ def icosphere(radius: float, center, subdiv: int = 1):
 
 
 def build_world(backend: str = "auto"):
-    trusty.check_capabilities("rods", "affine", "boundary_conditions")
+    trusty.check_capabilities("rods", "affine")
     world = trusty.World(backend=backend, timestep=0.005, newton=trusty.NewtonConfig(max_iters=60))
 
     # Rod chain: horizontal from the anchor to the ball, first vertex pinned.

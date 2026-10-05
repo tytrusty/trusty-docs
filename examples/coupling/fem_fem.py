@@ -5,7 +5,7 @@ between them.
 
 
 Usage:
-    uv run examples/coupling/fem_fem.py --no-viewer
+    python examples/coupling/fem_fem.py --no-viewer
 """
 
 from __future__ import annotations

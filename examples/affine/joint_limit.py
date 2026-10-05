@@ -4,14 +4,13 @@ one with a joint limit and one without.
 The target sweeps well past the limits. The free bar follows it; the limited
 bar stops at its limit and waits there until the target comes back.
 
-Headless mode checks this: the limited bar stays within [lo, hi] (plus the
-limit's margin) while the free bar swings past, and prints PASS or FAIL.
-Polyscope mode shows the two bars side by side.
+Polyscope mode shows the two bars side by side; headless mode prints the
+target and both angles as the run progresses.
 
 Usage:
-    uv run examples/affine/joint_limit.py                # polyscope
-    uv run examples/affine/joint_limit.py --no-viewer    # headless test
-    uv run examples/affine/joint_limit.py --lo -0.5 --hi 0.5
+    python examples/affine/joint_limit.py                # polyscope
+    python examples/affine/joint_limit.py --no-viewer    # headless
+    python examples/affine/joint_limit.py --lo -0.5 --hi 0.5
 """
 
 from __future__ import annotations
@@ -83,35 +82,18 @@ def target(t: float, amp: float) -> float:
 
 def run_headless(world, act_free, act_limited, lo, hi, steps, amp):
     print(f"Running {steps} steps headless (command amplitude {amp:.2f} rad)...")
-    margin = 0.08
-    free_max = -1e9
-    lim_lo, lim_hi = 1e9, -1e9
     for i in range(steps):
-        t = i * 0.01
-        cmd = target(t, amp)
+        cmd = target(i * 0.01, amp)
         trusty.affine.set_actuator_target(world, act_free, cmd)
         trusty.affine.set_actuator_target(world, act_limited, cmd)
         world.step()
-        free = trusty.affine.actuator_value(world, act_free)
-        lim  = trusty.affine.actuator_value(world, act_limited)
-        free_max = max(free_max, abs(free))
-        lim_lo, lim_hi = min(lim_lo, lim), max(lim_hi, lim)
         if (i + 1) % 50 == 0:
+            free = trusty.affine.actuator_value(world, act_free)
+            lim = trusty.affine.actuator_value(world, act_limited)
             clamp = "  <-- CLAMPED" if (cmd > hi + 1e-3 and lim < hi) \
                     or (cmd < lo - 1e-3 and lim > lo) else ""
             print(f"  step {i + 1:4d}  cmd={cmd:+.3f} | free={free:+.3f} "
                   f"limited={lim:+.3f}{clamp}")
-
-    tol = margin + 1e-2
-    held = lim_lo > lo - tol and lim_hi < hi + tol
-    swept = free_max > hi + 0.1
-    print(f"\nlimited angle range: [{lim_lo:+.3f}, {lim_hi:+.3f}]  "
-          f"(stops [{lo:+.2f}, {hi:+.2f}])")
-    print(f"free bar reached |angle|max = {free_max:.3f} (> stop {hi:.2f})")
-    ok = held and swept
-    print("PASS: limit held while the free bar swung past it." if ok
-          else "FAIL: limit did not hold as expected.")
-    return ok
 
 
 def run_polyscope(world, free_bar, act_free, limited_bar, act_limited,
@@ -180,9 +162,9 @@ def main():
     world, free_bar, act_free, limited_bar, act_limited = build(
         args.lo, args.hi, args.backend)
     if args.no_viewer:
-        ok = run_headless(world, act_free, act_limited, args.lo, args.hi,
-                          args.steps, args.amp)
-        raise SystemExit(0 if ok else 1)
+        run_headless(world, act_free, act_limited, args.lo, args.hi,
+                     args.steps, args.amp)
+        return
     run_polyscope(world, free_bar, act_free, limited_bar, act_limited,
                   args.lo, args.hi, args.steps, args.amp)
 

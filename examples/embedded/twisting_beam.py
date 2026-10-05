@@ -15,9 +15,9 @@ own storage, and the term recomputes per-QP `x_bar` from the bary table
 at `on_step_begin` -- re-uploading to the device on CUDA.
 
 Run:
-    uv run examples/embedded/twisting_beam.py
-    uv run examples/embedded/twisting_beam.py --steps 240 --turns 1.0
-    uv run examples/embedded/twisting_beam.py --no-viewer  # PNG frames
+    python examples/embedded/twisting_beam.py
+    python examples/embedded/twisting_beam.py --steps 240 --turns 1.0
+    python examples/embedded/twisting_beam.py --no-viewer  # PNG frames
 """
 
 from __future__ import annotations

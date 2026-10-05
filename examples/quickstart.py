@@ -4,7 +4,7 @@ The smallest complete TrustySim script: a hex-mesh beam, clamped at one
 end, stepped for one second, then shown in the polyscope viewer.
 
 Usage:
-    uv run examples/quickstart.py
+    python examples/quickstart.py
 """
 import polyscope as ps
 import trusty

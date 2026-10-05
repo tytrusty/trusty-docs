@@ -16,9 +16,9 @@ What this demonstrates (Benchekroun et al. 2023, arXiv:2303.11886):
   - the muscle viewer colors the muscle by its fiber-aware weight fields and
     draws the fiber field.
 
-    uv run examples/subspace/muscle_eigenmodes.py
-    uv run examples/subspace/muscle_eigenmodes.py --no-viewer   # self-checking
-    uv run examples/subspace/muscle_eigenmodes.py --activated   # + contraction mode
+    python examples/subspace/muscle_eigenmodes.py
+    python examples/subspace/muscle_eigenmodes.py --no-viewer   # self-checking
+    python examples/subspace/muscle_eigenmodes.py --activated   # + contraction mode
 
 `--activated` swaps `build_skinning_eigenmodes` for
 `build_activated_skinning_eigenmodes`, which appends the muscle's static

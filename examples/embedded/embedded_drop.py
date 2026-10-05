@@ -8,11 +8,11 @@ the body's smooth input surface (lifted to hex DOFs through its
 **input surface**, not the staircased hex faces.
 
 Usage:
-    uv run examples/embedded_drop.py                       # built-in bar
-    uv run examples/embedded_drop.py --mesh bunny.obj      # custom mesh
-    uv run examples/embedded_drop.py --no-viewer           # write PNG frames
-    uv run examples/embedded_drop.py --steps 240
-    uv run examples/embedded_drop.py --order q2            # quadratic (Q2) elements
+    python examples/embedded_drop.py                       # built-in bar
+    python examples/embedded_drop.py --mesh bunny.obj      # custom mesh
+    python examples/embedded_drop.py --no-viewer           # write PNG frames
+    python examples/embedded_drop.py --steps 240
+    python examples/embedded_drop.py --order q2            # quadratic (Q2) elements
 """
 
 from __future__ import annotations

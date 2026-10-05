@@ -11,9 +11,9 @@ a little further each step. Each step solves for static equilibrium (no
 inertia) with gravity off, so the stretch is the load's doing alone.
 
 Usage:
-    uv run examples/boundary_conditions/fem_surface_load.py              # polyscope
-    uv run examples/boundary_conditions/fem_surface_load.py --no-viewer  # print the stretch
-    uv run examples/boundary_conditions/fem_surface_load.py --element tet
+    python examples/boundary_conditions/fem_surface_load.py              # polyscope
+    python examples/boundary_conditions/fem_surface_load.py --no-viewer  # print the stretch
+    python examples/boundary_conditions/fem_surface_load.py --element tet
 """
 
 from __future__ import annotations
@@ -136,7 +136,6 @@ def main():
                         help="headless: ramp the load, then print the stretch")
     args = parser.parse_args()
 
-    trusty.check_capabilities("boundary_conditions")
     world, body, mesh = build_world(args.backend, args.element)
     if args.no_viewer:
         run_headless(world, body, mesh, args.steps)

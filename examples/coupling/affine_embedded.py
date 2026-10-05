@@ -5,8 +5,8 @@ on the floor.
 
 
 Usage:
-    uv run examples/coupling/affine_embedded.py
-    uv run examples/coupling/affine_embedded.py --no-viewer
+    python examples/coupling/affine_embedded.py
+    python examples/coupling/affine_embedded.py --no-viewer
 """
 
 from __future__ import annotations

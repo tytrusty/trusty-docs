@@ -8,9 +8,9 @@ with the bar, as if they were points of it. Released horizontal, the bar swings
 down like a pendulum and the bonded soft beam whips and sags behind it.
 
 Usage:
-    uv run examples/boundary_conditions/fem_affine_pendulum.py                # polyscope
-    uv run examples/boundary_conditions/fem_affine_pendulum.py --no-viewer    # headless
-    uv run examples/boundary_conditions/fem_affine_pendulum.py --steps 400
+    python examples/boundary_conditions/fem_affine_pendulum.py                # polyscope
+    python examples/boundary_conditions/fem_affine_pendulum.py --no-viewer    # headless
+    python examples/boundary_conditions/fem_affine_pendulum.py --steps 400
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def make_box(center, half):
 
 
 def build_world(backend: str = "auto"):
-    trusty.check_capabilities("boundary_conditions", "affine")
+    trusty.check_capabilities("affine")
 
     world = trusty.World(backend=backend, timestep=0.01, newton=trusty.NewtonConfig(max_iters=50))
 

@@ -7,9 +7,9 @@ move exactly with the post, as if they were points of it. Under gravity the
 flag cantilevers off the anchored post and sags.
 
 Usage:
-    uv run examples/boundary_conditions/fem_embedded_flag.py                # polyscope
-    uv run examples/boundary_conditions/fem_embedded_flag.py --no-viewer    # headless
-    uv run examples/boundary_conditions/fem_embedded_flag.py --steps 400
+    python examples/boundary_conditions/fem_embedded_flag.py                # polyscope
+    python examples/boundary_conditions/fem_embedded_flag.py --no-viewer    # headless
+    python examples/boundary_conditions/fem_embedded_flag.py --steps 400
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ FLAG_RES    = (12, 2, 2)
 
 
 def build_world(backend: str = "auto"):
-    trusty.check_capabilities("boundary_conditions", "embedded")
+    trusty.check_capabilities("embedded")
 
     world    = trusty.World(backend=backend,
                             timestep=1.0 / 60.0,

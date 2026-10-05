@@ -9,11 +9,11 @@ membrane models. ``--no-viewer`` prints the drape's size and its largest
 stretch.
 
 Usage:
-    uv run examples/shells/cloth_drape.py
-    uv run examples/shells/cloth_drape.py --no-strain-limit
-    uv run examples/shells/cloth_drape.py --bending qb
-    uv run examples/shells/cloth_drape.py --backend accelerate
-    uv run examples/shells/cloth_drape.py --no-viewer --steps 120
+    python examples/shells/cloth_drape.py
+    python examples/shells/cloth_drape.py --no-strain-limit
+    python examples/shells/cloth_drape.py --bending qb
+    python examples/shells/cloth_drape.py --backend accelerate
+    python examples/shells/cloth_drape.py --no-viewer --steps 120
 """
 
 from __future__ import annotations

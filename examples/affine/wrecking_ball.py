@@ -9,9 +9,9 @@ and takes under a minute headless; 8 (512 blocks) takes well over half an
 hour.
 
 Usage:
-    uv run examples/affine/wrecking_ball.py                 # polyscope
-    uv run examples/affine/wrecking_ball.py --no-viewer     # headless
-    uv run examples/affine/wrecking_ball.py --grid 6
+    python examples/affine/wrecking_ball.py                 # polyscope
+    python examples/affine/wrecking_ball.py --no-viewer     # headless
+    python examples/affine/wrecking_ball.py --grid 6
 """
 
 from __future__ import annotations

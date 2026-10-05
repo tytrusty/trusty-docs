@@ -8,15 +8,15 @@ stable_neohookean the column is an elastic block instead, which slumps and
 bounces but keeps its shape.
 
 Usage:
-    uv run examples/mpm/dam_break.py                     # polyscope viewer
-    uv run examples/mpm/dam_break.py --no-viewer         # headless self-check
-    uv run examples/mpm/dam_break.py --noslip            # fluid sticks to the walls
-    uv run examples/mpm/dam_break.py --scheme lite       # the other MPM scheme
-    uv run examples/mpm/dam_break.py --material stable_neohookean  # an elastic block
-    uv run examples/mpm/dam_break.py --sample uniform    # particles on a lattice
-    uv run examples/mpm/dam_break.py --spacing 0.025 --cell-size 0.05  # finer
-    uv run examples/mpm/dam_break.py --backend accelerate  # faster on macOS
-    uv run examples/mpm/dam_break.py --backend cuda      # on the GPU
+    python examples/mpm/dam_break.py                     # polyscope viewer
+    python examples/mpm/dam_break.py --no-viewer         # headless self-check
+    python examples/mpm/dam_break.py --noslip            # fluid sticks to the walls
+    python examples/mpm/dam_break.py --scheme lite       # the other MPM scheme
+    python examples/mpm/dam_break.py --material stable_neohookean  # an elastic block
+    python examples/mpm/dam_break.py --sample uniform    # particles on a lattice
+    python examples/mpm/dam_break.py --spacing 0.025 --cell-size 0.05  # finer
+    python examples/mpm/dam_break.py --backend accelerate  # faster on macOS
+    python examples/mpm/dam_break.py --backend cuda      # on the GPU
 """
 
 from __future__ import annotations

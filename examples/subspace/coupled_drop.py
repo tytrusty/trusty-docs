@@ -6,9 +6,9 @@ one implicit step, and once `trusty.contact.enable` is called, contact
 between the two beams and with the floor needs no further setup.
 
 Usage:
-    uv run examples/subspace/coupled_drop.py
-    uv run examples/subspace/coupled_drop.py --backend cuda
-    uv run examples/subspace/coupled_drop.py --no-viewer --steps 240
+    python examples/subspace/coupled_drop.py
+    python examples/subspace/coupled_drop.py --backend cuda
+    python examples/subspace/coupled_drop.py --no-viewer --steps 240
 """
 
 from __future__ import annotations

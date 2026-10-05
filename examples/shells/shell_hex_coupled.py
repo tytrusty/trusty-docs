@@ -6,9 +6,9 @@ down onto the beam. Contact between the two keeps them apart. ``--no-viewer``
 prints where the beam and the sheet end up.
 
 Usage:
-    uv run examples/shells/shell_hex_coupled.py
-    uv run examples/shells/shell_hex_coupled.py --backend accelerate
-    uv run examples/shells/shell_hex_coupled.py --no-viewer --steps 240
+    python examples/shells/shell_hex_coupled.py
+    python examples/shells/shell_hex_coupled.py --backend accelerate
+    python examples/shells/shell_hex_coupled.py --no-viewer --steps 240
 """
 
 from __future__ import annotations

@@ -9,8 +9,8 @@ of 1 s with the velocity zeroed after every step moves each rod straight to
 its resting shape.
 
 Usage:
-    uv run examples/rods/rod_pins.py              # live polyscope
-    uv run examples/rods/rod_pins.py --no-viewer  # print the resting shapes
+    python examples/rods/rod_pins.py              # live polyscope
+    python examples/rods/rod_pins.py --no-viewer  # print the resting shapes
 """
 
 from __future__ import annotations

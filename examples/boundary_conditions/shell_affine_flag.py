@@ -8,9 +8,9 @@ the rest of the flag flutters and droops under gravity. Released horizontal, the
 pole swings down and the bonded flag whips behind it.
 
 Usage:
-    uv run examples/boundary_conditions/shell_affine_flag.py                # polyscope
-    uv run examples/boundary_conditions/shell_affine_flag.py --no-viewer    # headless
-    uv run examples/boundary_conditions/shell_affine_flag.py --steps 400
+    python examples/boundary_conditions/shell_affine_flag.py                # polyscope
+    python examples/boundary_conditions/shell_affine_flag.py --no-viewer    # headless
+    python examples/boundary_conditions/shell_affine_flag.py --steps 400
 """
 
 from __future__ import annotations
@@ -73,7 +73,7 @@ def make_sheet(x0, x1, y0, y1, z, resx, resy):
 
 
 def build_world(backend: str = "auto"):
-    trusty.check_capabilities("boundary_conditions", "affine", "shells")
+    trusty.check_capabilities("affine", "shells")
 
     world = trusty.World(backend=backend, timestep=0.01, newton=trusty.NewtonConfig(max_iters=50))
 

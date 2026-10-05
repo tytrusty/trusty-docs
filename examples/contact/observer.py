@@ -17,9 +17,9 @@ The observer's three hooks:
                             checkbox turns it on and off.
 
 Usage:
-    uv run examples/contact/observer.py                # polyscope
-    uv run examples/contact/observer.py --no-viewer    # headless
-    uv run examples/contact/observer.py --steps 200
+    python examples/contact/observer.py                # polyscope
+    python examples/contact/observer.py --no-viewer    # headless
+    python examples/contact/observer.py --steps 200
 """
 
 from __future__ import annotations
