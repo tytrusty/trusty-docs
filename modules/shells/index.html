@@ -1674,7 +1674,7 @@ an <code>(n, 3)</code> NumPy array.</p>
 <p>A world simulates one shell body. If you add a second, only the last one
 added moves, so give each sheet a world of its own.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/shells/cloth_drape.py</code></summary>
+<summary>Full script: <code>python examples/shells/cloth_drape.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""A square cloth curtain hanging from its two top corners.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">A flat square sheet starts upright, leaning slightly, and is pinned at its two</span>
@@ -1686,11 +1686,11 @@ added moves, so give each sheet a world of its own.</p>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">stretch.</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">Usage:</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    uv run examples/shells/cloth_drape.py</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    uv run examples/shells/cloth_drape.py --no-strain-limit</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    uv run examples/shells/cloth_drape.py --bending qb</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    uv run examples/shells/cloth_drape.py --backend accelerate</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    uv run examples/shells/cloth_drape.py --no-viewer --steps 120</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    python examples/shells/cloth_drape.py</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    python examples/shells/cloth_drape.py --no-strain-limit</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/shells/cloth_drape.py --bending qb</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    python examples/shells/cloth_drape.py --backend accelerate</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    python examples/shells/cloth_drape.py --no-viewer --steps 120</span>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">"""</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1941,11 +1941,6 @@ added moves, so give each sheet a world of its own.</p>
 <td><code>1.1</code></td>
 <td>the largest stretch allowed, as a ratio of rest length</td>
 </tr>
-<tr>
-<td><code>project_pd</code></td>
-<td><code>True</code></td>
-<td>keep the solver's stiffness matrix positive definite, for robust convergence. Leave it on.</td>
-</tr>
 </tbody>
 </table>
 <p>Thickness sets how a sheet balances stretching against bending. A sheet's
@@ -1959,7 +1954,7 @@ clamped along one edge, are 5, 10 and 20 mm thick:</p>
 estimate from plate theory, which it matches to within about 20% on this
 coarse mesh.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/shells/shell_cantilever.py</code></summary>
+<summary>Full script: <code>python examples/shells/shell_cantilever.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="sd">"""Three plates clamped along one edge, sagging under gravity.</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="sd">The plates share one material and differ only in thickness: 5, 10 and 20 mm.</span>
@@ -1973,9 +1968,9 @@ coarse mesh.</p>
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="sd">estimate.</span>
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
 <a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="sd">Usage:</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="sd">    uv run examples/shells/shell_cantilever.py              # live polyscope</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="sd">    uv run examples/shells/shell_cantilever.py --no-viewer  # print the sags</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="sd">    uv run examples/shells/shell_cantilever.py --backend cuda</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="sd">    python examples/shells/shell_cantilever.py              # live polyscope</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="sd">    python examples/shells/shell_cantilever.py --no-viewer  # print the sags</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="sd">    python examples/shells/shell_cantilever.py --backend cuda</span>
 <a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="sd">"""</span>
 <a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
 <a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2171,7 +2166,7 @@ the sheet's plane) and the bending model.</p>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># Bac by default</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">config</span><span class="o">.</span><span class="n">membrane_model</span> <span class="o">=</span> <span class="n">MEMBRANE</span><span class="p">[</span><span class="n">membrane</span><span class="p">]</span>  <span class="c1"># Koiter by default</span>
 </code></pre></div>
-<p><code>uv run examples/shells/cloth_drape.py --bending qb --membrane neohookean</code>
+<p><code>python examples/shells/cloth_drape.py --bending qb --membrane neohookean</code>
 runs the curtain with the other two models.</p>
 <h3 id="strain-limiting">Strain limiting<a class="headerlink" href="#strain-limiting" title="Permanent link">&para;</a></h3>
 <p>Cloth bends easily but barely stretches. A low Young's modulus gives the easy
@@ -2182,7 +2177,7 @@ limit (left) and without (right); the yellow squares are the sheets' rest
 outlines. The limited sheet stretches at most 8%, and the free one up to 88%
 near the corners:</p>
 <p><img alt="Two curtains, with and without strain limiting" class="shot" src="../../assets/img/shells_strain_limit.png" width="640" /></p>
-<p><code>uv run examples/shells/cloth_drape.py --no-strain-limit</code> runs the right-hand
+<p><code>python examples/shells/cloth_drape.py --no-strain-limit</code> runs the right-hand
 one.</p>
 <h2 id="pinning">Pinning<a class="headerlink" href="#pinning" title="Permanent link">&para;</a></h2>
 <table>
@@ -2244,7 +2239,7 @@ about flat:</p>
 only has an effect before the first step. For a sheet that is curved at rest,
 pass the curved shape as <code>V</code> instead.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/shells/spring_back.py</code></summary>
+<summary>Full script: <code>python examples/shells/spring_back.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="sd">"""A flat plate, started rolled up, springs back flat.</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="sd">The mesh passed to ``add_shell`` is the rest shape: here a flat strip. Before</span>
@@ -2254,9 +2249,9 @@ pass the curved shape as <code>V</code> instead.</p>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="sd">flat. ``--no-viewer`` prints how far the plate is from flat as it goes.</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="sd">Usage:</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="sd">    uv run examples/shells/spring_back.py              # live polyscope</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="sd">    uv run examples/shells/spring_back.py --no-viewer  # print the unrolling</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="sd">    uv run examples/shells/spring_back.py --steps 240</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="sd">    python examples/shells/spring_back.py              # live polyscope</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="sd">    python examples/shells/spring_back.py --no-viewer  # print the unrolling</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="sd">    python examples/shells/spring_back.py --steps 240</span>
 <a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="sd">"""</span>
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
 <a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -2419,10 +2414,10 @@ sheet drops onto a fixed sphere and drapes over it:</p>
 </code></pre></div>
 <p><img alt="A sheet draped over a sphere" class="shot" src="../../assets/img/shells_contact.png" width="640" /></p>
 <p>Contact settings and walls are covered under <a href="../contact/">Contact</a>.
-<code>uv run examples/shells/shell_hex_coupled.py</code> drops a sheet onto a soft
+<code>python examples/shells/shell_hex_coupled.py</code> drops a sheet onto a soft
 <a href="../solids/">solid</a> beam in the same world.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/shells/shell_drop.py</code></summary>
+<summary>Full script: <code>python examples/shells/shell_drop.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="sd">"""A square sheet dropped onto a fixed sphere, with contact.</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="sd">A flat sheet falls under gravity and lands on a sphere, a fixed contact wall,</span>
@@ -2430,9 +2425,9 @@ sheet drops onto a fixed sphere and drapes over it:</p>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="sd">far its corners hang.</span>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="sd">Usage:</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="sd">    uv run examples/shells/shell_drop.py</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="sd">    uv run examples/shells/shell_drop.py --backend accelerate</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="sd">    uv run examples/shells/shell_drop.py --no-viewer --steps 240</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="sd">    python examples/shells/shell_drop.py</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="sd">    python examples/shells/shell_drop.py --backend accelerate</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="sd">    python examples/shells/shell_drop.py --no-viewer --steps 240</span>
 <a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="sd">"""</span>
 <a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
 <a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>

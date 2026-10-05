@@ -1742,7 +1742,7 @@ which works with <code>world.step()</code> like any other.</p>
 <p>The clamp is part of the basis. The pinned nodes have no shapes to move with,
 so the runtime body needs no pin of its own. See <a href="#pins">Pins</a>.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/cantilever_beam.py</code></summary>
+<summary>Full script: <code>python examples/subspace/cantilever_beam.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""Subspace cantilever: a clamped beam sagging under gravity, on a few modes.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">A hex beam is clamped at one end. Its basis is precomputed once from a plain</span>
@@ -1756,11 +1756,11 @@ so the runtime body needs no pin of its own. See <a href="#pins">Pins</a>.</p>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">and compares the tip sag with the full solid.</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">Usage:</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    uv run examples/subspace/cantilever_beam.py</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    uv run examples/subspace/cantilever_beam.py --basis modal --modes 12</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    uv run examples/subspace/cantilever_beam.py --basis-file beam.basis</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">    uv run examples/subspace/cantilever_beam.py --backend accelerate</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="sd">    uv run examples/subspace/cantilever_beam.py --no-viewer</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/subspace/cantilever_beam.py</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    python examples/subspace/cantilever_beam.py --basis modal --modes 12</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    python examples/subspace/cantilever_beam.py --basis-file beam.basis</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">    python examples/subspace/cantilever_beam.py --backend accelerate</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="sd">    python examples/subspace/cantilever_beam.py --no-viewer</span>
 <a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="sd">Install polyscope with ``pip install trusty-sim[viewer]``.</span>
 <a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="sd">"""</span>
@@ -1976,7 +1976,7 @@ sag almost as far as the full solid (0.088 m against 0.092 m). The modes sag
 only half as far, because vibration modes are linear and stiffen under large
 rotation. Use modal bases for small deformation.</p>
 <p><img alt="A full, a handles and a modal cantilever, settled" class="shot" src="../../assets/img/subspace_kinds.png" width="640" /></p>
-<p>Run <code>uv run examples/subspace/cantilever_beam.py --no-viewer --basis modal</code> to
+<p>Run <code>python examples/subspace/cantilever_beam.py --no-viewer --basis modal</code> to
 compare the tip sag with the full solid yourself.</p>
 <h3 id="pins">Pins<a class="headerlink" href="#pins" title="Permanent link">&para;</a></h3>
 <p>To clamp a reduced body, pin the precompute solid, as in the
@@ -1993,7 +1993,7 @@ a file, and <code>trusty.subspace.load</code> reads it back as the handle that
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">pack</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">precompute_basis</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">modes</span><span class="p">))</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">basis</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">subspace</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 </code></pre></div>
-<p>Run <code>uv run examples/subspace/cantilever_beam.py --basis-file beam.basis</code>
+<p>Run <code>python examples/subspace/cantilever_beam.py --basis-file beam.basis</code>
 twice: the first run builds and saves the basis, the second loads it.</p>
 <table>
 <thead>
@@ -2049,7 +2049,7 @@ is shown before the drop and at the moment it is most squashed. The block is
 free, so its basis spans the fall and the bounce as well as the squash:</p>
 <p><img alt="A hex block and a tet block, before the drop and squashed on landing" class="shot" src="../../assets/img/subspace_drop.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/beam_drop.py</code></summary>
+<summary>Full script: <code>python examples/subspace/beam_drop.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="sd">"""A soft reduced block dropped onto a floor, as hex or tet elements.</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="sd">The block is free (not clamped), so its basis also spans rigid motion: it</span>
@@ -2069,10 +2069,10 @@ free, so its basis spans the fall and the bounce as well as the squash:</p>
 <a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
 <a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="sd">Usage:</span>
 <a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="sd">    uv run examples/subspace/beam_drop.py</span>
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="sd">    uv run examples/subspace/beam_drop.py --element tet</span>
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="sd">    uv run examples/subspace/beam_drop.py --backend cuda --modes 8</span>
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="sd">    uv run examples/subspace/beam_drop.py --no-viewer --steps 240</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="sd">    python examples/subspace/beam_drop.py</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="sd">    python examples/subspace/beam_drop.py --element tet</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="sd">    python examples/subspace/beam_drop.py --backend cuda --modes 8</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="sd">    python examples/subspace/beam_drop.py --no-viewer --steps 240</span>
 <a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>
 <a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="sd">Install polyscope with ``pip install trusty-sim[viewer]``.</span>
 <a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="sd">"""</span>
@@ -2319,7 +2319,7 @@ body. Each body is placed by its own mesh and keeps its own state:</p>
 the body count. On macOS, the <code>accelerate</code> backend is the fastest option for
 many bodies, and the default <code>auto</code> picks it there.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/many_beams.py</code></summary>
+<summary>Full script: <code>python examples/subspace/many_beams.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="sd">"""Many soft beams falling onto a floor, all sharing one basis.</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="sd">The beams are translated copies of one rest mesh, so one precomputed basis</span>
@@ -2331,8 +2331,8 @@ many bodies, and the default <code>auto</code> picks it there.</p>
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
 <a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="sd">Usage:</span>
 <a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="sd">    uv run examples/subspace/many_beams.py</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="sd">    uv run examples/subspace/many_beams.py --num-beams 12 \</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="sd">    python examples/subspace/many_beams.py</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="sd">    python examples/subspace/many_beams.py --num-beams 12 \</span>
 <a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="sd">        --backend accelerate --no-viewer --steps 240</span>
 <a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="sd">"""</span>
 <a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>
@@ -2567,7 +2567,7 @@ is 29% shorter:</p>
 </tbody>
 </table>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/muscle.py</code></summary>
+<summary>Full script: <code>python examples/subspace/muscle.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="sd">"""Directional muscle actuation on a subspace body.</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="sd">A free hex beam carries one muscle whose fibers all point one way. Raising</span>
@@ -2578,8 +2578,8 @@ is 29% shorter:</p>
 <a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="sd">x / y / z; the actuation pulses smoothly from 0 to ``--amp`` and back.</span>
 <a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
 <a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="sd">Usage:</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="sd">    uv run examples/subspace/muscle.py --direction x</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="sd">    uv run examples/subspace/muscle.py --no-viewer --direction y</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="sd">    python examples/subspace/muscle.py --direction x</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="sd">    python examples/subspace/muscle.py --no-viewer --direction y</span>
 <a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
 <a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="sd">Install polyscope with ``pip install trusty-sim[viewer]``.</span>
 <a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="sd">"""</span>
@@ -2760,9 +2760,9 @@ attached to a fixed wall:</p>
 <p><img alt="A beam twisted by a helical muscle" class="shot" src="../../assets/img/subspace_twist.png" width="640" /></p>
 <p><code>build_activated_skinning_eigenmodes</code> goes one step further. It also adds the
 exact shape the muscle contracts into as one extra coordinate. Try it with
-<code>uv run examples/subspace/muscle_eigenmodes.py --activated</code>.</p>
+<code>python examples/subspace/muscle_eigenmodes.py --activated</code>.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/muscle_twist.py</code></summary>
+<summary>Full script: <code>python examples/subspace/muscle_twist.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="sd">"""Twist muscle: helical fibers that wring a beam, actuated on a sinusoid.</span>
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="sd">A muscle's fiber field need not be straight. Wind the per-element fibers into a</span>
@@ -2777,8 +2777,8 @@ exact shape the muscle contracts into as one extra coordinate. Try it with
 <a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="sd">periodically.</span>
 <a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>
 <a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="sd">Usage:</span>
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="sd">    uv run examples/subspace/muscle_twist.py</span>
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="sd">    uv run examples/subspace/muscle_twist.py --no-viewer   # self-checking</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="sd">    python examples/subspace/muscle_twist.py</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="sd">    python examples/subspace/muscle_twist.py --no-viewer   # self-checking</span>
 <a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>
 <a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="sd">Install polyscope with `pip install trusty-sim[viewer]`.</span>
 <a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="sd">"""</span>
@@ -2990,7 +2990,7 @@ the floor. Here a reduced beam (red) has landed on a full one (grey):</p>
 <p><img alt="A reduced beam resting on a full beam" class="shot" src="../../assets/img/subspace_coupled.png" width="640" /></p>
 <p>See <a href="../contact/">Contact</a> for the contact settings.</p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/coupled_drop.py</code></summary>
+<summary>Full script: <code>python examples/subspace/coupled_drop.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="sd">"""Coupled subspace + FEM drop: a reduced beam lands on a full one.</span>
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="sd">Two identical hex beams fall onto a floor. The upper one is a reduced</span>
@@ -2999,9 +2999,9 @@ the floor. Here a reduced beam (red) has landed on a full one (grey):</p>
 <a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="sd">between the two beams and with the floor needs no further setup.</span>
 <a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>
 <a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="sd">Usage:</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="sd">    uv run examples/subspace/coupled_drop.py</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="sd">    uv run examples/subspace/coupled_drop.py --backend cuda</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="sd">    uv run examples/subspace/coupled_drop.py --no-viewer --steps 240</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="sd">    python examples/subspace/coupled_drop.py</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="sd">    python examples/subspace/coupled_drop.py --backend cuda</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="sd">    python examples/subspace/coupled_drop.py --no-viewer --steps 240</span>
 <a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="sd">"""</span>
 <a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
 <a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -3163,7 +3163,7 @@ joined by a hinge:</p>
 <p>Contracting the muscle bends the arm at the hinge:</p>
 <p><img alt="A muscle flexing an affine forearm about a hinge" class="shot" src="../../assets/img/subspace_arm.png" width="640" /></p>
 <details class="example">
-<summary>Full script: <code>uv run examples/subspace/muscle_arm.py</code></summary>
+<summary>Full script: <code>python examples/subspace/muscle_arm.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="sd">"""Muscle-actuated arm: a subspace muscle flexes an affine revolute joint.</span>
 <a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
 <a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="sd">A grounded affine "upper-arm" base and a hinged affine "forearm" share a</span>
@@ -3175,8 +3175,8 @@ joined by a hinge:</p>
 <a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="sd">together in one implicit step.</span>
 <a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
 <a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="sd">Usage:</span>
-<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="sd">    uv run examples/subspace/muscle_arm.py</span>
-<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="sd">    uv run examples/subspace/muscle_arm.py --no-viewer   # self-checking</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="sd">    python examples/subspace/muscle_arm.py</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="sd">    python examples/subspace/muscle_arm.py --no-viewer   # self-checking</span>
 <a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
 <a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a><span class="sd">Install polyscope with `pip install trusty-sim[viewer]`.</span>
 <a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a><span class="sd">"""</span>
