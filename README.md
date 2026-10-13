@@ -11,14 +11,10 @@ contact between them. You drive it from Python and step it with numpy arrays.
 
 ## Install
 
-This build is published on TestPyPI only:
-
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ trusty-sim==0.1.0a5
+pip install trusty-sim==0.1.0a5
 ```
-
-The second index lets pip fetch numpy and the other dependencies from PyPI.
 
 Optional extras:
 
@@ -38,7 +34,7 @@ from NVIDIA's wheels on PyPI, which pip installs for you:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ trusty-sim-cuda12==0.1.0a5
+pip install trusty-sim-cuda12==0.1.0a5
 ```
 
 It contains GPU code for compute capabilities 7.0, 7.5, 8.0, 8.6, 8.9, 9.0,

@@ -1,5 +1,5 @@
 # Lets `uv run examples/<file>.py` set up everything the examples need on first
-# use: trusty-sim from TestPyPI, everything else from PyPI.
+# use.
 [project]
 name = "trusty-sim-examples"
 version = "0.1.0a5"
@@ -21,11 +21,3 @@ environments = [
     "sys_platform == 'darwin' and platform_machine == 'arm64'",
     "sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
-
-[tool.uv.sources]
-trusty-sim = { index = "testpypi" }
-
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-explicit = true
