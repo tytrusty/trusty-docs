@@ -13,6 +13,7 @@
         <link rel="canonical" href="https://tytrusty.github.io/trusty-docs/getting_started/install/">
       
       
+      
         <link rel="prev" href="../..">
       
       
@@ -23,7 +24,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.70">
     
     
       
@@ -34,12 +35,12 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e442bf79.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -95,14 +96,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#install" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -373,6 +371,22 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../license/" class="md-tabs__link">
+        
+  
+  License
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -568,6 +582,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#gpu-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#check-what-your-build-includes" class="md-nav__link">
@@ -1368,6 +1393,32 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  License
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1409,6 +1460,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#gpu-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        GPU Installation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#check-what-your-build-includes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1442,6 +1504,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -1456,18 +1519,32 @@
 <tr>
 <th>Platform</th>
 <th>Python</th>
+<th>Package</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>macOS 11+ (Apple silicon)</td>
 <td>3.11, 3.12, 3.13</td>
+<td><code>trusty-sim</code></td>
+</tr>
+<tr>
+<td>Linux x86_64, glibc 2.28+ (Ubuntu 20.04+, Debian 10+, RHEL 8+)</td>
+<td>3.11, 3.12</td>
+<td><code>trusty-sim</code></td>
+</tr>
+<tr>
+<td>Linux x86_64 with an NVIDIA GPU, glibc 2.28+</td>
+<td>3.12</td>
+<td><code>trusty-sim-cuda12</code>, see <a href="#gpu-installation">GPU Installation</a></td>
 </tr>
 </tbody>
 </table>
+<p>On Linux, <code>trusty-sim</code> is the CPU build. Intel Macs, Windows and Linux on ARM
+are not supported yet.</p>
 <div class="admonition note">
 <p class="admonition-title">Pre-release</p>
-<p>Current builds are published to TestPyPI while the API settles.</p>
+<p>0.1.0a5 is a pre-release while the API settles.</p>
 </div>
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">pip</label><label for="__tabbed_1_2">uv</label></div>
 <div class="tabbed-content">
@@ -1476,8 +1553,7 @@
 <a href="https://polyscope.run/py/">polyscope</a> for the interactive viewer used in
 the examples:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>polyscope
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>trusty-sim
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>trusty-sim<span class="w"> </span>polyscope
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -1488,18 +1564,89 @@ the examples:</p>
 <a href="https://polyscope.run/py/">polyscope</a> for the interactive viewer used in
 the examples:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>polyscope
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>trusty-sim
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>trusty-sim<span class="w"> </span>polyscope
 </code></pre></div>
 </div>
 </div>
 </div>
-<p>numpy comes from PyPI and only trusty-sim from TestPyPI, because TestPyPI
-also hosts unrelated uploads under popular package names.</p>
+<h2 id="gpu-installation">GPU Installation<a class="headerlink" href="#gpu-installation" title="Permanent link">&para;</a></h2>
+<p>For the CUDA backend, install <code>trusty-sim-cuda12</code> in place of <code>trusty-sim</code>. It
+is the same library with the GPU backend built in, so it replaces <code>trusty-sim</code>:
+install one of the two in an environment, not both. If you already installed
+<code>trusty-sim</code>, run <code>pip uninstall trusty-sim</code> first.</p>
+<p>You need an NVIDIA GPU and a driver that supports CUDA 12.9 (version 575 or
+newer). You don't need to install the CUDA toolkit: the CUDA libraries come from
+NVIDIA's own wheels on PyPI.</p>
+<p>The wheel contains GPU code for these architectures, so a GPU of another one
+cannot run it:</p>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>GPUs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7.0</td>
+<td>V100</td>
+</tr>
+<tr>
+<td>7.5</td>
+<td>T4, RTX 20 series</td>
+</tr>
+<tr>
+<td>8.0</td>
+<td>A100</td>
+</tr>
+<tr>
+<td>8.6</td>
+<td>RTX 30 series, A10</td>
+</tr>
+<tr>
+<td>8.9</td>
+<td>RTX 40 series, L4, L40</td>
+</tr>
+<tr>
+<td>9.0</td>
+<td>H100, H200</td>
+</tr>
+<tr>
+<td>10.0</td>
+<td>B100, B200</td>
+</tr>
+<tr>
+<td>12.0</td>
+<td>RTX 50 series</td>
+</tr>
+</tbody>
+</table>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">pip</label><label for="__tabbed_2_2">uv</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>pip<span class="w"> </span>install<span class="w"> </span>trusty-sim-cuda12<span class="w"> </span>polyscope
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>trusty-sim-cuda12<span class="w"> </span>polyscope
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>pip installs the NVIDIA libraries the wheel depends on from PyPI.</p>
+<p>Check that the GPU backend is there, then ask for it by name:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trusty</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"cuda"</span> <span class="ow">in</span> <span class="n">trusty</span><span class="o">.</span><span class="n">capabilities</span><span class="p">())</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">world</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">World</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+</code></pre></div>
+<p>The wheel is about 52 MB, and about 200 MB once installed, because it carries
+GPU code for eight architectures.</p>
 <h2 id="check-what-your-build-includes">Check what your build includes<a class="headerlink" href="#check-what-your-build-includes" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trusty</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">library_version</span><span class="p">())</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">capabilities</span><span class="p">()))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trusty</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">print</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">library_version</span><span class="p">())</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">capabilities</span><span class="p">()))</span>
 </code></pre></div>
 <p>The set holds one name per module, plus <code>accelerate</code> or <code>cuda</code> when the
 build has that backend. Each module page lists the capability it needs. Call
@@ -1508,22 +1655,23 @@ with a clear message.</p>
 <h2 id="run-the-examples">Run the examples<a class="headerlink" href="#run-the-examples" title="Permanent link">&para;</a></h2>
 <p>Every example on these pages is a script in the
 <a href="https://github.com/tytrusty/trusty-docs">trusty-docs</a> repository. Clone it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tytrusty/trusty-docs
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nb">cd</span><span class="w"> </span>trusty-docs
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tytrusty/trusty-docs
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">cd</span><span class="w"> </span>trusty-docs
 </code></pre></div>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">pip</label><label for="__tabbed_2_2">uv</label></div>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">pip</label><label for="__tabbed_3_2">uv</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>With the environment from above active, add the packages the examples
 use, then run any of them with <code>python</code> from the repository root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pip<span class="w"> </span>install<span class="w"> </span>trimesh<span class="w"> </span>matplotlib<span class="w"> </span>scipy
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python<span class="w"> </span>examples/quickstart.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>trimesh<span class="w"> </span>matplotlib<span class="w"> </span>scipy
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>python<span class="w"> </span>examples/quickstart.py
 </code></pre></div>
 </div>
 <div class="tabbed-block">
 <p>Run any example with <code>uv run</code> from the repository root, in place of the
-<code>python</code> the other pages show:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>examples/quickstart.py
+<code>python</code> the other pages show. (<code>uv run</code> installs the CPU build; for the GPU
+build, use the pip route above.)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>examples/quickstart.py
 </code></pre></div>
 <p>The first <code>uv run</code> makes an environment in the repository with
 trusty-sim, the polyscope viewer and everything else the examples use;
@@ -1595,10 +1743,10 @@ docstring lists its options.</p>
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a2388154.min.js"></script>
       
         <script src="../../javascripts/videos.js"></script>
       

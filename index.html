@@ -14,6 +14,7 @@
       
       
       
+      
         <link rel="next" href="./getting_started/install/">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.70">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.e442bf79.min.css">
       
         
           
         
-        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -93,14 +94,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#trustysim" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -371,6 +369,22 @@
   
 
       
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./license/" class="md-tabs__link">
+        
+  
+  License
+
+      </a>
+    </li>
+  
+
+      
     </ul>
   </div>
 </nav>
@@ -499,6 +513,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Modules
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#citing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Citing
       </span>
     </span>
   </a>
@@ -1363,6 +1388,32 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  License
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1427,6 +1478,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#citing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Citing
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1439,6 +1501,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -1448,13 +1511,13 @@
 
 <h1 id="trustysim">TrustySim<a class="headerlink" href="#trustysim" title="Permanent link">&para;</a></h1>
 <p><strong>TrustySim is a simulator you can trust!</strong> Solids, cloth, rods, rigid bodies,
-fluids, you name it: just add it to the scene and it just <em>works</em>. You set up
-the scene and assign materials; everything is fully coupled, and every solve
-converges to the accuracy you ask for.</p>
-<p>It handles high-resolution multiphysics with frictional contact and coupling
-between every phenomenon. Applications include finite element analysis,
-robotics in mixed soft and rigid worlds, and biomechanics, with muscle-driven
-bodies and soft tissue.</p>
+fluids, you name it: just add it to the scene and it just <em>works</em>. Everything
+is fully coupled.</p>
+<p>Our goal is that the user should be free from tuning low-level solver
+parameters to get the output they desire. We support frictional,
+interpenetration-free contact between any representation out-of-the-box. A
+range of material models are already supported, and many more will be added as
+the library expands. Both CPU and GPU backends are supported.</p>
 <video class="shot hero" width="1920" height="872" muted playsinline controls preload="metadata"
        poster="assets/video/teaser.jpg" aria-label="The word Trusty in 3D letters, each simulated a different way, squeezed together by two elastic rod loops">
   <source src="assets/video/teaser.webm" type="video/webm">
@@ -1466,16 +1529,16 @@ jointed affine bodies, a <strong>u</strong> of an aluminium-foil shell, an <stro
 particles, a <strong>t</strong> of hexahedra and a <strong>y</strong> of an embedded solid in its voxel
 grid, all squeezed together by elastic rods.
 <a href="examples/trusty_logo/">See the code →</a></p>
+<p><a class="md-button md-button--primary" href="getting_started/install/">Install</a></p>
 <h2 id="try-it">Try it<a class="headerlink" href="#try-it" title="Permanent link">&para;</a></h2>
 <p>Make an environment, install trusty-sim and the
 <a href="https://polyscope.run/py/">polyscope</a> viewer, then run a cantilever beam
 sagging under gravity:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>polyscope
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>trusty-sim
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pip<span class="w"> </span>install<span class="w"> </span>trusty-sim<span class="w"> </span>polyscope
 </code></pre></div>
-<p>Pre-release builds are on TestPyPI. To install with uv instead, see
-<a href="getting_started/install/">Install</a>.</p>
+<p>This is a pre-release. For uv, the GPU build, supported platforms and checking
+your build, see <a href="getting_started/install/">Install</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">polyscope</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">trusty</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1495,12 +1558,13 @@ sagging under gravity:</p>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="n">ps</span><span class="o">.</span><span class="n">register_volume_mesh</span><span class="p">(</span><span class="s2">"beam"</span><span class="p">,</span> <span class="n">sagged</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">hexes</span><span class="o">=</span><span class="n">sagged</span><span class="o">.</span><span class="n">hexes</span><span class="p">)</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
-<p>Save it as <code>quickstart.py</code> and run it in the same terminal, with the environment
-still active; the viewer opens on the sagged beam:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>quickstart.py
+<p>This example is <a href="https://github.com/tytrusty/trusty-docs/blob/main/examples/quickstart.py"><code>examples/quickstart.py</code></a>.
+To run it, clone the examples and run it from the repository root; the viewer
+opens on the sagged beam:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tytrusty/trusty-docs
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">cd</span><span class="w"> </span>trusty-docs
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>python<span class="w"> </span>examples/quickstart.py
 </code></pre></div>
-<p><a class="md-button md-button--primary" href="getting_started/install/">Install</a>
-<a class="md-button" href="modules/solids/">Solids</a></p>
 <h2 id="modules">Modules<a class="headerlink" href="#modules" title="Permanent link">&para;</a></h2>
 <div class="grid cards modules">
 <ul>
@@ -1587,6 +1651,17 @@ still active; the viewer opens on the sagged beam:</p>
 </li>
 </ul>
 </div>
+<h2 id="citing">Citing<a class="headerlink" href="#citing" title="Permanent link">&para;</a></h2>
+<p>If you use trusty-sim in your research, please cite it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nc">@software</span><span class="p">{</span><span class="nl">trusty_sim</span><span class="p">,</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="na">author</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{Trusty, Ty}</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="na">title</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{trusty-sim}</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="na">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{0.1.0a5}</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="na">year</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="s">{2026}</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="na">url</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="s">{https://tytrusty.github.io/trusty-docs/}</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+</code></pre></div>
+<p>trusty-sim is available under dual <a href="license/">licensing</a>.</p>
 
   
 
@@ -1656,10 +1731,10 @@ still active; the viewer opens on the sagged beam:</p>
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"./assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"./assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="./assets/javascripts/bundle.a2388154.min.js"></script>
       
         <script src="./javascripts/videos.js"></script>
       

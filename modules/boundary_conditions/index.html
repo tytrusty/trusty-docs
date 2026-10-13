@@ -13,6 +13,7 @@
         <link rel="canonical" href="https://tytrusty.github.io/trusty-docs/modules/boundary_conditions/">
       
       
+      
         <link rel="prev" href="../contact/">
       
       
@@ -23,7 +24,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.70">
     
     
       
@@ -34,12 +35,12 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e442bf79.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -95,14 +96,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#boundary-conditions" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -370,6 +368,22 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../license/" class="md-tabs__link">
+        
+  
+  License
+
+      </a>
+    </li>
   
 
       
@@ -1479,6 +1493,32 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  License
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1664,6 +1704,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -1688,7 +1729,7 @@ joins them to each other. Clamping a face is one call in <code>trusty.fem</code>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">pin_face</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># clamp the x = 0 end</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">load_faces</span> <span class="o">=</span> <span class="n">end_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">BAR_SIZE</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>   <span class="c1"># triangles on the x = 1 end</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">attach_surface_load</span><span class="p">(</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">load</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">attach_surface_load</span><span class="p">(</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load_faces</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">load_faces</span><span class="p">),</span> <span class="mi">3</span><span class="p">)))</span>  <span class="c1"># Pa, one row per face</span>
 </code></pre></div>
 <p><img alt="A bar clamped to a wall and stretched by arrows on its free end" class="shot" src="../../assets/img/boundary_conditions_quick.png" width="640" /></p>
@@ -1747,8 +1788,8 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">on the body's mass.</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">`attach_surface_load` puts the load on the end faces, starting at zero, and</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">the run ramps it up to its full value with `set_tractions`, stretching the bar</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">a little further each step. Each step solves for static equilibrium (no</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">returns a handle to it. The run ramps the load up to its full value with</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">`set_tractions` on that handle, stretching the bar a little further each step. Each step solves for static equilibrium (no</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">inertia) with gravity off, so the stretch is the load's doing alone.</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">Usage:</span>
@@ -1798,20 +1839,20 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">pin_face</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># clamp the x = 0 end</span>
 <a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>
 <a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>    <span class="n">load_faces</span> <span class="o">=</span> <span class="n">end_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">BAR_SIZE</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>   <span class="c1"># triangles on the x = 1 end</span>
-<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">attach_surface_load</span><span class="p">(</span>
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>    <span class="n">load</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">attach_surface_load</span><span class="p">(</span>
 <a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load_faces</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">load_faces</span><span class="p">),</span> <span class="mi">3</span><span class="p">)))</span>  <span class="c1"># Pa, one row per face</span>
-<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>    <span class="k">return</span> <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span>
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>    <span class="k">return</span> <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span>
 <a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>
 <a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>
 <a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a><span class="k">def</span><span class="w"> </span><span class="nf">traction_at</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>    <span class="k">return</span> <span class="n">TRACTION_MAX</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">steps</span><span class="p">))</span>
 <a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>
 <a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>
-<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a><span class="k">def</span><span class="w"> </span><span class="nf">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a><span class="k">def</span><span class="w"> </span><span class="nf">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a><span class="w">    </span><span class="sd">"""Set this step's traction on every loaded face, then advance."""</span>
-<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>    <span class="n">n</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">num_loaded_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>    <span class="n">n</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">num_loaded_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">)</span>
 <a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="n">traction_at</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">steps</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
 <a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>    <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 <a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>
 <a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>
@@ -1824,7 +1865,7 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>    <span class="k">return</span> <span class="n">ps_mesh</span>
 <a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>
 <a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>
-<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
 <a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>    <span class="n">ps</span> <span class="o">=</span> <span class="n">init_polyscope</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a>    <span class="n">ps_mesh</span> <span class="o">=</span> <span class="n">_register</span><span class="p">(</span><span class="n">ps</span><span class="p">,</span> <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
 <a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a>    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"i"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"playing"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>   <span class="c1"># play starts OFF</span>
@@ -1834,7 +1875,7 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-93" name="__codelineno-1-93" href="#__codelineno-1-93"></a>        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s2">"play"</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span>
 <a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">SameLine</span><span class="p">()</span>
 <a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">psim</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"step"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span> <span class="ow">and</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">steps</span><span class="p">:</span>
-<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a>            <span class="n">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">],</span> <span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a>            <span class="n">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">],</span> <span class="n">steps</span><span class="p">)</span>
 <a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a>            <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 <a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a>            <span class="n">ps_mesh</span><span class="o">.</span><span class="n">update_vertex_positions</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">))</span>
 <a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a>        <span class="n">t</span> <span class="o">=</span> <span class="n">traction_at</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span> <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="k">else</span> <span class="mf">0.0</span>
@@ -1844,14 +1885,14 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a>
 <a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a>
-<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
 <a id="__codelineno-1-107" name="__codelineno-1-107" href="#__codelineno-1-107"></a>    <span class="n">rest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span>
 <a id="__codelineno-1-108" name="__codelineno-1-108" href="#__codelineno-1-108"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
-<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a>        <span class="n">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a>        <span class="n">ramp</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
 <a id="__codelineno-1-110" name="__codelineno-1-110" href="#__codelineno-1-110"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span><span class="o">.</span><span class="n">converged</span><span class="p">:</span>
 <a id="__codelineno-1-111" name="__codelineno-1-111" href="#__codelineno-1-111"></a>            <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: the solve did not converge"</span><span class="p">)</span>
 <a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a>    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">))</span>
-<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>    <span class="n">tractions</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>    <span class="n">tractions</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">)</span>
 <a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a>
 <a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">mean_dx</span><span class="p">(</span><span class="n">xref</span><span class="p">):</span>
 <a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a>        <span class="n">on</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rest</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">xref</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span>
@@ -1869,7 +1910,7 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-128" name="__codelineno-1-128" href="#__codelineno-1-128"></a>
 <a id="__codelineno-1-129" name="__codelineno-1-129" href="#__codelineno-1-129"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <a id="__codelineno-1-130" name="__codelineno-1-130" href="#__codelineno-1-130"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-1-131" name="__codelineno-1-131" href="#__codelineno-1-131"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-1-131" name="__codelineno-1-131" href="#__codelineno-1-131"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
 <a id="__codelineno-1-132" name="__codelineno-1-132" href="#__codelineno-1-132"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--element"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">SOLIDS</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"hex"</span><span class="p">)</span>
 <a id="__codelineno-1-133" name="__codelineno-1-133" href="#__codelineno-1-133"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
 <a id="__codelineno-1-134" name="__codelineno-1-134" href="#__codelineno-1-134"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"load increments to reach the full traction"</span><span class="p">)</span>
@@ -1877,11 +1918,11 @@ targets and change stiffnesses and tractions, but you can't add new conditions.<
 <a id="__codelineno-1-136" name="__codelineno-1-136" href="#__codelineno-1-136"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"headless: ramp the load, then print the stretch"</span><span class="p">)</span>
 <a id="__codelineno-1-137" name="__codelineno-1-137" href="#__codelineno-1-137"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 <a id="__codelineno-1-138" name="__codelineno-1-138" href="#__codelineno-1-138"></a>
-<a id="__codelineno-1-139" name="__codelineno-1-139" href="#__codelineno-1-139"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+<a id="__codelineno-1-139" name="__codelineno-1-139" href="#__codelineno-1-139"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
 <a id="__codelineno-1-140" name="__codelineno-1-140" href="#__codelineno-1-140"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
-<a id="__codelineno-1-141" name="__codelineno-1-141" href="#__codelineno-1-141"></a>        <span class="n">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-141" name="__codelineno-1-141" href="#__codelineno-1-141"></a>        <span class="n">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
 <a id="__codelineno-1-142" name="__codelineno-1-142" href="#__codelineno-1-142"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-1-143" name="__codelineno-1-143" href="#__codelineno-1-143"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-143" name="__codelineno-1-143" href="#__codelineno-1-143"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">element</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
 <a id="__codelineno-1-144" name="__codelineno-1-144" href="#__codelineno-1-144"></a>
 <a id="__codelineno-1-145" name="__codelineno-1-145" href="#__codelineno-1-145"></a>
 <a id="__codelineno-1-146" name="__codelineno-1-146" href="#__codelineno-1-146"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
@@ -2086,7 +2127,7 @@ the surface. Widen <code>tol</code> so the clamp catches the grid nodes near the
 <a id="__codelineno-3-146" name="__codelineno-3-146" href="#__codelineno-3-146"></a>
 <a id="__codelineno-3-147" name="__codelineno-3-147" href="#__codelineno-3-147"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <a id="__codelineno-3-148" name="__codelineno-3-148" href="#__codelineno-3-148"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-3-149" name="__codelineno-3-149" href="#__codelineno-3-149"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-3-149" name="__codelineno-3-149" href="#__codelineno-3-149"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
 <a id="__codelineno-3-150" name="__codelineno-3-150" href="#__codelineno-3-150"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <a id="__codelineno-3-151" name="__codelineno-3-151" href="#__codelineno-3-151"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">)</span>
 <a id="__codelineno-3-152" name="__codelineno-3-152" href="#__codelineno-3-152"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -2564,7 +2605,8 @@ target.</p>
 </details>
 <h2 id="surface-loads">Surface loads<a class="headerlink" href="#surface-loads" title="Permanent link">&para;</a></h2>
 <p><code>attach_surface_load(world, body, load_faces, tractions)</code> applies a traction
-(force per unit area, Pa) to chosen triangles of a body's surface. It is a
+(force per unit area, Pa) to chosen triangles of a body's surface and returns
+a handle to the load. It is a
 <em>dead load</em>: it keeps its direction in the world and acts on the triangles'
 rest area, so a traction <em>t</em> on an area <em>A</em> always pulls with <em>t × A</em>. In the
 <a href="#quick-example">quick example</a> that is 1e5 Pa on 0.01 m², or 1000 N.</p>
@@ -2598,16 +2640,17 @@ rest area, so a traction <em>t</em> on an area <em>A</em> always pulls with <em>
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">on_plane</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 </code></pre></div>
 <p><code>tractions</code> has one row per face in <code>load_faces</code>, so the load can vary across
-the surface. <code>set_tractions</code> replaces all of them from the next step on. The
-example ramps the load up this way, so each solve starts close to the last:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">n</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">num_loaded_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+the surface. <code>set_tractions(world, load, tractions)</code> replaces all of them on the
+handle from the next step on. The example ramps the load up this way, so each
+solve starts close to the last:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">n</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">num_loaded_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">)</span>
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">([</span><span class="n">traction_at</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">steps</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_tractions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">load</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 </code></pre></div>
-<p>A body takes one surface load. Calling <code>attach_surface_load</code> again replaces
-the first, so put every loaded face in one call. Shells and rods don't take
-surface loads.</p>
+<p>A body can carry several surface loads, each with its own handle, so loads on
+different faces can be driven independently. Shells and rods don't take surface
+loads.</p>
 <table>
 <thead>
 <tr>
@@ -2618,19 +2661,19 @@ surface loads.</p>
 <tbody>
 <tr>
 <td><code>attach_surface_load(world, body, load_faces, tractions)</code></td>
-<td>load surface triangles with tractions, <code>(len(load_faces), 3)</code>, Pa</td>
+<td>load surface triangles with tractions, <code>(len(load_faces), 3)</code>, Pa; returns the load handle</td>
 </tr>
 <tr>
-<td><code>set_tractions(world, body, tractions)</code></td>
-<td>replace the tractions</td>
+<td><code>set_tractions(world, load, tractions)</code></td>
+<td>replace the load's tractions</td>
 </tr>
 <tr>
-<td><code>tractions(world, body)</code></td>
-<td>the current tractions</td>
+<td><code>tractions(world, load)</code></td>
+<td>the load's current tractions</td>
 </tr>
 <tr>
-<td><code>num_loaded_faces(world, body)</code></td>
-<td>how many faces carry the load</td>
+<td><code>num_loaded_faces(world, load)</code></td>
+<td>how many faces the load covers</td>
 </tr>
 </tbody>
 </table>
@@ -2833,7 +2876,7 @@ to an affine bar.</p>
 <a id="__codelineno-15-173" name="__codelineno-15-173" href="#__codelineno-15-173"></a>
 <a id="__codelineno-15-174" name="__codelineno-15-174" href="#__codelineno-15-174"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <a id="__codelineno-15-175" name="__codelineno-15-175" href="#__codelineno-15-175"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-15-176" name="__codelineno-15-176" href="#__codelineno-15-176"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-15-176" name="__codelineno-15-176" href="#__codelineno-15-176"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
 <a id="__codelineno-15-177" name="__codelineno-15-177" href="#__codelineno-15-177"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <a id="__codelineno-15-178" name="__codelineno-15-178" href="#__codelineno-15-178"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">)</span>
 <a id="__codelineno-15-179" name="__codelineno-15-179" href="#__codelineno-15-179"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -3035,8 +3078,8 @@ body.</p>
 <a id="__codelineno-17-146" name="__codelineno-17-146" href="#__codelineno-17-146"></a>
 <a id="__codelineno-17-147" name="__codelineno-17-147" href="#__codelineno-17-147"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <a id="__codelineno-17-148" name="__codelineno-17-148" href="#__codelineno-17-148"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-17-149" name="__codelineno-17-149" href="#__codelineno-17-149"></a>    <span class="c1"># Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so</span>
-<a id="__codelineno-17-150" name="__codelineno-17-150" href="#__codelineno-17-150"></a>    <span class="c1"># 'auto' (Accelerate on a Mac) raises.</span>
+<a id="__codelineno-17-149" name="__codelineno-17-149" href="#__codelineno-17-149"></a>    <span class="c1"># Defaults to cpu: the stitch is not yet supported on the accelerate</span>
+<a id="__codelineno-17-150" name="__codelineno-17-150" href="#__codelineno-17-150"></a>    <span class="c1"># backend, so 'auto' on a Mac raises.</span>
 <a id="__codelineno-17-151" name="__codelineno-17-151" href="#__codelineno-17-151"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
 <a id="__codelineno-17-152" name="__codelineno-17-152" href="#__codelineno-17-152"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <a id="__codelineno-17-153" name="__codelineno-17-153" href="#__codelineno-17-153"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--stiffness"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span>
@@ -3154,10 +3197,10 @@ reduced solids.</p>
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a2388154.min.js"></script>
       
         <script src="../../javascripts/videos.js"></script>
       

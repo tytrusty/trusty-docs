@@ -13,6 +13,7 @@
         <link rel="canonical" href="https://tytrusty.github.io/trusty-docs/modules/embedded/">
       
       
+      
         <link rel="prev" href="../solids/">
       
       
@@ -23,7 +24,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.70">
     
     
       
@@ -34,12 +35,12 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e442bf79.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -95,14 +96,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#embedded-solids" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -370,6 +368,22 @@
         </a>
       </li>
     
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../license/" class="md-tabs__link">
+        
+  
+  License
+
+      </a>
+    </li>
   
 
       
@@ -1440,6 +1454,32 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  License
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1586,6 +1626,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -2481,9 +2522,9 @@ and the sleeve itself barely deforms.</p>
 <summary>Full script: <code>python examples/embedded/interference_fit.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="sd">"""Press-fit: a stiff sleeve relaxing onto an undersized soft core.</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="sd">Two embedded solids in body-body IPC contact. The sleeve's bore is *smaller*</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="sd">than the core, so seating it directly would start interpenetrating -- and IPC</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="sd">needs a non-penetrating start. Instead the sleeve is inflated off its rest</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="sd">Two embedded solids in contact. The sleeve's bore is *smaller* than the</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="sd">core, so seating it directly would start interpenetrating, and contact needs</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="sd">a start without overlap. Instead the sleeve is inflated off its rest</span>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="sd">shape with `fem.apply_affine_transform(...)`: current</span>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="sd">positions scale up, rest does not. It therefore begins contact-free but</span>
 <a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="sd">strained, and quasi-static relaxation pulls it back toward its unchanged rest,</span>
@@ -2492,13 +2533,13 @@ and the sleeve itself barely deforms.</p>
 <a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="sd">That inflate-then-relax trick is the general way to set up an interference fit</span>
 <a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="sd">without ever authoring a penetrating state.</span>
 <a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
-<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="sd">The core's top cap is held by a Nitsche weak pin (a surface energy, so it acts</span>
-<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="sd">on the smooth input surface rather than hex nodes). `--release-at` detaches it</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="sd">The core's top cap is held by a weak pin that acts on the smooth input</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="sd">surface rather than on the hex nodes. `--release-at` detaches it</span>
 <a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="sd">mid-run via `embedded.detach_weak_pin`, leaving a free boundary from that step</span>
 <a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="sd">on, so you can watch the assembly settle unconstrained.</span>
 <a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>
 <a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a><span class="sd">Readouts come back on the *input* surface, not the hex grid: strain energy</span>
-<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="sd">density is computed per node and pushed through each body's prolongation with</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="sd">density is computed per node and mapped onto the input surface with</span>
 <a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a><span class="sd">`embedded.prolong_nodal_field`.</span>
 <a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>
 <a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a><span class="sd">Usage:</span>
@@ -2676,7 +2717,7 @@ and the sleeve itself barely deforms.</p>
 <a id="__codelineno-12-195" name="__codelineno-12-195" href="#__codelineno-12-195"></a><span class="k">def</span><span class="w"> </span><span class="nf">fit_radii</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">core</span><span class="p">,</span> <span class="n">sleeve</span><span class="p">):</span>
 <a id="__codelineno-12-196" name="__codelineno-12-196" href="#__codelineno-12-196"></a><span class="w">    </span><span class="sd">"""(core radius, sleeve-bore radius) at the tightest angular station.</span>
 <a id="__codelineno-12-197" name="__codelineno-12-197" href="#__codelineno-12-197"></a>
-<a id="__codelineno-12-198" name="__codelineno-12-198" href="#__codelineno-12-198"></a><span class="sd">    Their difference is the live contact gap: it must stay &gt;= 0, since IPC</span>
+<a id="__codelineno-12-198" name="__codelineno-12-198" href="#__codelineno-12-198"></a><span class="sd">    Their difference is the live contact gap: it must stay &gt;= 0, since contact</span>
 <a id="__codelineno-12-199" name="__codelineno-12-199" href="#__codelineno-12-199"></a><span class="sd">    never lets the two surfaces cross.</span>
 <a id="__codelineno-12-200" name="__codelineno-12-200" href="#__codelineno-12-200"></a>
 <a id="__codelineno-12-201" name="__codelineno-12-201" href="#__codelineno-12-201"></a><span class="sd">    Compared station by station rather than globally. Both bodies are faceted</span>
@@ -2892,10 +2933,10 @@ and the sleeve itself barely deforms.</p>
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a2388154.min.js"></script>
       
         <script src="../../javascripts/videos.js"></script>
       
