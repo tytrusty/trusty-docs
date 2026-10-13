@@ -6,8 +6,8 @@ A physics simulation library for deformable solids, shells, rods, articulated
 affine bodies, reduced-order (subspace) bodies and MPM, with IPC-style frictional
 contact between them. You drive it from Python and step it with numpy arrays.
 
-> **Pre-release test build (0.1.0a4).** The API will change between releases, and
-> only macOS on Apple Silicon is supported for now.
+> **Pre-release test build (0.1.0a5).** The API will change between releases.
+> macOS on Apple Silicon and Linux x86_64 are supported for now.
 
 ## Install
 
@@ -15,12 +15,10 @@ This build is published on TestPyPI only:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install numpy
-pip install --no-deps --index-url https://test.pypi.org/simple/ trusty-sim==0.1.0a4
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ trusty-sim==0.1.0a5
 ```
 
-Installing numpy first and then trusty-sim with `--no-deps` keeps every other
-package coming from the real PyPI rather than TestPyPI.
+The second index lets pip fetch numpy and the other dependencies from PyPI.
 
 Optional extras:
 
@@ -29,14 +27,32 @@ Optional extras:
 - `pip install scipy` for building subspace bases.
 
 With [uv](https://docs.astral.sh/uv/), use `uv venv` and replace `pip` with
-`uv pip`.
+`uv pip`. On Linux this installs the CPU build.
+
+### GPU Installation
+
+For the CUDA backend on Linux, install `trusty-sim-cuda12` in place of
+`trusty-sim` (they replace each other: install one). You need an NVIDIA GPU and
+a driver that supports CUDA 12.9 (version 575 or newer); the CUDA libraries come
+from NVIDIA's wheels on PyPI, which pip installs for you:
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ trusty-sim-cuda12==0.1.0a5
+```
+
+It contains GPU code for compute capabilities 7.0, 7.5, 8.0, 8.6, 8.9, 9.0,
+10.0 and 12.0 (V100, T4 and RTX 20 series through H100, B200 and RTX 50 series).
+Check it with `"cuda" in trusty.capabilities()`, then pass `backend="cuda"` to
+`trusty.World`. The examples in this repository run on either build; `uv run`
+installs the CPU build, so use the pip route for the GPU one.
 
 ## Requirements
 
 | | |
 |---|---|
-| OS | macOS 11 or later, Apple Silicon (arm64) |
-| Python | 3.11 or later |
+| OS | macOS 11 or later, Apple Silicon (arm64); Linux x86_64, glibc 2.28 or later |
+| Python | 3.11 or later (3.12 for the CUDA build) |
 | numpy | 1.26 or later |
 
 ## Quick start
@@ -122,8 +138,36 @@ viewer and everything else the examples need the first time you use it.
 
 Each script's docstring describes the scene and its command-line options.
 
+## Citing
+
+If you use trusty-sim in your research, please cite it. The details are in
+[CITATION.cff](CITATION.cff), and GitHub's "Cite this repository" button reads
+it. As BibTeX:
+
+```bibtex
+@software{trusty_sim,
+  author  = {Trusty, Ty},
+  title   = {trusty-sim},
+  version = {0.1.0a5},
+  year    = {2026},
+  url     = {https://tytrusty.github.io/trusty-docs/}
+}
+```
+
 ## License
 
-The examples and documentation in this repository, and the `trusty-sim`
-binaries, are provided as a pre-release preview: all rights reserved. Licence
-terms will be published with a later release. See `LICENSE`.
+### Examples
+
+The examples in this repository are MIT-licensed. See [LICENSE](LICENSE).
+
+### trusty-sim library
+
+The `trusty-sim` library that the examples run on is available under dual
+licensing. The full terms are on the
+[License page](https://tytrusty.github.io/trusty-docs/license/) of the docs.
+
+- **Research license:** free for research, academic and non-commercial use. The
+  terms are in `LICENSE-BINARY.txt`, inside the installed package's
+  `.dist-info/licenses/`.
+- **Commercial license:** for proprietary or commercial deployment, please refer
+  to [LICENSE-COMMERCIAL](LICENSE-COMMERCIAL).

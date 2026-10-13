@@ -2,8 +2,20 @@ cff-version: 1.2.0
 message: "If you use trusty-sim in your research, please cite it as below."
 title: "trusty-sim"
 type: software
+abstract: >-
+  trusty-sim is a physics simulation library for deformable solids, shells,
+  rods, articulated affine bodies, reduced-order (subspace) bodies and MPM,
+  with IPC-style frictional contact between them. It runs on CPU and GPU.
 authors:
   - family-names: "Trusty"
     given-names: "Ty"
-version: "0.1.0a4"
-date-released: "2026-10-02"
+version: "0.1.0a5"
+date-released: "2026-10-13"
+url: "https://tytrusty.github.io/trusty-docs/"
+repository: "https://github.com/tytrusty/trusty-docs"
+keywords:
+  - physics simulation
+  - finite element method
+  - contact
+  - material point method
+  - rigid and deformable bodies
