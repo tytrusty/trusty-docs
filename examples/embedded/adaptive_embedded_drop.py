@@ -7,19 +7,9 @@ bottom -- where the body meets the floor and contact resolution actually matters
 requested edge length grows geometrically with height, so the voxelizer lays
 down one refinement band per level instead of a single fine/coarse split.
 
-The grading is done in level space. The voxelizer picks
-
-    level = clamp(round(log2(base_voxel_size / h)), 0, max_level)
-
-so ramping `level` linearly and inverting (`h = coarse / 2^level`) is what makes
-the bands equal-thickness; ramping `h` linearly instead would pile every level
-into the bottom cell. `--grade` bends that ramp: > 1 holds the fine level
-further up, < 1 coarsens sooner.
-
-Refinement introduces T-junction hanging nodes, which the solver eliminates onto
-their free parents. Contact lands on the refined face, so this exercises
-contact-on-eliminated-node -- the barrier Hessian for a hanging node folds onto
-its parents rather than being dropped.
+`--max-level` sets how many times the coarse cells can be halved, and
+`--grade` bends the ramp: > 1 holds the fine cells further up, < 1 coarsens
+sooner.
 
 Usage:
     python examples/embedded/adaptive_embedded_drop.py
@@ -124,8 +114,7 @@ def build_world(
     sizing   = make_sizing_field(z_bottom, z_top, coarse, max_level, grade)
 
     material = trusty.StableNeoHookean(youngs_modulus=youngs, poisson_ratio=0.4)
-    # The barrier sees the smooth input surface (lifted through the body's
-    # Prolongation), not the staircased hex faces.
+    # Contact acts on the smooth input surface, not the staircased hex faces.
     world    = trusty.World(backend=backend,
                             timestep=1.0 / 60.0,
                             newton=trusty.NewtonConfig(max_iters=60),

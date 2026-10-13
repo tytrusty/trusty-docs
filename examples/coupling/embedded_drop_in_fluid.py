@@ -1,8 +1,7 @@
 """Drop a voxelized embedded body into an MPM fluid in an open box.
 
-Combines `embedded_drop.py` (voxelized FEM body + IPC contact) with
-`dam_break.py` (MPM fluid + open box walls) into one world, which composes
-contact + embedded + fem + static walls + mpm in one go at its first step.
+Combines `embedded_drop.py` (voxelized FEM body with contact) with
+`dam_break.py` (MPM fluid + open box walls) into one world.
 
 Usage:
     python examples/coupling/embedded_drop_in_fluid.py
@@ -43,8 +42,8 @@ BOX_LO = np.array([0.0, 0.0, 0.0])
 BOX_HI = np.array([1.0, 0.62, 1.0])
 
 # Fluid column (MPM particles). Every offset must clear the particles'
-# IPC contact radius (0.5 * PARTICLE_SPACING here), or the barrier starts
-# at -inf gap against the box walls and the solve never leaves the seed.
+# contact radius (0.5 * PARTICLE_SPACING here), or the particles start already
+# touching the box walls and the solve never gets going.
 COLUMN_NX, COLUMN_NY, COLUMN_NZ = 5, 10, 10
 FLUID_ORIGIN = (0.05, 0.05, 0.05)
 PARTICLE_SPACING = 0.05
@@ -135,8 +134,7 @@ def build_world(mesh_path: Path | None, backend: str = "auto",
     fluid_mat.model   = trusty.MaterialModel.QuadraticVolume
     trusty.mpm.add_mpm_particles(world, fluid_xyz, particle_volume, fluid_mat,
                                  cell_size=CELL_SIZE,
-                                 cdpi_domain_scale=0.5,
-                                 reset_cdpi_domain=True)
+                                 cdpi_domain_scale=0.5)
 
     # 2) Embedded body, lifted so its bottom sits at DROP_HEIGHT.
     if mesh_path is not None:
@@ -191,8 +189,8 @@ def build_world(mesh_path: Path | None, backend: str = "auto",
     return world, body
 
 
-# 8 corner offsets in (sub = sx + 2*sy + 4*sz) order matching the sparse
-# grid hash, plus the 12 hex wire-edges keyed off those subs.
+# The 8 corners of a cell, as offsets in (sub = sx + 2*sy + 4*sz) order, and
+# the 12 edges joining them.
 _CELL_OFFS = np.array(
     [(dx, dy, dz) for dz in (0, 1) for dy in (0, 1) for dx in (0, 1)],
     dtype=np.int32,
@@ -359,7 +357,7 @@ def main():
                    help="Disable the voxel-hex overlay; show only the "
                         "embedded surface.")
     p.add_argument("--log", action="store_true",
-                   help="Attach LoggingObserver (per-iter Newton log)")
+                   help="print solver progress each step")
     p.add_argument("--out", type=Path, default=Path("out_embedded_drop_fluid"))
     args = p.parse_args()
 

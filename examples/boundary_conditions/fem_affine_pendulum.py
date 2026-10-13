@@ -173,7 +173,7 @@ def run_headless(world, bar, beam, steps: int):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
     p.add_argument("--steps", type=int, default=300)
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()

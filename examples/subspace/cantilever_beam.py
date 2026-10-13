@@ -17,7 +17,7 @@ Usage:
     python examples/subspace/cantilever_beam.py --backend accelerate
     python examples/subspace/cantilever_beam.py --no-viewer
 
-Install polyscope with ``pip install trusty-sim[viewer]``.
+Install polyscope with ``pip install polyscope``.
 """
 
 from __future__ import annotations

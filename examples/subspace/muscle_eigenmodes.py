@@ -24,7 +24,7 @@ What this demonstrates (Benchekroun et al. 2023, arXiv:2303.11886):
 `build_activated_skinning_eigenmodes`, which appends the muscle's static
 contraction shape as one extra modal column (a `modal+handles` basis).
 
-Install polyscope with `pip install trusty-sim[viewer]`.
+Install polyscope with `pip install polyscope`.
 """
 from __future__ import annotations
 
@@ -62,8 +62,7 @@ def curved_fiber_field(rest, hexes, max_angle):
 
 def weight_fields(basis):
     """Recover the K scalar weight fields from a `handles` basis: the affine
-    "translation" column of handle k (j=3, aug=1) holds w_k per node. Group-major
-    layout `B[3i+c, 12k+3j+c]`, so the translation (j=3) axis-0 column is 12k+9."""
+    "translation" column of handle k (j=3, aug=1) holds w_k per node."""
     K = basis.num_handles
     off = basis.B.shape[1] - 12 * K
     return np.column_stack([basis.B[0::3, off + 12 * k + 9] for k in range(K)])
@@ -237,8 +236,8 @@ def main() -> int:
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
-    # 'auto' (Accelerate on a Mac) raises.
+    # Defaults to cpu: the stitch is not yet supported on the accelerate
+    # backend, so 'auto' on a Mac raises.
     p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
                    default="cpu",
                    help="solver backend (default: cpu); 'accelerate' uses "

@@ -224,7 +224,7 @@ def main():
                    help="peak isometric muscle force (N)")
     p.add_argument("--steps", type=int, default=120,
                    help="settle steps per activation level (headless)")
-    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     p.add_argument("--muscle-model", choices=["hill", "polynomial"], default="hill",
                    help="force-length law; polynomial is exp-free and better "
                         "conditioned under overstretch")

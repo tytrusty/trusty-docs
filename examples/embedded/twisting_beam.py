@@ -10,9 +10,7 @@ right face's centroid by `theta(t)`. theta ramps from 0 to `--turns`
 revolutions over `--steps` steps.
 
 Targets are rewritten each step with `embedded.set_pin_targets(world,
-body, ...)`. The embedded `sync_in` stage copies them into the module's
-own storage, and the term recomputes per-QP `x_bar` from the bary table
-at `on_step_begin` -- re-uploading to the device on CUDA.
+body, ...)`; the pin follows them on the next step.
 
 Run:
     python examples/embedded/twisting_beam.py
@@ -124,8 +122,7 @@ def run(
                          timestep=timestep,
                          gravity=(0.0, 0.0, 0.0),  # isolate the twist driver
                          newton=trusty.NewtonConfig(max_iters=80, tolerance=1e-4))
-    # NeoHookeanBW: log(J) singularity stresses the inversion-free
-    # initial-step-size filter under large rotations.
+    # NeohookeanBW: its log(J) energy is stiff, which the large rotation tests.
     mat = trusty.NeohookeanBW(youngs_modulus=E_modulus, poisson_ratio=nu)
     body  = trusty.embedded.add_embedded_solid(
         world, V, F, voxel_size=voxel_size, material=mat, density=1000.0)
@@ -149,8 +146,8 @@ def run(
     right_pivot_yz = V[right_verts][:, 1:3].mean(axis=0)
 
     # Two structures: the smooth embedded surface (the user-facing
-    # mesh) and the underlying hex volume mesh (the actual simulator
-    # DOFs). Both deform in lockstep with the simulation, so you can
+    # mesh) and the underlying hex volume mesh (the mesh the simulator
+    # solves on). Both deform in lockstep with the simulation, so you can
     # see voxel-staircase boundaries and how the twist propagates
     # through the bulk.
     headless = screenshot_dir is not None

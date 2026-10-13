@@ -14,8 +14,7 @@ comparison rather than a snapshot of a swinging transient:
                                  term, so it stiffens as it stretches
                                  (``fung_bar_pull.py`` isolates that effect)
     corotational       0.701 m   linear elasticity in the rotated frame
-    neohookean_bw      0.702 m   log(J) energy; also runs the inversion-free
-                                 step cap that its singularity requires
+    neohookean_bw      0.702 m   log(J) energy; stiff near inversion
     stable_neohookean  0.737 m   the default; inversion-safe
     arap               0.766 m   shear only, no volume term, so it also thins
 
@@ -185,7 +184,7 @@ def run_report(backend: str, steps: int, names):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     ap.add_argument("--steps", type=int, default=40,
                     help="settling steps; the beams reach equilibrium by ~20")
     ap.add_argument("--no-viewer", action="store_true",

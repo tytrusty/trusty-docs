@@ -6,8 +6,8 @@ keeps its world direction and acts on the faces' rest area, like gravity acts
 on the body's mass.
 
 `attach_surface_load` puts the load on the end faces, starting at zero, and
-the run ramps it up to its full value with `set_tractions`, stretching the bar
-a little further each step. Each step solves for static equilibrium (no
+returns a handle to it. The run ramps the load up to its full value with
+`set_tractions` on that handle, stretching the bar a little further each step. Each step solves for static equilibrium (no
 inertia) with gravity off, so the stretch is the load's doing alone.
 
 Usage:
@@ -57,20 +57,20 @@ def build_world(backend: str = "auto", element: str = "hex"):
     trusty.fem.pin_face(world, body, axis=0, coord=0.0)  # clamp the x = 0 end
 
     load_faces = end_faces(world, body, x=BAR_SIZE[0])   # triangles on the x = 1 end
-    trusty.boundary_conditions.attach_surface_load(
+    load = trusty.boundary_conditions.attach_surface_load(
         world, body, load_faces, np.zeros((len(load_faces), 3)))  # Pa, one row per face
-    return world, body, mesh
+    return world, body, load, mesh
 
 
 def traction_at(step: int, steps: int) -> float:
     return TRACTION_MAX * min(1.0, (step + 1) / max(1, steps))
 
 
-def ramp(world, body, step: int, steps: int):
+def ramp(world, load, step: int, steps: int):
     """Set this step's traction on every loaded face, then advance."""
-    n = trusty.boundary_conditions.num_loaded_faces(world, body)
+    n = trusty.boundary_conditions.num_loaded_faces(world, load)
     t = np.tile([traction_at(step, steps), 0.0, 0.0], (n, 1))
-    trusty.boundary_conditions.set_tractions(world, body, t)
+    trusty.boundary_conditions.set_tractions(world, load, t)
     world.step()
 
 
@@ -83,7 +83,7 @@ def _register(ps, world, body, mesh, element):
     return ps_mesh
 
 
-def run_polyscope(world, body, mesh, element, steps):
+def run_polyscope(world, body, load, mesh, element, steps):
     ps = init_polyscope(headless=False)
     ps_mesh = _register(ps, world, body, mesh, element)
     state = {"i": 0, "playing": False}   # play starts OFF
@@ -93,7 +93,7 @@ def run_polyscope(world, body, mesh, element, steps):
         _, state["playing"] = psim.Checkbox("play", state["playing"])
         psim.SameLine()
         if (psim.Button("step") or state["playing"]) and state["i"] < steps:
-            ramp(world, body, state["i"], steps)
+            ramp(world, load, state["i"], steps)
             state["i"] += 1
             ps_mesh.update_vertex_positions(trusty.fem.read_positions(world, body))
         t = traction_at(state["i"] - 1, steps) if state["i"] else 0.0
@@ -103,14 +103,14 @@ def run_polyscope(world, body, mesh, element, steps):
     ps.show()
 
 
-def run_headless(world, body, mesh, steps):
+def run_headless(world, body, load, mesh, steps):
     rest = np.asarray(mesh.vertices)
     for i in range(steps):
-        ramp(world, body, i, steps)
+        ramp(world, load, i, steps)
         if not world.last_report().converged:
             raise SystemExit(f"step {i}: the solve did not converge")
     x = np.asarray(trusty.fem.read_positions(world, body))
-    tractions = trusty.boundary_conditions.tractions(world, body)
+    tractions = trusty.boundary_conditions.tractions(world, load)
 
     def mean_dx(xref):
         on = np.abs(rest[:, 0] - xref) < 1e-9
@@ -128,7 +128,7 @@ def run_headless(world, body, mesh, steps):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     parser.add_argument("--element", choices=list(SOLIDS), default="hex")
     parser.add_argument("--steps", type=int, default=20,
                         help="load increments to reach the full traction")
@@ -136,11 +136,11 @@ def main():
                         help="headless: ramp the load, then print the stretch")
     args = parser.parse_args()
 
-    world, body, mesh = build_world(args.backend, args.element)
+    world, body, load, mesh = build_world(args.backend, args.element)
     if args.no_viewer:
-        run_headless(world, body, mesh, args.steps)
+        run_headless(world, body, load, mesh, args.steps)
     else:
-        run_polyscope(world, body, mesh, args.element, args.steps)
+        run_polyscope(world, body, load, mesh, args.element, args.steps)
 
 
 if __name__ == "__main__":

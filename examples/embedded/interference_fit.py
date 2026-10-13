@@ -1,8 +1,8 @@
 """Press-fit: a stiff sleeve relaxing onto an undersized soft core.
 
-Two embedded solids in body-body IPC contact. The sleeve's bore is *smaller*
-than the core, so seating it directly would start interpenetrating -- and IPC
-needs a non-penetrating start. Instead the sleeve is inflated off its rest
+Two embedded solids in contact. The sleeve's bore is *smaller* than the
+core, so seating it directly would start interpenetrating, and contact needs
+a start without overlap. Instead the sleeve is inflated off its rest
 shape with `fem.apply_affine_transform(...)`: current
 positions scale up, rest does not. It therefore begins contact-free but
 strained, and quasi-static relaxation pulls it back toward its unchanged rest,
@@ -11,13 +11,13 @@ gripping the core through contact and friction.
 That inflate-then-relax trick is the general way to set up an interference fit
 without ever authoring a penetrating state.
 
-The core's top cap is held by a Nitsche weak pin (a surface energy, so it acts
-on the smooth input surface rather than hex nodes). `--release-at` detaches it
+The core's top cap is held by a weak pin that acts on the smooth input
+surface rather than on the hex nodes. `--release-at` detaches it
 mid-run via `embedded.detach_weak_pin`, leaving a free boundary from that step
 on, so you can watch the assembly settle unconstrained.
 
 Readouts come back on the *input* surface, not the hex grid: strain energy
-density is computed per node and pushed through each body's prolongation with
+density is computed per node and mapped onto the input surface with
 `embedded.prolong_nodal_field`.
 
 Usage:
@@ -195,7 +195,7 @@ def surface_energy(world, body):
 def fit_radii(world, core, sleeve):
     """(core radius, sleeve-bore radius) at the tightest angular station.
 
-    Their difference is the live contact gap: it must stay >= 0, since IPC
+    Their difference is the live contact gap: it must stay >= 0, since contact
     never lets the two surfaces cross.
 
     Compared station by station rather than globally. Both bodies are faceted

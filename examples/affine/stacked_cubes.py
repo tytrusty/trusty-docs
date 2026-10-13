@@ -42,10 +42,6 @@ def build_world(grid: int, mu: float, stiffness: float, backend: str):
     spacing = 1.06 * size       # small gaps so cubes start separated
     base_z = 0.55 * size        # bottom layer just above the floor
 
-    if backend == "cuda" and mu > 0:
-        print("note: the cuda backend has no friction; running with mu = 0.")
-        mu = 0.0
-
     world = trusty.World(backend=backend,
                          timestep=0.01,
                          newton=trusty.NewtonConfig(max_iters=50))

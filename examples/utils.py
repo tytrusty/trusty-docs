@@ -91,8 +91,7 @@ def make_open_box(
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Closed-on-five-sides box (open on +z) trimesh.
 
-    Five faces in inward-normal-friendly winding for IPC contact
-    barriers. Use as a static container for fluid/particle examples."""
+    Five faces wound inward, for contact with what is inside the box. Use as a static container for fluid/particle examples."""
     x_lo, y_lo, z_lo = lo
     x_hi, y_hi, z_hi = hi
     V = np.array(
@@ -149,8 +148,7 @@ def load_mesh(path: Path | str) -> Tuple[np.ndarray, np.ndarray]:
         import trimesh
     except ImportError as e:
         raise SystemExit(
-            "loading a mesh requires trimesh: "
-            "`pip install trusty[viewer]` or `pip install trimesh`") from e
+            "loading a mesh requires trimesh: `pip install trimesh`") from e
     m = trimesh.load(Path(path), force="mesh", process=True)
     if m.faces.shape[1] != 3:
         raise SystemExit(
@@ -248,8 +246,7 @@ def init_polyscope(*, headless: bool):
         import polyscope as ps
     except ImportError as e:
         raise SystemExit(
-            "polyscope not installed. `pip install trusty[viewer]` or "
-            "`pip install polyscope`.") from e
+            "polyscope not installed: `pip install polyscope`.") from e
 
     if headless:
         ps.set_use_prefs_file(False)

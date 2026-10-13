@@ -138,7 +138,7 @@ def run_screenshots(backend: str, n_steps: int, out_dir: Path, mu1_pair):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    ap.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     ap.add_argument("--nonlinearity", type=float, default=18.0,
                     help="exponential hardening rate mu1 of the second bar; higher "
                          "stiffens faster at large stretch (both bars keep the same "

@@ -6,7 +6,7 @@ each simulated a different way:
     T   tetrahedral solid
     r   jointed affine bodies: the stem and the arm are two near-rigid
         pieces on a hinge
-    u   thin shell: a hollow letter with a 1 mm aluminium skin
+    u   thin shell: a hollow letter with an aluminium-foil skin, 15 um thick
     s   MPM particles: a soft elastic solid
     t   hexahedral solid
     y   embedded solid: a voxel grid carrying the letter's smooth surface
@@ -26,7 +26,7 @@ letters on half that friction.
 
 The letter meshes are in data/logo_*.npz. The headless run prints a
 convergence, contact and deformation summary and checks that every pair of
-neighbouring letters is in contact and that the T, s, t and y visibly deform.
+neighbouring letters is in contact and that the T, u, s, t and y visibly deform.
 --export DIR also writes every frame's geometry to DIR (manifest.json,
 topology.npz, frame_NNNN.npz), for rendering offline.
 
@@ -58,7 +58,8 @@ MU        = 1.0      # every letter's friction: high, so they lock together inst
 ROD_MU    = 0.0      # the rods' own: a contact uses the mean of its two bodies' coefficients,
                      # so rod-letter pairs get MU / 2 and the loops slide round
 # The deformable letters are soft, so the squeeze visibly dents and bulges
-# them; the r (near-rigid affine) and the u (aluminium) stay stiff by contrast.
+# them; the r (near-rigid affine) stays stiff by contrast. The u is metal but
+# foil-thin, so the squeeze buckles and crumples it.
 E_T, E_T_NU = 1e4, 0.4    # Pa, the T's tets
 E_HEX, HEX_NU = 1e4, 0.4  # Pa, the t's hexes
 E_Y, Y_NU = 2e4, 0.4      # Pa, the y's voxel grid
@@ -112,9 +113,8 @@ def rod_loop(letters, z):
     S = np.vstack([S, S[:1]])
     d = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(S, axis=0), axis=1))]
     n = int(round(d[-1] / ROD_EDGE))
-    # A rod in a world with MPM particles currently steps only when its edge
-    # count (n - 1) is a multiple of 3 (a known bug); round n to the nearest
-    # such count.
+    # A rod in a world with MPM particles currently needs an edge count (n - 1)
+    # that is a multiple of 3; round n to the nearest such count.
     n = 3 * round((n - 1) / 3) + 1
     s = np.linspace(0.0, d[-1], n + 1)[:-1]
     return np.stack([np.interp(s, d, S[:, 0]), np.interp(s, d, S[:, 1]),
@@ -211,10 +211,10 @@ def build_world(backend: str = "auto", dt: float = 0.02):
     # The arm folds up by ARM_LIMIT at most, and down by a little.
     trusty.affine.add_joint_limit(world, b["r_hinge"], -0.1, np.radians(ARM_LIMIT))
 
-    d = letters["u"]   # u: a hollow letter with a 1 mm aluminium skin
+    d = letters["u"]   # u: a hollow letter with an aluminium-foil skin
     sc = trusty.shells.ShellConfig()
     sc.youngs_modulus, sc.poisson_ratio = 7e10, 0.33
-    sc.thickness, sc.density = 1e-3, 2700.0
+    sc.thickness, sc.density = 15e-6, 2700.0   # m (kitchen foil), kg/m^3
     b["u"] = trusty.shells.add_shell(world, d["vertices"], d["triangles"], sc,
                                      friction_mu=MU)
 
@@ -223,7 +223,7 @@ def build_world(backend: str = "auto", dt: float = 0.02):
     h = float(d["spacing"])
     b["s"] = trusty.mpm.add_mpm_particles(
         world, d["points"], h ** 3, s_material(), cell_size=2.0 * h,
-        reset_cdpi_domain=False, friction_mu=MU)
+        friction_mu=MU)
 
     d = letters["t"]   # t: hexahedral solid
     b["t"] = trusty.fem.add_hex_solid(
@@ -338,11 +338,12 @@ def deform_edges(top, s0, spacing):
             for j in [np.flatnonzero(np.linalg.norm(P[i + 1:] - P[i], axis=1)
                                      < 1.01 * spacing) + i + 1]]
     return {"T": uniq(top["T_tets"][:, tet]), "t": uniq(top["t_hexes"][:, HEX_EDGES]),
-            "y": uniq(top["y_grid_hexes"][:, HEX_EDGES]), "s": np.vstack(near)}
+            "y": uniq(top["y_grid_hexes"][:, HEX_EDGES]), "s": np.vstack(near),
+            "u": uniq(top["u_triangles"][:, [(0, 1), (1, 2), (2, 0)]])}
 
 
 def deformation(s0, s, edges):
-    """{letter: (non-rigid residual m, max edge stretch)} for T, s, t, y.
+    """{letter: (non-rigid residual m, max edge stretch)} for T, s, t, y, u.
     The y's residual is taken on its surface, its stretch on its grid."""
     return {ch: (rigid_residual(s0[ch], s[ch]),
                  edge_stretch(s0["y_grid" if ch == "y" else ch],
@@ -449,7 +450,7 @@ def run_headless(world, b, letters, census, steps, dt, export: Path | None):
     for ch in ("T", "y"):
         assert any((ch, k) in pairs for k in RODS), f"the rods do not touch {ch}"
     print("OK: the rod loops press all six letters together; every pair of "
-          "neighbours is in contact, and T, s, t and y all visibly deform.")
+          "neighbours is in contact, and T, u, s, t and y all visibly deform.")
 
 
 # ----------------------------------------------------------------------

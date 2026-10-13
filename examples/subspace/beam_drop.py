@@ -22,7 +22,7 @@ Usage:
     python examples/subspace/beam_drop.py --backend cuda --modes 8
     python examples/subspace/beam_drop.py --no-viewer --steps 240
 
-Install polyscope with ``pip install trusty-sim[viewer]``.
+Install polyscope with ``pip install polyscope``.
 """
 
 from __future__ import annotations

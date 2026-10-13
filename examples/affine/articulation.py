@@ -43,7 +43,7 @@ DEFAULT_URDF = Path(__file__).resolve().parent.parent / "data" / "affine_sample.
 #   ACTUATOR_KP   N*m/rad : actuator stiffness: the restoring torque per radian
 #                           of error. A few x10^3 holds the arms to within a
 #                           degree under their own weight and the balls'; the
-#                           default, 1e6, is close to a weld.
+#                           call's default, 1e6, is close to a weld.
 #   JOINT_LIMIT_K N*m     : joint-limit stiffness (for a prismatic slide, N/m).
 #   BODY/BALL_STIFFNESS Pa: how strongly a body resists deforming; large values
 #                           are effectively rigid.
@@ -194,8 +194,7 @@ def parse_urdf(path):
         name = link.get("name")
         # One affine body per link, merging ALL its <visual> geometry into a
         # single surface soup. The parts may overlap (e.g. a box + a sphere):
-        # the affine module disables self-contact for its rigid bodies, so a
-        # body never collides with itself, and the merged mass is the sum.
+        # a body never collides with itself, and the merged mass is the sum.
         Vs, Fs, nv = [], [], 0
         for vis in link.findall("visual"):
             geom = vis.find("geometry")
@@ -263,9 +262,6 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
     friction_mu = 0.0
     if contact:
         friction_mu = 0.3                        # a little friction so the balls pile
-        if backend == "cuda":
-            friction_mu = 0.0
-            print("cuda: friction is CPU-only; running frictionless.")
         contact_cfg = trusty.contact.Config(
             dhat=5e-3,
             # All bodies here are rigid affine (self-pairs excluded), so the
@@ -280,7 +276,7 @@ def build(urdf_path, gravity, backend, actuate, contact, grid, broadphase):
     world = trusty.World(backend=backend,
                          timestep=0.01,
                          gravity=(0.0, 0.0, -9.81) if gravity else (0.0, 0.0, 0.0),
-                         newton=trusty.NewtonConfig(max_iters=100),
+                         newton=trusty.NewtonConfig(max_iters=200),
                          time_stepping="bdf2")
     if contact:
         trusty.contact.enable(world, contact_cfg)

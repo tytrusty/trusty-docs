@@ -3,8 +3,15 @@
 The smallest complete TrustySim script: a hex-mesh beam, clamped at one
 end, stepped for one second, then shown in the polyscope viewer.
 
-Usage:
+Setup, in a fresh environment (see the Install page of the docs):
+    python -m venv .venv && source .venv/bin/activate
+    pip install trusty-sim polyscope
+
+Usage, with the environment active; the viewer opens on the sagged beam:
     python examples/quickstart.py
+
+With uv, from the repository root, this makes the environment for you:
+    uv run examples/quickstart.py
 """
 import polyscope as ps
 import trusty

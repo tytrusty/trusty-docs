@@ -49,7 +49,7 @@ def slope_frame():
 
 def ramp_mesh():
     """The ramp's top face: one quad, from the top edge to just below the
-    floor. A wall must not touch a plane exactly, so its foot goes through."""
+    floor. The ramp must not touch the floor exactly, so its foot goes through."""
     R = slope_frame()
     w, foot = RAMP_WIDTH / 2, 0.03
     corners = np.array([[-RAMP_LENGTH, -w, 0.0], [foot, -w, 0.0],

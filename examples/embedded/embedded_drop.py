@@ -1,11 +1,9 @@
-"""Voxelized embedded body dropped onto a floor via IPC contact.
+"""Voxelized embedded body dropped onto a floor.
 
 A triangle-surface mesh (procedurally-generated bar by default, or one
 loaded from disk via `--mesh`) is voxelized into a Q1 hex body and
-dropped under gravity. Calling `trusty.contact.enable(world, ...)` registers
-the body's smooth input surface (lifted to hex DOFs through its
-`Prolongation`) into the contact term --- the barrier sees the
-**input surface**, not the staircased hex faces.
+dropped under gravity. With `trusty.contact.enable(world, ...)`, contact acts
+on the body's smooth **input surface**, not the staircased hex faces.
 
 Usage:
     python examples/embedded_drop.py                       # built-in bar
@@ -87,9 +85,7 @@ def build_world(
           f"{voxel_size:.4f}  (factor={voxel_factor})")
 
     material = trusty.StableNeoHookean(youngs_modulus=youngs, poisson_ratio=0.4)
-    # Embedded bodies auto-register their prolongation-mapped contact
-    # surface when contact is enabled --- the IPC term acts on the
-    # smooth input surface, not the staircased hex faces.
+    # Contact acts on the smooth input surface, not the staircased hex faces.
     world    = trusty.World(backend=backend,
                             timestep=1.0 / 60.0,
                             newton=trusty.NewtonConfig(max_iters=60),

@@ -40,7 +40,7 @@ def build_world(backend: str):
     trusty.check_capabilities("affine", "contact")
     floor_z = 0.0
     slab_h  = 0.15
-    slab_z0 = floor_z + 0.005          # small gap so the barrier isn't singular
+    slab_z0 = floor_z + 0.005          # small gap: the slab starts out of contact
 
     # Soft FEM slab resting on the floor.
     m         = trusty.make_beam_hex_mesh(size=(0.8, 0.8, slab_h), res=(3, 3, 1))
@@ -129,7 +129,8 @@ def run_polyscope(world, slab, cube, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=120)
-    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
+                   default="auto")
     p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, slab, cube = build_world(args.backend)

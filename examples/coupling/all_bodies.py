@@ -162,8 +162,8 @@ def build_world(tmp: Path, backend: str = "auto"):
     z += 0.12 + gap
 
     # Shell bodies: a closed thin-shell CUBE sitting on the stack, plus the
-    # flat cloth sheet draped over it. A world holds one shell body, so
-    # both are concatenated into ONE shell body with two disconnected components
+    # flat cloth sheet draped over it, given as ONE shell body (one shared
+    # ShellConfig) with two disconnected components
     # (cube + sheet) -- cross-component contact lets the cloth drape over the
     # cube, and each component relaxes toward its own rest shape (the cube's
     # 90-degree edge dihedrals keep it boxy).
@@ -301,7 +301,8 @@ def run_polyscope(world, bodies, sub_mesh, steps: int):
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--steps", type=int, default=150)
-    p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
+                   default="auto")
     p.add_argument("--no-viewer", action="store_true",
                    help="run headless instead of launching the polyscope viewer")
     args = p.parse_args()

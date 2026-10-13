@@ -7,6 +7,7 @@ between the two beams and with the floor needs no further setup.
 
 Usage:
     python examples/subspace/coupled_drop.py
+    python examples/subspace/coupled_drop.py --backend accelerate
     python examples/subspace/coupled_drop.py --backend cuda
     python examples/subspace/coupled_drop.py --no-viewer --steps 240
 """

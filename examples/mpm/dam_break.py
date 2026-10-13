@@ -104,8 +104,7 @@ def build_world(args, newton=None):
     trusty.mpm.add_mpm_particles(
         world, positions, particle_volume, material,
         scheme=args.scheme,            # "cdpi" or "lite"
-        cell_size=args.cell_size,      # background grid spacing (m)
-        reset_cdpi_domain=args.material == "quadratic_volume")  # True for fluids
+        cell_size=args.cell_size)      # background grid spacing (m)
 
     # The box the water is poured into.
     box_V, box_F = open_box(BOX, args.wall_res)
@@ -219,8 +218,8 @@ def make_parser():
     p.add_argument("--material", choices=("quadratic_volume", "stable_neohookean"),
                    default="quadratic_volume",
                    help="quadratic_volume: water (the default); stable_neohookean: "
-                        "an elastic block that keeps its shape (cdpi scheme, cpu "
-                        "and accelerate only)")
+                        "an elastic block that keeps its shape (cdpi scheme "
+                        "only)")
     p.add_argument("--bulk", type=float, default=1e5,
                    help="bulk modulus of the water, Pa (default %(default)g)")
     p.add_argument("--youngs-modulus", type=float, default=1e5,

@@ -15,7 +15,7 @@ Usage:
     python examples/subspace/muscle_twist.py
     python examples/subspace/muscle_twist.py --no-viewer   # self-checking
 
-Install polyscope with `pip install trusty-sim[viewer]`.
+Install polyscope with `pip install polyscope`.
 """
 from __future__ import annotations
 
@@ -180,8 +180,8 @@ def main() -> int:
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
-    # 'auto' (Accelerate on a Mac) raises.
+    # Defaults to cpu: the stitch is not yet supported on the accelerate
+    # backend, so 'auto' on a Mac raises.
     p.add_argument("--backend", choices=["auto", "cpu", "cuda", "accelerate"],
                    default="cpu",
                    help="solver backend (default: cpu); 'accelerate' uses "

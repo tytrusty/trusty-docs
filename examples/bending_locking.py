@@ -71,7 +71,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--res", type=int, nargs=3, default=[6, 1, 1])
     parser.add_argument("--steps", type=int, default=200)
-    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     parser.add_argument("--no-viewer", action="store_true",
                         help="headless: print the tip-deflection comparison instead of polyscope")
     args = parser.parse_args()

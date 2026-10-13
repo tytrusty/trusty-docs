@@ -91,6 +91,8 @@ def held_corners(res: int):
     return [res * (res + 1), res * (res + 1) + res]   # vid(0, res), vid(res, res)
 
 
+trusty.check_capabilities("shells")
+
 BENDING = {"bac": trusty.shells.BendingModel.Bac,
            "qb": trusty.shells.BendingModel.QuadraticLagrange}
 MEMBRANE = {"koiter": trusty.shells.MembraneModel.Koiter,
@@ -99,7 +101,6 @@ MEMBRANE = {"koiter": trusty.shells.MembraneModel.Koiter,
 
 def build_world(backend: str = "auto", bending: str = "bac",
                 membrane: str = "koiter", strain_limit: bool = True):
-    trusty.check_capabilities("shells")
     V, F = make_square_sheet(SIDE, RES, TOP_Z, TILT_DEG)
 
     world = trusty.World(backend=backend, timestep=1.0 / 60.0,

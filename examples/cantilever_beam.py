@@ -9,8 +9,7 @@ Usage:
     python examples/cantilever_beam.py --steps 240    # run longer
     python examples/cantilever_beam.py --order q2     # quadratic (Q2) elements
 
-Install polyscope with ``pip install trusty-sim[viewer]`` (or directly
-``pip install polyscope``).
+Install polyscope with ``pip install polyscope``.
 """
 
 from __future__ import annotations

@@ -146,8 +146,8 @@ def run_headless(world, bar, beam, mesh, root, steps: int):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    # Defaults to cpu: the penalty stitch has no Accelerate assembler yet, so
-    # 'auto' (Accelerate on a Mac) raises.
+    # Defaults to cpu: the stitch is not yet supported on the accelerate
+    # backend, so 'auto' on a Mac raises.
     p.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="cpu")
     p.add_argument("--steps", type=int, default=300)
     p.add_argument("--stiffness", type=float, default=1e6,

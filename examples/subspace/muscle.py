@@ -11,7 +11,7 @@ Usage:
     python examples/subspace/muscle.py --direction x
     python examples/subspace/muscle.py --no-viewer --direction y
 
-Install polyscope with ``pip install trusty-sim[viewer]``.
+Install polyscope with ``pip install polyscope``.
 """
 from __future__ import annotations
 

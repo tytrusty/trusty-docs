@@ -97,7 +97,7 @@ def main():
                              "curves reach the quadratic range")
     parser.add_argument("--timing-steps", type=int, default=15,
                         help="dynamic steps timed for the per-step runtime measurement")
-    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate"], default="auto")
+    parser.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     parser.add_argument("--lumped", action="store_true",
                         help="use lumped mass for the dynamic runtime (default: consistent). "
                              "Does not affect the static accuracy.")

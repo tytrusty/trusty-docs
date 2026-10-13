@@ -113,7 +113,7 @@ def run_headless(world, rod, steps: int):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
-                        choices=["auto", "cpu", "accelerate"], default="auto")
+                        choices=["auto", "cpu", "accelerate", "cuda"], default="auto")
     parser.add_argument("--steps", type=int, default=300)
     parser.add_argument("--no-viewer", action="store_true",
                         help="headless: print the tip sag")
