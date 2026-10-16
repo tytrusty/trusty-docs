@@ -267,6 +267,8 @@
       
         
       
+        
+      
     
     
     
@@ -565,6 +567,8 @@
       
         
       
+        
+      
     
     
     
@@ -643,6 +647,187 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Robotics
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Robotics
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./cable_fingers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cable-driven fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./pneunet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PneuNet fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./finray/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Fin Ray finger
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./franka/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka arm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -1356,6 +1541,11 @@
                       
                     
                     
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -1367,6 +1557,25 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#robotics" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Robotics
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1387,8 +1596,7 @@
 
 
 <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
-<p>Larger scenes that put several modules together, each taken apart step by
-step. Every one is a script in the
+<p>Larger scenes, each taken apart step by step. Every one is a script in the
 <a href="https://github.com/tytrusty/trusty-docs">trusty-docs repository</a> that
 you can run and change: clone it and run <code>python examples/...</code> from its root.
 See <a href="../getting_started/install/#run-the-examples">Run the examples</a>.</p>
@@ -1401,6 +1609,37 @@ See <a href="../getting_started/install/#run-the-examples">Run the examples</a>.
 shell, MPM particles and an embedded solid), squeezed together by two
 rod loops with muscles. Contact and friction between every pair, in one
 solve.</p>
+</li>
+</ul>
+</div>
+<h2 id="robotics">Robotics<a class="headerlink" href="#robotics" title="Permanent link">&para;</a></h2>
+<p>Soft and rigid robots, actuated by tendons, air pressure and joint motors.</p>
+<div class="grid cards">
+<ul>
+<li>
+<p><strong><a href="cable_fingers/">Cable-driven fingers</a></strong></p>
+<hr />
+<p>A tendon through a soft finger, pulled by tension or wound in by a winch:
+a straight finger, a notched finger that folds, and a four-tendon tentacle.</p>
+</li>
+<li>
+<p><strong><a href="pneunet/">PneuNet fingers</a></strong></p>
+<hr />
+<p>Silicone fingers curled by air pressure in their chambers, a two-finger
+gripper on a turning hub, and a reduced finger that steps many times
+faster.</p>
+</li>
+<li>
+<p><strong><a href="finray/">Fin Ray finger</a></strong></p>
+<hr />
+<p>A triangular frame that wraps around a sphere pressed into it, with
+contact and friction.</p>
+</li>
+<li>
+<p><strong><a href="franka/">Franka arm</a></strong></p>
+<hr />
+<p>A Franka FR3 arm built from its URDF, swinging under joint actuators, and
+then with soft inflating fingers on its hand.</p>
 </li>
 </ul>
 </div>

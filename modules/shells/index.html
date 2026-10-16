@@ -265,6 +265,8 @@
       
         
       
+        
+      
     
     
     
@@ -563,6 +565,8 @@
       
         
       
+        
+      
     
     
     
@@ -638,6 +642,184 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Robotics
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Robotics
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/cable_fingers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cable-driven fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/pneunet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PneuNet fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/finray/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Fin Ray finger
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/franka/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka arm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -1672,7 +1854,7 @@ not a layer of elements.</p>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">config</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="mf">500.0</span>             <span class="c1"># kg/m^3</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">config</span><span class="o">.</span><span class="n">strain_limit</span> <span class="o">=</span> <span class="n">strain_limit</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">config</span><span class="o">.</span><span class="n">strain_limit_ratio</span> <span class="o">=</span> <span class="mf">1.1</span>    <span class="c1"># stretch at most 10%</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># Bac by default</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># QB by default</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">config</span><span class="o">.</span><span class="n">membrane_model</span> <span class="o">=</span> <span class="n">MEMBRANE</span><span class="p">[</span><span class="n">membrane</span><span class="p">]</span>  <span class="c1"># Koiter by default</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># V (n, 3) and F (m, 3): the sheet's vertices and triangles.</span>
@@ -1722,14 +1904,14 @@ added moves, so give each sheet a world of its own.</p>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="sd">top corners; gravity drapes it into a curtain with a swag between the corners.</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">The cloth is soft (E = 10 kPa) but cannot stretch more than 10%: the strain</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="sd">limit keeps it cloth-like instead of rubbery. ``--no-strain-limit`` shows the</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">difference, ``--bending qb`` and ``--membrane neohookean`` swap the bending and</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">difference, ``--bending bac`` and ``--membrane neohookean`` swap the bending and</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="sd">membrane models. ``--no-viewer`` prints the drape's size and its largest</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">stretch.</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">Usage:</span>
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    python examples/shells/cloth_drape.py</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    python examples/shells/cloth_drape.py --no-strain-limit</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/shells/cloth_drape.py --bending qb</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/shells/cloth_drape.py --bending bac</span>
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    python examples/shells/cloth_drape.py --backend accelerate</span>
 <a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="sd">    python examples/shells/cloth_drape.py --no-viewer --steps 120</span>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="sd">"""</span>
@@ -1817,7 +1999,7 @@ added moves, so give each sheet a world of its own.</p>
 <a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a>            <span class="s2">"neohookean"</span><span class="p">:</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">MembraneModel</span><span class="o">.</span><span class="n">NeoHookean</span><span class="p">}</span>
 <a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a>
 <a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a>
-<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_world</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span> <span class="n">bending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"bac"</span><span class="p">,</span>
+<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a><span class="k">def</span><span class="w"> </span><span class="nf">build_world</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span> <span class="n">bending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"qb"</span><span class="p">,</span>
 <a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>                <span class="n">membrane</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"koiter"</span><span class="p">,</span> <span class="n">strain_limit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 <a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a>    <span class="n">V</span><span class="p">,</span> <span class="n">F</span> <span class="o">=</span> <span class="n">make_square_sheet</span><span class="p">(</span><span class="n">SIDE</span><span class="p">,</span> <span class="n">RES</span><span class="p">,</span> <span class="n">TOP_Z</span><span class="p">,</span> <span class="n">TILT_DEG</span><span class="p">)</span>
 <a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a>
@@ -1830,7 +2012,7 @@ added moves, so give each sheet a world of its own.</p>
 <a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a>    <span class="n">config</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="mf">500.0</span>             <span class="c1"># kg/m^3</span>
 <a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a>    <span class="n">config</span><span class="o">.</span><span class="n">strain_limit</span> <span class="o">=</span> <span class="n">strain_limit</span>
 <a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a>    <span class="n">config</span><span class="o">.</span><span class="n">strain_limit_ratio</span> <span class="o">=</span> <span class="mf">1.1</span>    <span class="c1"># stretch at most 10%</span>
-<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># Bac by default</span>
+<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a>    <span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># QB by default</span>
 <a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a>    <span class="n">config</span><span class="o">.</span><span class="n">membrane_model</span> <span class="o">=</span> <span class="n">MEMBRANE</span><span class="p">[</span><span class="n">membrane</span><span class="p">]</span>  <span class="c1"># Koiter by default</span>
 <a id="__codelineno-1-117" name="__codelineno-1-117" href="#__codelineno-1-117"></a>
 <a id="__codelineno-1-118" name="__codelineno-1-118" href="#__codelineno-1-118"></a>    <span class="c1"># V (n, 3) and F (m, 3): the sheet's vertices and triangles.</span>
@@ -1880,49 +2062,45 @@ added moves, so give each sheet a world of its own.</p>
 <a id="__codelineno-1-162" name="__codelineno-1-162" href="#__codelineno-1-162"></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
 <a id="__codelineno-1-163" name="__codelineno-1-163" href="#__codelineno-1-163"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
 <a id="__codelineno-1-164" name="__codelineno-1-164" href="#__codelineno-1-164"></a>            <span class="sa">f</span><span class="s2">"last solve: iters=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">}</span><span class="s2">  "</span>
-<a id="__codelineno-1-165" name="__codelineno-1-165" href="#__codelineno-1-165"></a>            <span class="sa">f</span><span class="s2">"residual=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">  "</span>
-<a id="__codelineno-1-166" name="__codelineno-1-166" href="#__codelineno-1-166"></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'converged'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">report</span><span class="o">.</span><span class="n">converged</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'DIVERGED'</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-1-167" name="__codelineno-1-167" href="#__codelineno-1-167"></a>        <span class="p">)</span>
-<a id="__codelineno-1-168" name="__codelineno-1-168" href="#__codelineno-1-168"></a>
-<a id="__codelineno-1-169" name="__codelineno-1-169" href="#__codelineno-1-169"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-<a id="__codelineno-1-170" name="__codelineno-1-170" href="#__codelineno-1-170"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a id="__codelineno-1-165" name="__codelineno-1-165" href="#__codelineno-1-165"></a>            <span class="sa">f</span><span class="s2">"residual=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-1-166" name="__codelineno-1-166" href="#__codelineno-1-166"></a>        <span class="p">)</span>
+<a id="__codelineno-1-167" name="__codelineno-1-167" href="#__codelineno-1-167"></a>
+<a id="__codelineno-1-168" name="__codelineno-1-168" href="#__codelineno-1-168"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<a id="__codelineno-1-169" name="__codelineno-1-169" href="#__codelineno-1-169"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a id="__codelineno-1-170" name="__codelineno-1-170" href="#__codelineno-1-170"></a>
 <a id="__codelineno-1-171" name="__codelineno-1-171" href="#__codelineno-1-171"></a>
-<a id="__codelineno-1-172" name="__codelineno-1-172" href="#__codelineno-1-172"></a>
-<a id="__codelineno-1-173" name="__codelineno-1-173" href="#__codelineno-1-173"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-1-175" name="__codelineno-1-175" href="#__codelineno-1-175"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span>
-<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a>                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
-<a id="__codelineno-1-177" name="__codelineno-1-177" href="#__codelineno-1-177"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--bending"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">BENDING</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"bac"</span><span class="p">,</span>
-<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"bending model: bac (default) or qb, which "</span>
-<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a>                             <span class="s2">"assumes a flat rest shape"</span><span class="p">)</span>
-<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--membrane"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">MEMBRANE</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"koiter"</span><span class="p">,</span>
-<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"membrane model (default koiter)"</span><span class="p">)</span>
-<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-strain-limit"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"let the cloth stretch freely"</span><span class="p">)</span>
-<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"headless: print the drape"</span><span class="p">)</span>
-<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a>
-<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">F</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">bending</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bending</span><span class="p">,</span>
-<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a>                                    <span class="n">membrane</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">membrane</span><span class="p">,</span>
-<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a>                                    <span class="n">strain_limit</span><span class="o">=</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_strain_limit</span><span class="p">)</span>
-<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
-<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a>        <span class="n">unconverged</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
-<a id="__codelineno-1-195" name="__codelineno-1-195" href="#__codelineno-1-195"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a>            <span class="n">unconverged</span> <span class="o">+=</span> <span class="ow">not</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span><span class="o">.</span><span class="n">converged</span>
-<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
-<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps: bottom at z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m "</span>
-<a id="__codelineno-1-199" name="__codelineno-1-199" href="#__codelineno-1-199"></a>              <span class="sa">f</span><span class="s2">"(rest </span><span class="si">{</span><span class="n">TOP_Z</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">SIDE</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m), largest stretch "</span>
-<a id="__codelineno-1-200" name="__codelineno-1-200" href="#__codelineno-1-200"></a>              <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_stretch</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, "</span>
-<a id="__codelineno-1-201" name="__codelineno-1-201" href="#__codelineno-1-201"></a>              <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">unconverged</span><span class="si">}</span><span class="s2"> step(s) not converged"</span><span class="p">)</span>
-<a id="__codelineno-1-202" name="__codelineno-1-202" href="#__codelineno-1-202"></a>        <span class="k">return</span>
-<a id="__codelineno-1-203" name="__codelineno-1-203" href="#__codelineno-1-203"></a>    <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-1-204" name="__codelineno-1-204" href="#__codelineno-1-204"></a>
-<a id="__codelineno-1-205" name="__codelineno-1-205" href="#__codelineno-1-205"></a>
-<a id="__codelineno-1-206" name="__codelineno-1-206" href="#__codelineno-1-206"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-1-207" name="__codelineno-1-207" href="#__codelineno-1-207"></a>    <span class="n">main</span><span class="p">()</span>
+<a id="__codelineno-1-172" name="__codelineno-1-172" href="#__codelineno-1-172"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-1-173" name="__codelineno-1-173" href="#__codelineno-1-173"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span>
+<a id="__codelineno-1-175" name="__codelineno-1-175" href="#__codelineno-1-175"></a>                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--bending"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">BENDING</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"qb"</span><span class="p">,</span>
+<a id="__codelineno-1-177" name="__codelineno-1-177" href="#__codelineno-1-177"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"bending model: qb (default), which assumes a "</span>
+<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a>                             <span class="s2">"flat rest shape, or bac"</span><span class="p">)</span>
+<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--membrane"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">MEMBRANE</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"koiter"</span><span class="p">,</span>
+<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"membrane model (default koiter)"</span><span class="p">)</span>
+<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-strain-limit"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"let the cloth stretch freely"</span><span class="p">)</span>
+<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"headless: print the drape"</span><span class="p">)</span>
+<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a>
+<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">F</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">bending</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bending</span><span class="p">,</span>
+<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a>                                    <span class="n">membrane</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">membrane</span><span class="p">,</span>
+<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a>                                    <span class="n">strain_limit</span><span class="o">=</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_strain_limit</span><span class="p">)</span>
+<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
+<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
+<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-1-195" name="__codelineno-1-195" href="#__codelineno-1-195"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps: bottom at z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m "</span>
+<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a>              <span class="sa">f</span><span class="s2">"(rest </span><span class="si">{</span><span class="n">TOP_Z</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">SIDE</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m), largest stretch "</span>
+<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a>              <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">max_stretch</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a>        <span class="k">return</span>
+<a id="__codelineno-1-199" name="__codelineno-1-199" href="#__codelineno-1-199"></a>    <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-200" name="__codelineno-1-200" href="#__codelineno-1-200"></a>
+<a id="__codelineno-1-201" name="__codelineno-1-201" href="#__codelineno-1-201"></a>
+<a id="__codelineno-1-202" name="__codelineno-1-202" href="#__codelineno-1-202"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-1-203" name="__codelineno-1-203" href="#__codelineno-1-203"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
 <h2 id="material-and-thickness">Material and thickness<a class="headerlink" href="#material-and-thickness" title="Permanent link">&para;</a></h2>
@@ -2146,16 +2324,14 @@ coarse mesh.</p>
 <a id="__codelineno-3-147" name="__codelineno-3-147" href="#__codelineno-3-147"></a>        <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">plate</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span> <span class="ow">in</span> <span class="n">plates</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 <a id="__codelineno-3-148" name="__codelineno-3-148" href="#__codelineno-3-148"></a>            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
 <a id="__codelineno-3-149" name="__codelineno-3-149" href="#__codelineno-3-149"></a>                <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<a id="__codelineno-3-150" name="__codelineno-3-150" href="#__codelineno-3-150"></a>            <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
-<a id="__codelineno-3-151" name="__codelineno-3-151" href="#__codelineno-3-151"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2"> mm: sag </span><span class="si">{</span><span class="n">tip_sag</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">plate</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m   "</span>
-<a id="__codelineno-3-152" name="__codelineno-3-152" href="#__codelineno-3-152"></a>                  <span class="sa">f</span><span class="s2">"(small-sag plate theory </span><span class="si">{</span><span class="n">plate_theory_sag</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m)  "</span>
-<a id="__codelineno-3-153" name="__codelineno-3-153" href="#__codelineno-3-153"></a>                  <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'converged'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">report</span><span class="o">.</span><span class="n">converged</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'NOT converged'</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-3-154" name="__codelineno-3-154" href="#__codelineno-3-154"></a>        <span class="k">return</span>
-<a id="__codelineno-3-155" name="__codelineno-3-155" href="#__codelineno-3-155"></a>    <span class="n">run_viewer</span><span class="p">(</span><span class="n">plates</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-3-156" name="__codelineno-3-156" href="#__codelineno-3-156"></a>
-<a id="__codelineno-3-157" name="__codelineno-3-157" href="#__codelineno-3-157"></a>
-<a id="__codelineno-3-158" name="__codelineno-3-158" href="#__codelineno-3-158"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-3-159" name="__codelineno-3-159" href="#__codelineno-3-159"></a>    <span class="n">main</span><span class="p">()</span>
+<a id="__codelineno-3-150" name="__codelineno-3-150" href="#__codelineno-3-150"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e3</span><span class="si">:</span><span class="s2">4.0f</span><span class="si">}</span><span class="s2"> mm: sag </span><span class="si">{</span><span class="n">tip_sag</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">plate</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m   "</span>
+<a id="__codelineno-3-151" name="__codelineno-3-151" href="#__codelineno-3-151"></a>                  <span class="sa">f</span><span class="s2">"(small-sag plate theory </span><span class="si">{</span><span class="n">plate_theory_sag</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m)"</span><span class="p">)</span>
+<a id="__codelineno-3-152" name="__codelineno-3-152" href="#__codelineno-3-152"></a>        <span class="k">return</span>
+<a id="__codelineno-3-153" name="__codelineno-3-153" href="#__codelineno-3-153"></a>    <span class="n">run_viewer</span><span class="p">(</span><span class="n">plates</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-3-154" name="__codelineno-3-154" href="#__codelineno-3-154"></a>
+<a id="__codelineno-3-155" name="__codelineno-3-155" href="#__codelineno-3-155"></a>
+<a id="__codelineno-3-156" name="__codelineno-3-156" href="#__codelineno-3-156"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-3-157" name="__codelineno-3-157" href="#__codelineno-3-157"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
 <h2 id="membrane-and-bending-models">Membrane and bending models<a class="headerlink" href="#membrane-and-bending-models" title="Permanent link">&para;</a></h2>
@@ -2200,16 +2376,22 @@ the sheet's plane) and the bending model.</p>
 <td><code>QuadraticLagrange</code></td>
 <td>cheaper, for flat rest shapes only; <code>add_shell</code> warns when the mesh is not flat. It resists bending less than <code>Bac</code> near free edges, so use <code>Bac</code> when the amount of bending matters, as in the plates above.</td>
 </tr>
+<tr>
+<td><code>DiscreteShell</code></td>
+<td>cheaper, for any rest shape, flat or curved. It has half as many unknowns as <code>Bac</code>, but it is stiffer than <code>Bac</code> and how stiff depends on the mesh, so use <code>Bac</code> when the amount of bending matters. It has no barrier against folding flat onto itself.</td>
+</tr>
 </tbody>
 </table>
 <p>Set them on the config, before <code>add_shell</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">config</span><span class="o">.</span><span class="n">strain_limit</span> <span class="o">=</span> <span class="n">strain_limit</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">config</span><span class="o">.</span><span class="n">strain_limit_ratio</span> <span class="o">=</span> <span class="mf">1.1</span>    <span class="c1"># stretch at most 10%</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># Bac by default</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">config</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">BENDING</span><span class="p">[</span><span class="n">bending</span><span class="p">]</span>     <span class="c1"># QB by default</span>
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">config</span><span class="o">.</span><span class="n">membrane_model</span> <span class="o">=</span> <span class="n">MEMBRANE</span><span class="p">[</span><span class="n">membrane</span><span class="p">]</span>  <span class="c1"># Koiter by default</span>
 </code></pre></div>
-<p><code>python examples/shells/cloth_drape.py --bending qb --membrane neohookean</code>
+<p><code>python examples/shells/cloth_drape.py --bending bac --membrane neohookean</code>
 runs the curtain with the other two models.</p>
+<p><code>python examples/shells/inflated_sphere.py</code> inflates the skin of a ball, curved
+at rest, with <code>DiscreteShell</code>; <code>--bending bac</code> runs it with <code>Bac</code>.</p>
 <h3 id="strain-limiting">Strain limiting<a class="headerlink" href="#strain-limiting" title="Permanent link">&para;</a></h3>
 <p>Cloth bends easily but barely stretches. A low Young's modulus gives the easy
 bending, but on its own it also lets the sheet stretch like rubber. With
@@ -2404,15 +2586,13 @@ pass the curved shape as <code>V</code> instead.</p>
 <a id="__codelineno-8-120" name="__codelineno-8-120" href="#__codelineno-8-120"></a>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
 <a id="__codelineno-8-121" name="__codelineno-8-121" href="#__codelineno-8-121"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 <a id="__codelineno-8-122" name="__codelineno-8-122" href="#__codelineno-8-122"></a>            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-8-123" name="__codelineno-8-123" href="#__codelineno-8-123"></a>                <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
-<a id="__codelineno-8-124" name="__codelineno-8-124" href="#__codelineno-8-124"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step </span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">: height </span><span class="si">{</span><span class="n">height</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m"</span>
-<a id="__codelineno-8-125" name="__codelineno-8-125" href="#__codelineno-8-125"></a>                      <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">''</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">report</span><span class="o">.</span><span class="n">converged</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'  (NOT converged)'</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-8-126" name="__codelineno-8-126" href="#__codelineno-8-126"></a>        <span class="k">return</span>
-<a id="__codelineno-8-127" name="__codelineno-8-127" href="#__codelineno-8-127"></a>    <span class="n">run_viewer</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-8-128" name="__codelineno-8-128" href="#__codelineno-8-128"></a>
-<a id="__codelineno-8-129" name="__codelineno-8-129" href="#__codelineno-8-129"></a>
-<a id="__codelineno-8-130" name="__codelineno-8-130" href="#__codelineno-8-130"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-8-131" name="__codelineno-8-131" href="#__codelineno-8-131"></a>    <span class="n">main</span><span class="p">()</span>
+<a id="__codelineno-8-123" name="__codelineno-8-123" href="#__codelineno-8-123"></a>                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step </span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">: height </span><span class="si">{</span><span class="n">height</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">body</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m"</span><span class="p">)</span>
+<a id="__codelineno-8-124" name="__codelineno-8-124" href="#__codelineno-8-124"></a>        <span class="k">return</span>
+<a id="__codelineno-8-125" name="__codelineno-8-125" href="#__codelineno-8-125"></a>    <span class="n">run_viewer</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-8-126" name="__codelineno-8-126" href="#__codelineno-8-126"></a>
+<a id="__codelineno-8-127" name="__codelineno-8-127" href="#__codelineno-8-127"></a>
+<a id="__codelineno-8-128" name="__codelineno-8-128" href="#__codelineno-8-128"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-8-129" name="__codelineno-8-129" href="#__codelineno-8-129"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
 <h2 id="reading-results">Reading results<a class="headerlink" href="#reading-results" title="Permanent link">&para;</a></h2>
@@ -2608,40 +2788,37 @@ sheet drops onto a fixed sphere and drapes over it:</p>
 <a id="__codelineno-11-146" name="__codelineno-11-146" href="#__codelineno-11-146"></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
 <a id="__codelineno-11-147" name="__codelineno-11-147" href="#__codelineno-11-147"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span>
 <a id="__codelineno-11-148" name="__codelineno-11-148" href="#__codelineno-11-148"></a>            <span class="sa">f</span><span class="s2">"last solve: iters=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">}</span><span class="s2">  "</span>
-<a id="__codelineno-11-149" name="__codelineno-11-149" href="#__codelineno-11-149"></a>            <span class="sa">f</span><span class="s2">"residual=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">  "</span>
-<a id="__codelineno-11-150" name="__codelineno-11-150" href="#__codelineno-11-150"></a>            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'converged'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">report</span><span class="o">.</span><span class="n">converged</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'DIVERGED'</span><span class="si">}</span><span class="s2">"</span>
-<a id="__codelineno-11-151" name="__codelineno-11-151" href="#__codelineno-11-151"></a>        <span class="p">)</span>
-<a id="__codelineno-11-152" name="__codelineno-11-152" href="#__codelineno-11-152"></a>
-<a id="__codelineno-11-153" name="__codelineno-11-153" href="#__codelineno-11-153"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-<a id="__codelineno-11-154" name="__codelineno-11-154" href="#__codelineno-11-154"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a id="__codelineno-11-149" name="__codelineno-11-149" href="#__codelineno-11-149"></a>            <span class="sa">f</span><span class="s2">"residual=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">"</span>
+<a id="__codelineno-11-150" name="__codelineno-11-150" href="#__codelineno-11-150"></a>        <span class="p">)</span>
+<a id="__codelineno-11-151" name="__codelineno-11-151" href="#__codelineno-11-151"></a>
+<a id="__codelineno-11-152" name="__codelineno-11-152" href="#__codelineno-11-152"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<a id="__codelineno-11-153" name="__codelineno-11-153" href="#__codelineno-11-153"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a id="__codelineno-11-154" name="__codelineno-11-154" href="#__codelineno-11-154"></a>
 <a id="__codelineno-11-155" name="__codelineno-11-155" href="#__codelineno-11-155"></a>
-<a id="__codelineno-11-156" name="__codelineno-11-156" href="#__codelineno-11-156"></a>
-<a id="__codelineno-11-157" name="__codelineno-11-157" href="#__codelineno-11-157"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<a id="__codelineno-11-158" name="__codelineno-11-158" href="#__codelineno-11-158"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-11-159" name="__codelineno-11-159" href="#__codelineno-11-159"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span>
-<a id="__codelineno-11-160" name="__codelineno-11-160" href="#__codelineno-11-160"></a>                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
-<a id="__codelineno-11-161" name="__codelineno-11-161" href="#__codelineno-11-161"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">180</span><span class="p">)</span>
-<a id="__codelineno-11-162" name="__codelineno-11-162" href="#__codelineno-11-162"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-<a id="__codelineno-11-163" name="__codelineno-11-163" href="#__codelineno-11-163"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"headless: print where the sheet ends up"</span><span class="p">)</span>
-<a id="__codelineno-11-164" name="__codelineno-11-164" href="#__codelineno-11-164"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
-<a id="__codelineno-11-165" name="__codelineno-11-165" href="#__codelineno-11-165"></a>
-<a id="__codelineno-11-166" name="__codelineno-11-166" href="#__codelineno-11-166"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">sphere</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
-<a id="__codelineno-11-167" name="__codelineno-11-167" href="#__codelineno-11-167"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
-<a id="__codelineno-11-168" name="__codelineno-11-168" href="#__codelineno-11-168"></a>        <span class="n">unconverged</span> <span class="o">=</span> <span class="mi">0</span>
-<a id="__codelineno-11-169" name="__codelineno-11-169" href="#__codelineno-11-169"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
-<a id="__codelineno-11-170" name="__codelineno-11-170" href="#__codelineno-11-170"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<a id="__codelineno-11-171" name="__codelineno-11-171" href="#__codelineno-11-171"></a>            <span class="n">unconverged</span> <span class="o">+=</span> <span class="ow">not</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span><span class="o">.</span><span class="n">converged</span>
-<a id="__codelineno-11-172" name="__codelineno-11-172" href="#__codelineno-11-172"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
-<a id="__codelineno-11-173" name="__codelineno-11-173" href="#__codelineno-11-173"></a>        <span class="n">top</span> <span class="o">=</span> <span class="n">SPHERE_CENTER</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">SPHERE_RADIUS</span>
-<a id="__codelineno-11-174" name="__codelineno-11-174" href="#__codelineno-11-174"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps: the sheet rests at z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> m "</span>
-<a id="__codelineno-11-175" name="__codelineno-11-175" href="#__codelineno-11-175"></a>              <span class="sa">f</span><span class="s2">"on the sphere's top at </span><span class="si">{</span><span class="n">top</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> m; its corners hang down to "</span>
-<a id="__codelineno-11-176" name="__codelineno-11-176" href="#__codelineno-11-176"></a>              <span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m. </span><span class="si">{</span><span class="n">unconverged</span><span class="si">}</span><span class="s2"> step(s) not converged"</span><span class="p">)</span>
-<a id="__codelineno-11-177" name="__codelineno-11-177" href="#__codelineno-11-177"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-11-178" name="__codelineno-11-178" href="#__codelineno-11-178"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-11-179" name="__codelineno-11-179" href="#__codelineno-11-179"></a>
-<a id="__codelineno-11-180" name="__codelineno-11-180" href="#__codelineno-11-180"></a>
-<a id="__codelineno-11-181" name="__codelineno-11-181" href="#__codelineno-11-181"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-11-182" name="__codelineno-11-182" href="#__codelineno-11-182"></a>    <span class="n">main</span><span class="p">()</span>
+<a id="__codelineno-11-156" name="__codelineno-11-156" href="#__codelineno-11-156"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<a id="__codelineno-11-157" name="__codelineno-11-157" href="#__codelineno-11-157"></a>    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-11-158" name="__codelineno-11-158" href="#__codelineno-11-158"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span>
+<a id="__codelineno-11-159" name="__codelineno-11-159" href="#__codelineno-11-159"></a>                        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">],</span> <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-11-160" name="__codelineno-11-160" href="#__codelineno-11-160"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">180</span><span class="p">)</span>
+<a id="__codelineno-11-161" name="__codelineno-11-161" href="#__codelineno-11-161"></a>    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+<a id="__codelineno-11-162" name="__codelineno-11-162" href="#__codelineno-11-162"></a>                        <span class="n">help</span><span class="o">=</span><span class="s2">"headless: print where the sheet ends up"</span><span class="p">)</span>
+<a id="__codelineno-11-163" name="__codelineno-11-163" href="#__codelineno-11-163"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+<a id="__codelineno-11-164" name="__codelineno-11-164" href="#__codelineno-11-164"></a>
+<a id="__codelineno-11-165" name="__codelineno-11-165" href="#__codelineno-11-165"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">sphere</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+<a id="__codelineno-11-166" name="__codelineno-11-166" href="#__codelineno-11-166"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
+<a id="__codelineno-11-167" name="__codelineno-11-167" href="#__codelineno-11-167"></a>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">):</span>
+<a id="__codelineno-11-168" name="__codelineno-11-168" href="#__codelineno-11-168"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<a id="__codelineno-11-169" name="__codelineno-11-169" href="#__codelineno-11-169"></a>        <span class="n">x</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-11-170" name="__codelineno-11-170" href="#__codelineno-11-170"></a>        <span class="n">top</span> <span class="o">=</span> <span class="n">SPHERE_CENTER</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">SPHERE_RADIUS</span>
+<a id="__codelineno-11-171" name="__codelineno-11-171" href="#__codelineno-11-171"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps: the sheet rests at z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> m "</span>
+<a id="__codelineno-11-172" name="__codelineno-11-172" href="#__codelineno-11-172"></a>              <span class="sa">f</span><span class="s2">"on the sphere's top at </span><span class="si">{</span><span class="n">top</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> m; its corners hang down to "</span>
+<a id="__codelineno-11-173" name="__codelineno-11-173" href="#__codelineno-11-173"></a>              <span class="sa">f</span><span class="s2">"z = </span><span class="si">{</span><span class="n">x</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> m."</span><span class="p">)</span>
+<a id="__codelineno-11-174" name="__codelineno-11-174" href="#__codelineno-11-174"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-11-175" name="__codelineno-11-175" href="#__codelineno-11-175"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-11-176" name="__codelineno-11-176" href="#__codelineno-11-176"></a>
+<a id="__codelineno-11-177" name="__codelineno-11-177" href="#__codelineno-11-177"></a>
+<a id="__codelineno-11-178" name="__codelineno-11-178" href="#__codelineno-11-178"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-11-179" name="__codelineno-11-179" href="#__codelineno-11-179"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
 <h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>

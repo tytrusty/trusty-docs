@@ -265,6 +265,8 @@
       
         
       
+        
+      
     
     
     
@@ -563,6 +565,8 @@
       
         
       
+        
+      
     
     
     
@@ -638,6 +642,184 @@
   
 
       </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Robotics
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        
+          <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+            <label class="md-nav__title" for="__nav_3_3">
+              <span class="md-nav__icon md-icon"></span>
+              
+  
+  Robotics
+
+            </label>
+            <ul class="md-nav__list" data-md-scrollfix>
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/cable_fingers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Cable-driven fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/pneunet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  PneuNet fingers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/finray/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Fin Ray finger
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/franka/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka arm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+            </ul>
+          </nav>
+        
+      
     </li>
   
 
@@ -1795,7 +1977,7 @@ particles in one call.</p>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">Usage:</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">    python examples/mpm/dam_break.py                     # polyscope viewer</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    python examples/mpm/dam_break.py --no-viewer         # headless self-check</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">    python examples/mpm/dam_break.py --no-viewer         # print the flow front</span>
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="sd">    python examples/mpm/dam_break.py --noslip            # fluid sticks to the walls</span>
 <a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="sd">    python examples/mpm/dam_break.py --scheme lite       # the other MPM scheme</span>
 <a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="sd">    python examples/mpm/dam_break.py --material stable_neohookean  # an elastic block</span>
@@ -1931,112 +2113,104 @@ particles in one call.</p>
 <a id="__codelineno-1-145" name="__codelineno-1-145" href="#__codelineno-1-145"></a>
 <a id="__codelineno-1-146" name="__codelineno-1-146" href="#__codelineno-1-146"></a>
 <a id="__codelineno-1-147" name="__codelineno-1-147" href="#__codelineno-1-147"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
-<a id="__codelineno-1-148" name="__codelineno-1-148" href="#__codelineno-1-148"></a><span class="w">    </span><span class="sd">"""Step, print progress, then check that the water stayed in the box."""</span>
+<a id="__codelineno-1-148" name="__codelineno-1-148" href="#__codelineno-1-148"></a><span class="w">    </span><span class="sd">"""Step and print how far the water has run."""</span>
 <a id="__codelineno-1-149" name="__codelineno-1-149" href="#__codelineno-1-149"></a>    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>  <span class="c1"># (P, 3) positions</span>
 <a id="__codelineno-1-150" name="__codelineno-1-150" href="#__codelineno-1-150"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'step'</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'front x'</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'top z'</span><span class="si">:</span><span class="s2">&gt;7</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">'iters'</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-151" name="__codelineno-1-151" href="#__codelineno-1-151"></a>    <span class="n">unconverged</span><span class="p">,</span> <span class="n">t0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<a id="__codelineno-1-151" name="__codelineno-1-151" href="#__codelineno-1-151"></a>    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
 <a id="__codelineno-1-152" name="__codelineno-1-152" href="#__codelineno-1-152"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
 <a id="__codelineno-1-153" name="__codelineno-1-153" href="#__codelineno-1-153"></a>        <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 <a id="__codelineno-1-154" name="__codelineno-1-154" href="#__codelineno-1-154"></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
-<a id="__codelineno-1-155" name="__codelineno-1-155" href="#__codelineno-1-155"></a>        <span class="n">unconverged</span> <span class="o">+=</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">converged</span>
-<a id="__codelineno-1-156" name="__codelineno-1-156" href="#__codelineno-1-156"></a>        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="n">steps</span><span class="p">:</span>
-<a id="__codelineno-1-157" name="__codelineno-1-157" href="#__codelineno-1-157"></a>            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>
-<a id="__codelineno-1-158" name="__codelineno-1-158" href="#__codelineno-1-158"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">front</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">:</span><span class="s2">8.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">X</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">7.3f</span><span class="si">}</span><span class="s2"> "</span>
-<a id="__codelineno-1-159" name="__codelineno-1-159" href="#__codelineno-1-159"></a>                  <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-160" name="__codelineno-1-160" href="#__codelineno-1-160"></a>    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>
-<a id="__codelineno-1-161" name="__codelineno-1-161" href="#__codelineno-1-161"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps in </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s, "</span>
-<a id="__codelineno-1-162" name="__codelineno-1-162" href="#__codelineno-1-162"></a>          <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">unconverged</span><span class="si">}</span><span class="s2"> did not converge"</span><span class="p">)</span>
-<a id="__codelineno-1-163" name="__codelineno-1-163" href="#__codelineno-1-163"></a>    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s2">"particle positions are not finite"</span>
-<a id="__codelineno-1-164" name="__codelineno-1-164" href="#__codelineno-1-164"></a>    <span class="k">assert</span> <span class="p">(</span><span class="n">X</span> <span class="o">&gt;=</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">BOX</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> \
-<a id="__codelineno-1-165" name="__codelineno-1-165" href="#__codelineno-1-165"></a>        <span class="s2">"particles left the box"</span>
-<a id="__codelineno-1-166" name="__codelineno-1-166" href="#__codelineno-1-166"></a>    <span class="k">assert</span> <span class="n">unconverged</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">unconverged</span><span class="si">}</span><span class="s2"> steps did not converge"</span>
-<a id="__codelineno-1-167" name="__codelineno-1-167" href="#__codelineno-1-167"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">"OK: the water stayed in the box."</span><span class="p">)</span>
-<a id="__codelineno-1-168" name="__codelineno-1-168" href="#__codelineno-1-168"></a>
-<a id="__codelineno-1-169" name="__codelineno-1-169" href="#__codelineno-1-169"></a>
-<a id="__codelineno-1-170" name="__codelineno-1-170" href="#__codelineno-1-170"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
-<a id="__codelineno-1-171" name="__codelineno-1-171" href="#__codelineno-1-171"></a>    <span class="n">ps</span> <span class="o">=</span> <span class="n">init_polyscope</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-1-172" name="__codelineno-1-172" href="#__codelineno-1-172"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">polyscope.imgui</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">psim</span>
-<a id="__codelineno-1-173" name="__codelineno-1-173" href="#__codelineno-1-173"></a>
-<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a>    <span class="n">box_V</span><span class="p">,</span> <span class="n">box_F</span> <span class="o">=</span> <span class="n">open_box</span><span class="p">(</span><span class="n">BOX</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<a id="__codelineno-1-175" name="__codelineno-1-175" href="#__codelineno-1-175"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">register_surface_mesh</span><span class="p">(</span><span class="s2">"box"</span><span class="p">,</span> <span class="n">box_V</span><span class="p">,</span> <span class="n">box_F</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
-<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a>                             <span class="n">transparency</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
-<a id="__codelineno-1-177" name="__codelineno-1-177" href="#__codelineno-1-177"></a>    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>
-<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a>    <span class="n">cloud</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">register_point_cloud</span><span class="p">(</span><span class="s2">"water"</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.006</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">))</span>
-<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a>    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"i"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"playing"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
-<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a>
-<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">():</span>
-<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a>        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s2">"play"</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span>
-<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">SameLine</span><span class="p">()</span>
-<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a>        <span class="n">stepped</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"step"</span><span class="p">)</span>
-<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">SameLine</span><span class="p">()</span>
-<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a>        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">]</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">])</span>
-<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">stepped</span> <span class="ow">or</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span> <span class="ow">and</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">steps</span><span class="p">:</span>
-<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a>            <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a>            <span class="n">cloud</span><span class="o">.</span><span class="n">update_point_positions</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">)))</span>
-<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a>        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">]:</span>
-<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a>            <span class="n">V</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="n">grid_wireframe</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
-<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a>            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
-<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a>                <span class="n">ps</span><span class="o">.</span><span class="n">register_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.0008</span><span class="p">,</span>
-<a id="__codelineno-1-195" name="__codelineno-1-195" href="#__codelineno-1-195"></a>                                          <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
-<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a>        <span class="k">elif</span> <span class="n">ps</span><span class="o">.</span><span class="n">has_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">):</span>
-<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a>            <span class="n">ps</span><span class="o">.</span><span class="n">get_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">)</span><span class="o">.</span><span class="n">set_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
-<a id="__codelineno-1-199" name="__codelineno-1-199" href="#__codelineno-1-199"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step </span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">'i'</span><span class="p">]</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">   iters=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">}</span><span class="s2">  "</span>
-<a id="__codelineno-1-200" name="__codelineno-1-200" href="#__codelineno-1-200"></a>                  <span class="sa">f</span><span class="s2">"res=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-1-201" name="__codelineno-1-201" href="#__codelineno-1-201"></a>
-<a id="__codelineno-1-202" name="__codelineno-1-202" href="#__codelineno-1-202"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
-<a id="__codelineno-1-203" name="__codelineno-1-203" href="#__codelineno-1-203"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<a id="__codelineno-1-204" name="__codelineno-1-204" href="#__codelineno-1-204"></a>
-<a id="__codelineno-1-205" name="__codelineno-1-205" href="#__codelineno-1-205"></a>
-<a id="__codelineno-1-206" name="__codelineno-1-206" href="#__codelineno-1-206"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_parser</span><span class="p">():</span>
-<a id="__codelineno-1-207" name="__codelineno-1-207" href="#__codelineno-1-207"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<a id="__codelineno-1-208" name="__codelineno-1-208" href="#__codelineno-1-208"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">),</span>
-<a id="__codelineno-1-209" name="__codelineno-1-209" href="#__codelineno-1-209"></a>                   <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
-<a id="__codelineno-1-210" name="__codelineno-1-210" href="#__codelineno-1-210"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--scheme"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"cdpi"</span><span class="p">,</span> <span class="s2">"lite"</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"cdpi"</span><span class="p">,</span>
-<a id="__codelineno-1-211" name="__codelineno-1-211" href="#__codelineno-1-211"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"MPM scheme (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-212" name="__codelineno-1-212" href="#__codelineno-1-212"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--spacing"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
-<a id="__codelineno-1-213" name="__codelineno-1-213" href="#__codelineno-1-213"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"particle spacing, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-214" name="__codelineno-1-214" href="#__codelineno-1-214"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--cell-size"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
-<a id="__codelineno-1-215" name="__codelineno-1-215" href="#__codelineno-1-215"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"grid cell size, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-216" name="__codelineno-1-216" href="#__codelineno-1-216"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--sample"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"uniform"</span><span class="p">,</span> <span class="s2">"poisson"</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"poisson"</span><span class="p">,</span>
-<a id="__codelineno-1-217" name="__codelineno-1-217" href="#__codelineno-1-217"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"particle layout (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-218" name="__codelineno-1-218" href="#__codelineno-1-218"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--material"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"quadratic_volume"</span><span class="p">,</span> <span class="s2">"stable_neohookean"</span><span class="p">),</span>
-<a id="__codelineno-1-219" name="__codelineno-1-219" href="#__codelineno-1-219"></a>                   <span class="n">default</span><span class="o">=</span><span class="s2">"quadratic_volume"</span><span class="p">,</span>
-<a id="__codelineno-1-220" name="__codelineno-1-220" href="#__codelineno-1-220"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"quadratic_volume: water (the default); stable_neohookean: "</span>
-<a id="__codelineno-1-221" name="__codelineno-1-221" href="#__codelineno-1-221"></a>                        <span class="s2">"an elastic block that keeps its shape (cdpi scheme "</span>
-<a id="__codelineno-1-222" name="__codelineno-1-222" href="#__codelineno-1-222"></a>                        <span class="s2">"only)"</span><span class="p">)</span>
-<a id="__codelineno-1-223" name="__codelineno-1-223" href="#__codelineno-1-223"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--bulk"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
-<a id="__codelineno-1-224" name="__codelineno-1-224" href="#__codelineno-1-224"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"bulk modulus of the water, Pa (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-225" name="__codelineno-1-225" href="#__codelineno-1-225"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--youngs-modulus"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
-<a id="__codelineno-1-226" name="__codelineno-1-226" href="#__codelineno-1-226"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"Young's modulus of the elastic block, Pa (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-227" name="__codelineno-1-227" href="#__codelineno-1-227"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--poisson-ratio"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-<a id="__codelineno-1-228" name="__codelineno-1-228" href="#__codelineno-1-228"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"Poisson's ratio of the elastic block (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-229" name="__codelineno-1-229" href="#__codelineno-1-229"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--noslip"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-<a id="__codelineno-1-230" name="__codelineno-1-230" href="#__codelineno-1-230"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"make the water stick to the walls"</span><span class="p">)</span>
-<a id="__codelineno-1-231" name="__codelineno-1-231" href="#__codelineno-1-231"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--beta"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e7</span><span class="p">,</span>
-<a id="__codelineno-1-232" name="__codelineno-1-232" href="#__codelineno-1-232"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"no-slip stiffness (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-233" name="__codelineno-1-233" href="#__codelineno-1-233"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--wall-res"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-<a id="__codelineno-1-234" name="__codelineno-1-234" href="#__codelineno-1-234"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"wall triangle size, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
-<a id="__codelineno-1-235" name="__codelineno-1-235" href="#__codelineno-1-235"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--dt"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">240.0</span><span class="p">,</span>
-<a id="__codelineno-1-236" name="__codelineno-1-236" href="#__codelineno-1-236"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"timestep, s (default 1/240)"</span><span class="p">)</span>
-<a id="__codelineno-1-237" name="__codelineno-1-237" href="#__codelineno-1-237"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">240</span><span class="p">)</span>
-<a id="__codelineno-1-238" name="__codelineno-1-238" href="#__codelineno-1-238"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
-<a id="__codelineno-1-239" name="__codelineno-1-239" href="#__codelineno-1-239"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"run the headless self-check instead of the viewer"</span><span class="p">)</span>
-<a id="__codelineno-1-240" name="__codelineno-1-240" href="#__codelineno-1-240"></a>    <span class="k">return</span> <span class="n">p</span>
-<a id="__codelineno-1-241" name="__codelineno-1-241" href="#__codelineno-1-241"></a>
+<a id="__codelineno-1-155" name="__codelineno-1-155" href="#__codelineno-1-155"></a>        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="n">steps</span><span class="p">:</span>
+<a id="__codelineno-1-156" name="__codelineno-1-156" href="#__codelineno-1-156"></a>            <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>
+<a id="__codelineno-1-157" name="__codelineno-1-157" href="#__codelineno-1-157"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">front</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="si">:</span><span class="s2">8.3f</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">X</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">7.3f</span><span class="si">}</span><span class="s2"> "</span>
+<a id="__codelineno-1-158" name="__codelineno-1-158" href="#__codelineno-1-158"></a>                  <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-159" name="__codelineno-1-159" href="#__codelineno-1-159"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2"> steps in </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> s"</span><span class="p">)</span>
+<a id="__codelineno-1-160" name="__codelineno-1-160" href="#__codelineno-1-160"></a>
+<a id="__codelineno-1-161" name="__codelineno-1-161" href="#__codelineno-1-161"></a>
+<a id="__codelineno-1-162" name="__codelineno-1-162" href="#__codelineno-1-162"></a><span class="k">def</span><span class="w"> </span><span class="nf">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+<a id="__codelineno-1-163" name="__codelineno-1-163" href="#__codelineno-1-163"></a>    <span class="n">ps</span> <span class="o">=</span> <span class="n">init_polyscope</span><span class="p">(</span><span class="n">headless</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-1-164" name="__codelineno-1-164" href="#__codelineno-1-164"></a>    <span class="kn">import</span><span class="w"> </span><span class="nn">polyscope.imgui</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">psim</span>
+<a id="__codelineno-1-165" name="__codelineno-1-165" href="#__codelineno-1-165"></a>
+<a id="__codelineno-1-166" name="__codelineno-1-166" href="#__codelineno-1-166"></a>    <span class="n">box_V</span><span class="p">,</span> <span class="n">box_F</span> <span class="o">=</span> <span class="n">open_box</span><span class="p">(</span><span class="n">BOX</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+<a id="__codelineno-1-167" name="__codelineno-1-167" href="#__codelineno-1-167"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">register_surface_mesh</span><span class="p">(</span><span class="s2">"box"</span><span class="p">,</span> <span class="n">box_V</span><span class="p">,</span> <span class="n">box_F</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
+<a id="__codelineno-1-168" name="__codelineno-1-168" href="#__codelineno-1-168"></a>                             <span class="n">transparency</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<a id="__codelineno-1-169" name="__codelineno-1-169" href="#__codelineno-1-169"></a>    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">))</span>
+<a id="__codelineno-1-170" name="__codelineno-1-170" href="#__codelineno-1-170"></a>    <span class="n">cloud</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">register_point_cloud</span><span class="p">(</span><span class="s2">"water"</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.006</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">))</span>
+<a id="__codelineno-1-171" name="__codelineno-1-171" href="#__codelineno-1-171"></a>    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"i"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"playing"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"grid"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<a id="__codelineno-1-172" name="__codelineno-1-172" href="#__codelineno-1-172"></a>
+<a id="__codelineno-1-173" name="__codelineno-1-173" href="#__codelineno-1-173"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">():</span>
+<a id="__codelineno-1-174" name="__codelineno-1-174" href="#__codelineno-1-174"></a>        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">]</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s2">"play"</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span>
+<a id="__codelineno-1-175" name="__codelineno-1-175" href="#__codelineno-1-175"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">SameLine</span><span class="p">()</span>
+<a id="__codelineno-1-176" name="__codelineno-1-176" href="#__codelineno-1-176"></a>        <span class="n">stepped</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s2">"step"</span><span class="p">)</span>
+<a id="__codelineno-1-177" name="__codelineno-1-177" href="#__codelineno-1-177"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">SameLine</span><span class="p">()</span>
+<a id="__codelineno-1-178" name="__codelineno-1-178" href="#__codelineno-1-178"></a>        <span class="n">_</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">]</span> <span class="o">=</span> <span class="n">psim</span><span class="o">.</span><span class="n">Checkbox</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">])</span>
+<a id="__codelineno-1-179" name="__codelineno-1-179" href="#__codelineno-1-179"></a>        <span class="k">if</span> <span class="p">(</span><span class="n">stepped</span> <span class="ow">or</span> <span class="n">state</span><span class="p">[</span><span class="s2">"playing"</span><span class="p">])</span> <span class="ow">and</span> <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">steps</span><span class="p">:</span>
+<a id="__codelineno-1-180" name="__codelineno-1-180" href="#__codelineno-1-180"></a>            <span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<a id="__codelineno-1-181" name="__codelineno-1-181" href="#__codelineno-1-181"></a>            <span class="n">state</span><span class="p">[</span><span class="s2">"i"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<a id="__codelineno-1-182" name="__codelineno-1-182" href="#__codelineno-1-182"></a>            <span class="n">cloud</span><span class="o">.</span><span class="n">update_point_positions</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">read_particles</span><span class="p">(</span><span class="n">world</span><span class="p">)))</span>
+<a id="__codelineno-1-183" name="__codelineno-1-183" href="#__codelineno-1-183"></a>        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s2">"grid"</span><span class="p">]:</span>
+<a id="__codelineno-1-184" name="__codelineno-1-184" href="#__codelineno-1-184"></a>            <span class="n">V</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="n">grid_wireframe</span><span class="p">(</span><span class="n">world</span><span class="p">)</span>
+<a id="__codelineno-1-185" name="__codelineno-1-185" href="#__codelineno-1-185"></a>            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
+<a id="__codelineno-1-186" name="__codelineno-1-186" href="#__codelineno-1-186"></a>                <span class="n">ps</span><span class="o">.</span><span class="n">register_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.0008</span><span class="p">,</span>
+<a id="__codelineno-1-187" name="__codelineno-1-187" href="#__codelineno-1-187"></a>                                          <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+<a id="__codelineno-1-188" name="__codelineno-1-188" href="#__codelineno-1-188"></a>        <span class="k">elif</span> <span class="n">ps</span><span class="o">.</span><span class="n">has_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">):</span>
+<a id="__codelineno-1-189" name="__codelineno-1-189" href="#__codelineno-1-189"></a>            <span class="n">ps</span><span class="o">.</span><span class="n">get_curve_network</span><span class="p">(</span><span class="s2">"grid"</span><span class="p">)</span><span class="o">.</span><span class="n">set_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-1-190" name="__codelineno-1-190" href="#__codelineno-1-190"></a>        <span class="n">report</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">last_report</span><span class="p">()</span>
+<a id="__codelineno-1-191" name="__codelineno-1-191" href="#__codelineno-1-191"></a>        <span class="n">psim</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="sa">f</span><span class="s2">"step </span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">'i'</span><span class="p">]</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">steps</span><span class="si">}</span><span class="s2">   iters=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">iterations</span><span class="si">}</span><span class="s2">  "</span>
+<a id="__codelineno-1-192" name="__codelineno-1-192" href="#__codelineno-1-192"></a>                  <span class="sa">f</span><span class="s2">"res=</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">final_residual</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-1-193" name="__codelineno-1-193" href="#__codelineno-1-193"></a>
+<a id="__codelineno-1-194" name="__codelineno-1-194" href="#__codelineno-1-194"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">set_user_callback</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<a id="__codelineno-1-195" name="__codelineno-1-195" href="#__codelineno-1-195"></a>    <span class="n">ps</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<a id="__codelineno-1-196" name="__codelineno-1-196" href="#__codelineno-1-196"></a>
+<a id="__codelineno-1-197" name="__codelineno-1-197" href="#__codelineno-1-197"></a>
+<a id="__codelineno-1-198" name="__codelineno-1-198" href="#__codelineno-1-198"></a><span class="k">def</span><span class="w"> </span><span class="nf">make_parser</span><span class="p">():</span>
+<a id="__codelineno-1-199" name="__codelineno-1-199" href="#__codelineno-1-199"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-1-200" name="__codelineno-1-200" href="#__codelineno-1-200"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--backend"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">,</span> <span class="s2">"cpu"</span><span class="p">,</span> <span class="s2">"accelerate"</span><span class="p">,</span> <span class="s2">"cuda"</span><span class="p">),</span>
+<a id="__codelineno-1-201" name="__codelineno-1-201" href="#__codelineno-1-201"></a>                   <span class="n">default</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">)</span>
+<a id="__codelineno-1-202" name="__codelineno-1-202" href="#__codelineno-1-202"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--scheme"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"cdpi"</span><span class="p">,</span> <span class="s2">"lite"</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"cdpi"</span><span class="p">,</span>
+<a id="__codelineno-1-203" name="__codelineno-1-203" href="#__codelineno-1-203"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"MPM scheme (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-204" name="__codelineno-1-204" href="#__codelineno-1-204"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--spacing"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span>
+<a id="__codelineno-1-205" name="__codelineno-1-205" href="#__codelineno-1-205"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"particle spacing, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-206" name="__codelineno-1-206" href="#__codelineno-1-206"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--cell-size"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+<a id="__codelineno-1-207" name="__codelineno-1-207" href="#__codelineno-1-207"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"grid cell size, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-208" name="__codelineno-1-208" href="#__codelineno-1-208"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--sample"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"uniform"</span><span class="p">,</span> <span class="s2">"poisson"</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">"poisson"</span><span class="p">,</span>
+<a id="__codelineno-1-209" name="__codelineno-1-209" href="#__codelineno-1-209"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"particle layout (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-210" name="__codelineno-1-210" href="#__codelineno-1-210"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--material"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"quadratic_volume"</span><span class="p">,</span> <span class="s2">"stable_neohookean"</span><span class="p">),</span>
+<a id="__codelineno-1-211" name="__codelineno-1-211" href="#__codelineno-1-211"></a>                   <span class="n">default</span><span class="o">=</span><span class="s2">"quadratic_volume"</span><span class="p">,</span>
+<a id="__codelineno-1-212" name="__codelineno-1-212" href="#__codelineno-1-212"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"quadratic_volume: water (the default); stable_neohookean: "</span>
+<a id="__codelineno-1-213" name="__codelineno-1-213" href="#__codelineno-1-213"></a>                        <span class="s2">"an elastic block that keeps its shape (cdpi scheme "</span>
+<a id="__codelineno-1-214" name="__codelineno-1-214" href="#__codelineno-1-214"></a>                        <span class="s2">"only)"</span><span class="p">)</span>
+<a id="__codelineno-1-215" name="__codelineno-1-215" href="#__codelineno-1-215"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--bulk"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
+<a id="__codelineno-1-216" name="__codelineno-1-216" href="#__codelineno-1-216"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"bulk modulus of the water, Pa (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-217" name="__codelineno-1-217" href="#__codelineno-1-217"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--youngs-modulus"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">,</span>
+<a id="__codelineno-1-218" name="__codelineno-1-218" href="#__codelineno-1-218"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"Young's modulus of the elastic block, Pa (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-219" name="__codelineno-1-219" href="#__codelineno-1-219"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--poisson-ratio"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+<a id="__codelineno-1-220" name="__codelineno-1-220" href="#__codelineno-1-220"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"Poisson's ratio of the elastic block (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-221" name="__codelineno-1-221" href="#__codelineno-1-221"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--noslip"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+<a id="__codelineno-1-222" name="__codelineno-1-222" href="#__codelineno-1-222"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"make the water stick to the walls"</span><span class="p">)</span>
+<a id="__codelineno-1-223" name="__codelineno-1-223" href="#__codelineno-1-223"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--beta"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1e7</span><span class="p">,</span>
+<a id="__codelineno-1-224" name="__codelineno-1-224" href="#__codelineno-1-224"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"no-slip stiffness (default </span><span class="si">%(default)g</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-225" name="__codelineno-1-225" href="#__codelineno-1-225"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--wall-res"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<a id="__codelineno-1-226" name="__codelineno-1-226" href="#__codelineno-1-226"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"wall triangle size, m (default </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">)</span>
+<a id="__codelineno-1-227" name="__codelineno-1-227" href="#__codelineno-1-227"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--dt"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">240.0</span><span class="p">,</span>
+<a id="__codelineno-1-228" name="__codelineno-1-228" href="#__codelineno-1-228"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"timestep, s (default 1/240)"</span><span class="p">)</span>
+<a id="__codelineno-1-229" name="__codelineno-1-229" href="#__codelineno-1-229"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--steps"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">240</span><span class="p">)</span>
+<a id="__codelineno-1-230" name="__codelineno-1-230" href="#__codelineno-1-230"></a>    <span class="n">p</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--no-viewer"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+<a id="__codelineno-1-231" name="__codelineno-1-231" href="#__codelineno-1-231"></a>                   <span class="n">help</span><span class="o">=</span><span class="s2">"run headless and print the flow front instead of the viewer"</span><span class="p">)</span>
+<a id="__codelineno-1-232" name="__codelineno-1-232" href="#__codelineno-1-232"></a>    <span class="k">return</span> <span class="n">p</span>
+<a id="__codelineno-1-233" name="__codelineno-1-233" href="#__codelineno-1-233"></a>
+<a id="__codelineno-1-234" name="__codelineno-1-234" href="#__codelineno-1-234"></a>
+<a id="__codelineno-1-235" name="__codelineno-1-235" href="#__codelineno-1-235"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<a id="__codelineno-1-236" name="__codelineno-1-236" href="#__codelineno-1-236"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">make_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+<a id="__codelineno-1-237" name="__codelineno-1-237" href="#__codelineno-1-237"></a>    <span class="n">world</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<a id="__codelineno-1-238" name="__codelineno-1-238" href="#__codelineno-1-238"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
+<a id="__codelineno-1-239" name="__codelineno-1-239" href="#__codelineno-1-239"></a>        <span class="n">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+<a id="__codelineno-1-240" name="__codelineno-1-240" href="#__codelineno-1-240"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-1-241" name="__codelineno-1-241" href="#__codelineno-1-241"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
 <a id="__codelineno-1-242" name="__codelineno-1-242" href="#__codelineno-1-242"></a>
-<a id="__codelineno-1-243" name="__codelineno-1-243" href="#__codelineno-1-243"></a><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<a id="__codelineno-1-244" name="__codelineno-1-244" href="#__codelineno-1-244"></a>    <span class="n">args</span> <span class="o">=</span> <span class="n">make_parser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
-<a id="__codelineno-1-245" name="__codelineno-1-245" href="#__codelineno-1-245"></a>    <span class="n">world</span> <span class="o">=</span> <span class="n">build_world</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-<a id="__codelineno-1-246" name="__codelineno-1-246" href="#__codelineno-1-246"></a>    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_viewer</span><span class="p">:</span>
-<a id="__codelineno-1-247" name="__codelineno-1-247" href="#__codelineno-1-247"></a>        <span class="n">run_headless</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-1-248" name="__codelineno-1-248" href="#__codelineno-1-248"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-1-249" name="__codelineno-1-249" href="#__codelineno-1-249"></a>        <span class="n">run_polyscope</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
-<a id="__codelineno-1-250" name="__codelineno-1-250" href="#__codelineno-1-250"></a>
-<a id="__codelineno-1-251" name="__codelineno-1-251" href="#__codelineno-1-251"></a>
-<a id="__codelineno-1-252" name="__codelineno-1-252" href="#__codelineno-1-252"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-<a id="__codelineno-1-253" name="__codelineno-1-253" href="#__codelineno-1-253"></a>    <span class="n">main</span><span class="p">()</span>
+<a id="__codelineno-1-243" name="__codelineno-1-243" href="#__codelineno-1-243"></a>
+<a id="__codelineno-1-244" name="__codelineno-1-244" href="#__codelineno-1-244"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+<a id="__codelineno-1-245" name="__codelineno-1-245" href="#__codelineno-1-245"></a>    <span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 </details>
 <h2 id="particles">Particles<a class="headerlink" href="#particles" title="Permanent link">&para;</a></h2>
