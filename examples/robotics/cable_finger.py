@@ -18,10 +18,10 @@ Static time stepping under gravity: each step is the equilibrium for the
 current command.
 
 Usage:
-    python examples/boundary_conditions/cable_finger.py               # polyscope
-    python examples/boundary_conditions/cable_finger.py --mode length
-    python examples/boundary_conditions/cable_finger.py --anchor surface
-    python examples/boundary_conditions/cable_finger.py --no-viewer   # headless PNGs
+    python examples/robotics/cable_finger.py               # polyscope
+    python examples/robotics/cable_finger.py --mode length
+    python examples/robotics/cable_finger.py --anchor surface
+    python examples/robotics/cable_finger.py --no-viewer   # headless PNGs
 """
 
 from __future__ import annotations
@@ -50,10 +50,7 @@ NUM_CABLE_POINTS = 17
 
 
 def build_world(backend: str = "auto", anchor: str = "interior", mode: str = "tension"):
-    # Positive-definite projection off: the strongly curled finger needs the
-    # exact elastic stiffness to converge quickly.
-    world = trusty.World(backend=backend, time_stepping="static",
-                         newton=trusty.NewtonConfig(project_positive_definite=False))
+    world = trusty.World(backend=backend, time_stepping="static")
     material = trusty.StableNeoHookean(youngs_modulus=1.8e5, poisson_ratio=0.45)
     mesh = trusty.make_beam_tet_mesh(size=FINGER_SIZE, res=FINGER_RES)
     finger = trusty.fem.add_tet_solid(world, mesh, material, density=1000.0)

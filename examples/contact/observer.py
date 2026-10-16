@@ -227,8 +227,7 @@ def run_polyscope(world, obs, bodies, steps: int):
 
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
-        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'NOT converged'}")
+        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e}")
         psim.Text(_counts_line(obs))
         psim.Text(_step_line(obs))
         psim.Text(f"on_prepare x{obs.n_prepare}")

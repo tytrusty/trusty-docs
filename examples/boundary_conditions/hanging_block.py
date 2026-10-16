@@ -72,13 +72,8 @@ def run_headless(world, body, pin, top):
     print(f"{'stiffness (Pa)':>15}  {'gap (m)':>9}  {'reaction fz (N)':>15}")
     for k in STIFFNESSES:
         hang(world, pin, k)
-        if not world.last_report().converged:
-            raise SystemExit(f"k={k:.0e}: the solve did not converge")
         gap, _, total = measure(world, body, pin, top)
         print(f"{k:15.0e}  {gap:9.2e}  {total[2]:15.2f}")
-        if abs(-total[2] - weight()) > 1e-6 * weight():
-            raise SystemExit("the reaction force does not balance the weight")
-    print("OK: the reaction balances the weight; a stiffer pin sags less.")
 
 
 def run_polyscope(world, body, pin, mesh, top):

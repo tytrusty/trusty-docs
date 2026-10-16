@@ -4,14 +4,14 @@ A flat square sheet starts upright, leaning slightly, and is pinned at its two
 top corners; gravity drapes it into a curtain with a swag between the corners.
 The cloth is soft (E = 10 kPa) but cannot stretch more than 10%: the strain
 limit keeps it cloth-like instead of rubbery. ``--no-strain-limit`` shows the
-difference, ``--bending qb`` and ``--membrane neohookean`` swap the bending and
+difference, ``--bending bac`` and ``--membrane neohookean`` swap the bending and
 membrane models. ``--no-viewer`` prints the drape's size and its largest
 stretch.
 
 Usage:
     python examples/shells/cloth_drape.py
     python examples/shells/cloth_drape.py --no-strain-limit
-    python examples/shells/cloth_drape.py --bending qb
+    python examples/shells/cloth_drape.py --bending bac
     python examples/shells/cloth_drape.py --backend accelerate
     python examples/shells/cloth_drape.py --no-viewer --steps 120
 """
@@ -99,7 +99,7 @@ MEMBRANE = {"koiter": trusty.shells.MembraneModel.Koiter,
             "neohookean": trusty.shells.MembraneModel.NeoHookean}
 
 
-def build_world(backend: str = "auto", bending: str = "bac",
+def build_world(backend: str = "auto", bending: str = "qb",
                 membrane: str = "koiter", strain_limit: bool = True):
     V, F = make_square_sheet(SIDE, RES, TOP_Z, TILT_DEG)
 
@@ -112,7 +112,7 @@ def build_world(backend: str = "auto", bending: str = "bac",
     config.density = 500.0             # kg/m^3
     config.strain_limit = strain_limit
     config.strain_limit_ratio = 1.1    # stretch at most 10%
-    config.bending_model = BENDING[bending]     # Bac by default
+    config.bending_model = BENDING[bending]     # QB by default
     config.membrane_model = MEMBRANE[membrane]  # Koiter by default
 
     # V (n, 3) and F (m, 3): the sheet's vertices and triangles.
@@ -162,8 +162,7 @@ def run_polyscope(world, body, steps: int):
         report = world.last_report()
         psim.Text(
             f"last solve: iters={report.iterations}  "
-            f"residual={report.final_residual:.3e}  "
-            f"{'converged' if report.converged else 'DIVERGED'}"
+            f"residual={report.final_residual:.3e}"
         )
 
     ps.set_user_callback(callback)
@@ -174,9 +173,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--backend",
                         choices=["auto", "cpu", "cuda", "accelerate"], default="auto")
-    parser.add_argument("--bending", choices=list(BENDING), default="bac",
-                        help="bending model: bac (default) or qb, which "
-                             "assumes a flat rest shape")
+    parser.add_argument("--bending", choices=list(BENDING), default="qb",
+                        help="bending model: qb (default), which assumes a "
+                             "flat rest shape, or bac")
     parser.add_argument("--membrane", choices=list(MEMBRANE), default="koiter",
                         help="membrane model (default koiter)")
     parser.add_argument("--no-strain-limit", action="store_true",
@@ -190,15 +189,12 @@ def main():
                                     membrane=args.membrane,
                                     strain_limit=not args.no_strain_limit)
     if args.no_viewer:
-        unconverged = 0
         for _ in range(args.steps):
             world.step()
-            unconverged += not world.last_report().converged
         x = trusty.shells.read_positions(world, body)
         print(f"after {args.steps} steps: bottom at z = {x[:, 2].min():.3f} m "
               f"(rest {TOP_Z - SIDE:.3f} m), largest stretch "
-              f"{max_stretch(world, body, V, F):.3f}, "
-              f"{unconverged} step(s) not converged")
+              f"{max_stretch(world, body, V, F):.3f}")
         return
     run_polyscope(world, body, args.steps)
 

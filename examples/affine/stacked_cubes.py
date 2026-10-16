@@ -128,8 +128,7 @@ def run_polyscope(world, cubes, steps: int):
             advance()
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
-        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}")
+        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()

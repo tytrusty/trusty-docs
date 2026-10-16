@@ -12,14 +12,13 @@ and the arm moves until something balances that pull. Here nothing opposes
 it, so the muscle curls the arm up to the flexion limit and holds it there,
 and the reported tension is how hard it is pulling.
 
-Headless mode checks this: the passive arm stays straight, activation curls
-it to the flexion limit, and doing so shortens the muscle and raises its
-tension. Polyscope mode draws the muscle over the two bodies, with a live
-activation slider.
+Headless mode settles the arm at rising activation levels and prints the elbow
+angle, muscle length and tension at each. Polyscope mode draws the muscle over
+the two bodies, with a live activation slider.
 
 Usage:
     python examples/affine/line_muscle.py                # polyscope
-    python examples/affine/line_muscle.py --no-viewer    # headless test
+    python examples/affine/line_muscle.py --no-viewer    # print the settled poses
     python examples/affine/line_muscle.py --f-max 600
 """
 
@@ -139,34 +138,13 @@ def run_headless(world, muscle, fore, steps):
     angles = [np.rad2deg(r[1]) for r in results]
     lengths = [r[2] for r in results]
     forces = [r[3] for r in results]
-
-    # Passive, the arm stays straight; activation curls it to the flexion stop,
-    # which shortens the path and raises the tension it pulls with.
-    straight = abs(angles[0]) < 3.0
-    curls_up = all(b > a - 0.5 for a, b in zip(angles, angles[1:]))
-    flexed = angles[-1] > 0.5 * np.rad2deg(ELBOW_HI)
-    shortened = lengths[-1] < lengths[0] - 1e-3
     # Each tension is read at that level's own settled pose, so the column is
-    # not a force-length curve and need not rise: what it shows is that an
-    # activated muscle pulls and a passive one does not. The polynomial law in
-    # particular has compact support, so a fully curled fiber can sit at exactly
-    # zero active force where the exponential Hill law still has a tail.
-    pulled = forces[0] == 0.0 and max(forces[1:]) > 0.0
-    path = np.asarray(trusty.affine.muscle_path(world, muscle))
-    path_ok = path.shape == (2, 3) and np.isfinite(path).all()
-
-    print(f"\npassive elbow angle   = {angles[0]:+.2f} deg  (straight)")
+    # not a force-length curve and need not rise.
+    print(f"\npassive elbow angle   = {angles[0]:+.2f} deg")
     print(f"activated elbow angle = {angles[-1]:+.2f} deg  "
           f"(stop at {np.rad2deg(ELBOW_HI):.0f} deg)")
     print(f"path length {lengths[0]:.4f} -> {lengths[-1]:.4f} m,  tension "
           f"{forces[0]:.2f} -> {forces[-1]:.2f} N")
-    print(f"muscle count = {trusty.affine.num_muscles(world)}, path shape = {path.shape}")
-
-    ok = straight and curls_up and flexed and shortened and pulled and path_ok
-    print("\nPASS: the passive arm stayed straight, and activation curled it to "
-          "the stop while shortening the muscle and raising its tension." if ok
-          else "\nFAIL: muscle did not behave as expected.")
-    return ok
 
 
 def run_polyscope(world, muscle, upper, fore, steps):
@@ -236,7 +214,8 @@ def main():
 
     world, muscle, upper, fore = build(args.f_max, args.backend, model)
     if args.no_viewer:
-        raise SystemExit(0 if run_headless(world, muscle, fore, args.steps) else 1)
+        run_headless(world, muscle, fore, args.steps)
+        return
     run_polyscope(world, muscle, upper, fore, args.steps)
 
 

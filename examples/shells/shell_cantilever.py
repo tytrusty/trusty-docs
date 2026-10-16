@@ -147,10 +147,8 @@ def main():
         for t, (world, plate, V) in plates.items():
             for _ in range(args.steps):
                 world.step()
-            report = world.last_report()
             print(f"{t * 1e3:4.0f} mm: sag {tip_sag(world, plate, V):.3f} m   "
-                  f"(small-sag plate theory {plate_theory_sag(t):.3f} m)  "
-                  f"{'converged' if report.converged else 'NOT converged'}")
+                  f"(small-sag plate theory {plate_theory_sag(t):.3f} m)")
         return
     run_viewer(plates, args.steps)
 

@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -33,23 +32,17 @@ DROP_HEIGHT = 0.15
 FLOOR_Z     = 0.0
 
 
-def build_basis(tmp_dir: Path, num_handles: int) -> Path:
-    """Precompute one skinning-eigenmode basis for the beam and save it."""
-    from trusty.subspace.precompute import build_basis as bb, pack
+def build_basis(num_handles: int):
+    """Precompute one skinning-eigenmode basis for the beam."""
+    from trusty.subspace.precompute import build_basis as bb
     mesh     = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     world    = trusty.World()
     trusty.fem.add_hex_solid(world, mesh, material, density=1000.0)
-
-    rv    = np.asarray(mesh.vertices, dtype=np.float64)
-    basis = bb.build_skinning_eigenmodes(
+    return bb.build_skinning_eigenmodes(
         world=world,
-        num_nodes=rv.shape[0],
-        rest_positions=rv,
+        rest_positions=np.asarray(mesh.vertices, dtype=np.float64),
         num_handles=num_handles)
-    path = tmp_dir / "beam.basis"
-    pack.save(path, basis)
-    return path
 
 
 def add_beam(world, z_offset: float, basis=None):
@@ -68,10 +61,10 @@ def add_beam(world, z_offset: float, basis=None):
     return body, mesh
 
 
-def build_world(tmp_dir: Path, modes: int, backend: str = "auto"):
+def build_world(modes: int, backend: str = "auto"):
     """Reduced beam above a full beam, above a floor.
     Returns (world, body_sub, body_fem, hexes)."""
-    basis = trusty.subspace.load(str(build_basis(tmp_dir, modes)))
+    basis = build_basis(modes)
 
     world = trusty.World(timestep=1.0 / 60.0, backend=backend)
     trusty.contact.enable(world)     # floor, and reduced <-> full contact
@@ -87,10 +80,8 @@ def positions(world, body_sub, body_fem):
 
 
 def run_headless(world, body_sub, body_fem, steps: int):
-    for i in range(steps):
+    for _ in range(steps):
         world.step()
-        if not world.last_report().converged:
-            print(f"step {i}: did not converge")
     x_sub, x_fem = positions(world, body_sub, body_fem)
     print(f"after {steps} steps: reduced beam bottom {x_sub[:, 2].min():.4f} m, "
           f"full beam bottom "
@@ -145,13 +136,11 @@ def main():
     if args.backend == "cuda" and "cuda" not in trusty.capabilities():
         raise SystemExit("CUDA backend not available in this build")
 
-    with tempfile.TemporaryDirectory() as td:
-        world, body_sub, body_fem, hexes = build_world(
-            Path(td), args.modes, args.backend)
-        if args.no_viewer:
-            run_headless(world, body_sub, body_fem, args.steps)
-        else:
-            run_polyscope(world, body_sub, body_fem, hexes, args.steps)
+    world, body_sub, body_fem, hexes = build_world(args.modes, args.backend)
+    if args.no_viewer:
+        run_headless(world, body_sub, body_fem, args.steps)
+    else:
+        run_polyscope(world, body_sub, body_fem, hexes, args.steps)
 
 
 if __name__ == "__main__":

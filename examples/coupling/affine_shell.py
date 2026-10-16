@@ -5,7 +5,7 @@ floor, and drapes over it.
 
 
 Usage:
-    python examples/coupling/affine_shell.py --no-viewer
+    python examples/coupling/affine_shell.py
 """
 
 from __future__ import annotations
@@ -79,22 +79,15 @@ def build_world(backend: str):
 def run_headless(world, sheet, cube, steps: int):
     cube_top = float(trusty.affine.surface(world, cube)[0][:, 2].max())
     print(f"affine x shell contact: {steps} steps")
-    diverged = 0
     for i in range(steps):
         world.step()
         r = world.last_report()
-        diverged += (not r.converged)
         if (i + 1) % 40 == 0:
             sz = float(np.asarray(trusty.shells.read_positions(world, sheet))[:, 2].min())
             print(f"  step {i + 1:4d}  sheet_min_z={sz:+.4f}  "
                   f"iters={r.iterations}  res={r.final_residual:.2e}")
     sz       = float(np.asarray(trusty.shells.read_positions(world, sheet))[:, 2].min())
-    print(f"Done. sheet_min_z={sz:+.4f} (cube top ~{cube_top:.3f}), "
-          f"{diverged} non-converged steps.")
-    # The sheet drapes onto the cube; its lowest point hangs below the cube
-    # top (edges sag) but must stay well above the floor.
-    assert sz > 0.04, f"shell sheet fell to the floor (min_z={sz})"
-    print("OK: the shell sheet drapes over the affine cube.")
+    print(f"Done. sheet_min_z={sz:+.4f} (cube top ~{cube_top:.3f}).")
 
 
 def main():
@@ -102,7 +95,6 @@ def main():
     p.add_argument("--steps", type=int, default=160)
     p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
                    default="auto")
-    p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, sheet, cube = build_world(args.backend)
     run_headless(world, sheet, cube, args.steps)

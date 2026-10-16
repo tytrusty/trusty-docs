@@ -71,8 +71,7 @@ def run_headless(world, cubes, steps: int):
         world.step()
         if (i + 1) % 10 == 0:
             zs = "  ".join(f"{n}: {lowest(world, b):+.3f}" for n, b in cubes.items())
-            print(f"  step {i + 1:3d}  lowest z  {zs}  "
-                  f"converged={world.last_report().converged}")
+            print(f"  step {i + 1:3d}  lowest z  {zs}")
 
 
 def run_polyscope(world, shelf, cubes, steps: int):

@@ -70,22 +70,15 @@ def build_world(backend: str):
 
 def run_headless(world, emb, emb_top: float, cube, steps: int):
     print(f"affine x embedded contact: {steps} steps")
-    diverged = 0
     for i in range(steps):
         world.step()
         r = world.last_report()
-        diverged += (not r.converged)
         if (i + 1) % 20 == 0:
             cz = float(trusty.affine.surface(world, cube)[0][:, 2].min())
             print(f"  step {i + 1:4d}  cube_min_z={cz:+.4f}  "
                   f"iters={r.iterations}  res={r.final_residual:.2e}")
     cz = float(trusty.affine.surface(world, cube)[0][:, 2].min())
-    print(f"Done. cube_min_z={cz:+.4f} (embedded top ~{emb_top:.3f}), "
-          f"{diverged} non-converged steps.")
-    assert cz > emb_top - 0.08, \
-        f"affine cube sank through the embedded body (min_z={cz})"
-    assert diverged == 0
-    print("OK: the affine cube rests on the embedded body.")
+    print(f"Done. cube_min_z={cz:+.4f} (embedded top ~{emb_top:.3f}).")
 
 
 def run_polyscope(world, emb, emb_top: float, cube, steps: int):

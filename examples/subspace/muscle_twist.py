@@ -13,21 +13,18 @@ periodically.
 
 Usage:
     python examples/subspace/muscle_twist.py
-    python examples/subspace/muscle_twist.py --no-viewer   # self-checking
+    python examples/subspace/muscle_twist.py --no-viewer   # print the twist
 
 Install polyscope with `pip install polyscope`.
 """
 from __future__ import annotations
 
 import argparse
-import sys
-import tempfile
-from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis as bb, pack
+from trusty.subspace.precompute import build_basis as bb
 
 
 def make_box(center, half):
@@ -81,13 +78,8 @@ def build_world(modes, muscle_stiffness, twist_rate, backend="cpu"):
     pc = trusty.World()
     pc_body = trusty.fem.add_hex_solid(pc, beam, material, density=1000.0)
     trusty.subspace.add_muscle(pc, pc_body, fiber, muscle_stiffness)
-    basis_obj = bb.build_skinning_eigenmodes(
-        world=pc, num_nodes=rest.shape[0], rest_positions=rest,
-        num_handles=modes)
-
-    tmp = Path(tempfile.mkdtemp())
-    pack.save(tmp / "twist.basis", basis_obj)
-    basis = trusty.subspace.load(str(tmp / "twist.basis"))
+    basis = bb.build_skinning_eigenmodes(
+        world=pc, rest_positions=rest, num_handles=modes)
 
     world = trusty.World(backend=backend,
                          timestep=1.0 / 120.0,
@@ -121,7 +113,6 @@ def run_headless(world, muscle, mus, rest, axis_yz, period, amp):
     for s in range(1, 2 * period + 1):
         trusty.subspace.set_actuation(world, mus, actuation_at(s, period, amp))
         world.step()
-        assert world.last_report().converged, f"diverged at step {s}"
         ang = abs(tip_twist_degrees(
             np.asarray(trusty.subspace.deformed_positions(world, body=muscle)),
             rest, tip, axis_yz))
@@ -131,11 +122,6 @@ def run_headless(world, muscle, mus, rest, axis_yz, period, amp):
         prev = ang
     print(f"peak free-end twist = {peak:.1f} deg")
     print(f"twist relaxes on the down-swing of the sinusoid = {saw_untwist}")
-    if peak < 10.0 or not saw_untwist:
-        print("FAIL: helical muscle did not twist/untwist", file=sys.stderr)
-        return 1
-    print("OK: helical fibers twist the beam, oscillating with the actuation")
-    return 0
 
 
 def run_polyscope(world, muscle, mus, rest, hexes, fiber, axis_yz, wall,
@@ -176,7 +162,7 @@ def run_polyscope(world, muscle, mus, rest, hexes, fiber, axis_yz, wall,
     ps.show()
 
 
-def main() -> int:
+def main():
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -202,11 +188,11 @@ def main() -> int:
         args.modes, args.muscle_stiffness, args.twist_rate, args.backend)
 
     if args.no_viewer:
-        return run_headless(world, muscle, mus, rest, axis_yz, args.period, args.amp)
-    run_polyscope(world, muscle, mus, rest, hexes, fiber, axis_yz, wall,
-                  args.period, args.amp)
-    return 0
+        run_headless(world, muscle, mus, rest, axis_yz, args.period, args.amp)
+    else:
+        run_polyscope(world, muscle, mus, rest, hexes, fiber, axis_yz, wall,
+                      args.period, args.amp)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

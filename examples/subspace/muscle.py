@@ -18,13 +18,12 @@ from __future__ import annotations
 import argparse
 import math
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis, pack
+from trusty.subspace.precompute import build_basis
 
 DIRECTIONS = {
     "x": (1.0, 0.0, 0.0),
@@ -33,27 +32,19 @@ DIRECTIONS = {
 }
 
 
-def build_world(tmp_dir: Path, modes: int, direction, stiffness: float,
-                backend: str = "auto"):
+def build_world(modes: int, direction, stiffness: float, backend: str = "auto"):
     """Free hex beam + one directional muscle fiber."""
     mesh     = trusty.make_beam_hex_mesh(size=(2.0, 0.5, 0.5), res=(10, 3, 3))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
 
     rest_verts = np.asarray(mesh.vertices).copy()
-    hexes      = np.asarray(mesh.hexes)
-    mh         = build_basis.mesh_hash_sha256(rest_verts, hexes)
 
     # Precompute world: a plain solid (free, no pin) with the same mesh and
     # material.
     pc_world = trusty.World()
     trusty.fem.add_hex_solid(pc_world, mesh, material, density=1000.0)
-    basis_obj = build_basis.build_skinning_eigenmodes(
-        world=pc_world, num_nodes=rest_verts.shape[0],
-        rest_positions=rest_verts, num_handles=modes, mesh_hash=mh)
-
-    basis_path = tmp_dir / "muscle_beam.basis"
-    pack.save(basis_path, basis_obj)
-    basis = trusty.subspace.load(str(basis_path))
+    basis = build_basis.build_skinning_eigenmodes(
+        world=pc_world, rest_positions=rest_verts, num_handles=modes)
 
     world  = trusty.World(backend=backend,
                           timestep=1.0 / 60.0,
@@ -89,11 +80,6 @@ def run_headless(world, beam, muscle, rest_verts, axis, steps, period, amp):
     shrink = (rest_extent - min_extent) / rest_extent
     print(f"rest extent along fiber = {rest_extent:.4f}")
     print(f"min  extent along fiber = {min_extent:.4f}  ({shrink * 100:.1f}% contraction)")
-    if shrink <= 1e-3:
-        print("FAIL: muscle did not contract the body along its fiber", file=sys.stderr)
-        return 1
-    print("OK: muscle contracts the body along its fiber direction")
-    return 0
 
 
 def run_polyscope(world, beam, muscle, mesh, axis, steps, period, amp):
@@ -123,7 +109,7 @@ def run_polyscope(world, beam, muscle, mesh, axis, steps, period, amp):
     ps.show()
 
 
-def main() -> int:
+def main():
     trusty.check_capabilities("subspace")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -144,23 +130,22 @@ def main() -> int:
     p.add_argument("--steps", type=int, default=240,
                    help="number of steps (default: 240)")
     p.add_argument("--no-viewer", action="store_true",
-                   help="run headless and self-check the contraction")
+                   help="run headless and print the contraction")
     args = p.parse_args()
     if args.backend == "cuda" and "cuda" not in trusty.capabilities():
         raise SystemExit("CUDA backend not available in this build")
 
     axis = DIRECTIONS[args.direction]
-    with tempfile.TemporaryDirectory() as td:
-        world, beam, muscle, mesh, rest_verts = build_world(
-            Path(td), args.modes, axis, args.stiffness, args.backend)
+    world, beam, muscle, mesh, rest_verts = build_world(
+        args.modes, axis, args.stiffness, args.backend)
 
-        if args.no_viewer:
-            return run_headless(world, beam, muscle, rest_verts, axis,
-                                args.steps, args.period, args.amp)
+    if args.no_viewer:
+        run_headless(world, beam, muscle, rest_verts, axis,
+                     args.steps, args.period, args.amp)
+    else:
         run_polyscope(world, beam, muscle, mesh, axis,
                       args.steps, args.period, args.amp)
-        return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

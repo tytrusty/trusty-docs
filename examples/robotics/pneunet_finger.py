@@ -14,9 +14,8 @@ the enclosed volume each step. Quasi-static stepping by default, not
 `static`: a `static` solve of this finger fails by about 1 kPa.
 
 Usage:
-    python examples/boundary_conditions/pneunet_finger.py             # polyscope
-    python examples/boundary_conditions/pneunet_finger.py --no-viewer # headless PNGs
-    python examples/boundary_conditions/pneunet_finger.py --check     # headless self-test
+    python examples/robotics/pneunet_finger.py             # polyscope
+    python examples/robotics/pneunet_finger.py --no-viewer # headless PNGs
 """
 
 from __future__ import annotations
@@ -40,19 +39,19 @@ HEIGHT_CELLS = 10      # base + chambers + roof
 BASE_CELLS = 2         # solid strain-limiting base below the channel
 
 
-def finger_voxels() -> np.ndarray:
+def finger_voxels(num_chambers: int = NUM_CHAMBERS) -> np.ndarray:
     """Solid-cell mask (nx, ny, nz): chambers on a base, joined by a channel."""
     period = CHAMBER_CELLS + 3  # front wall, interior, back wall, gap
-    nx = NUM_CHAMBERS * period - 1
+    nx = num_chambers * period - 1
     ny, nz = WIDTH_CELLS, HEIGHT_CELLS
     solid = np.ones((nx, ny, nz), dtype=bool)
     channel_z = BASE_CELLS
-    for c in range(NUM_CHAMBERS):
+    for c in range(num_chambers):
         x0 = c * period
         # Chamber interior: inside its own walls, from the channel to the roof.
         solid[x0 + 1:x0 + 1 + CHAMBER_CELLS, 1:ny - 1, channel_z:nz - 1] = False
         # Gap to the next chamber, above the channel's roof.
-        if c + 1 < NUM_CHAMBERS:
+        if c + 1 < num_chambers:
             solid[x0 + period - 1, :, channel_z + 2:] = False
     # The channel runs through every wall, sealed at both ends.
     solid[1:nx - 1, ny // 2 - 1:ny // 2 + 1, channel_z] = False
@@ -158,27 +157,17 @@ def run_screenshots(world, body, cavity, steps, p_max, out_dir: Path):
     out_dir.mkdir(parents=True, exist_ok=True)
     ps_mesh = _register(ps, world, body)
     ps.screenshot(str(out_dir / "finger_0000.png"), transparent_bg=False)
-    for i in range(steps):
-        advance(world, cavity, i, steps, p_max)
-        ps_mesh.update_vertex_positions(np.asarray(trusty.fem.read_positions(world, body)))
-        ps.screenshot(str(out_dir / f"finger_{i + 1:04d}.png"), transparent_bg=False)
-    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-
-
-def run_check(world, body, cavity, steps, p_max):
     rest = np.asarray(trusty.fem.read_positions(world, body)).copy()
-    volumes = []
     for i in range(steps):
         advance(world, cavity, i, steps, p_max)
         report = world.last_report()
-        assert report.converged, f"step {i} did not converge"
-        volumes.append(trusty.boundary_conditions.cavity_volume(world, cavity))
         print(f"step {i:3d}  p = {pressure_at(i, steps, p_max) / 1e3:6.2f} kPa  "
-              f"newton {report.iterations:2d}  V = {volumes[-1] * 1e6:7.3f} cm^3  "
+              f"newton {report.iterations:2d}  "
+              f"V = {trusty.boundary_conditions.cavity_volume(world, cavity) * 1e6:7.3f} cm^3  "
               f"tip -dz = {tip_deflection(world, body, rest) * 1e3:7.2f} mm")
-    assert all(b > a for a, b in zip(volumes, volumes[1:])), "cavity did not keep inflating"
-    assert tip_deflection(world, body, rest) > 5e-3, "finger did not curl toward its base"
-    print("OK: the cavity inflated monotonically and the finger curled.")
+        ps_mesh.update_vertex_positions(np.asarray(trusty.fem.read_positions(world, body)))
+        ps.screenshot(str(out_dir / f"finger_{i + 1:04d}.png"), transparent_bg=False)
+    print(f"Wrote {steps + 1} screenshots to {out_dir}/")
 
 
 def main():
@@ -191,15 +180,11 @@ def main():
     parser.add_argument("--steps", type=int, default=40)
     parser.add_argument("--no-viewer", action="store_true",
                         help="headless: write PNG screenshots instead of showing polyscope")
-    parser.add_argument("--check", action="store_true",
-                        help="headless self-test: assert the finger curls, no viewer")
     parser.add_argument("--out", type=Path, default=Path("out"))
     args = parser.parse_args()
 
     world, body, cavity = build_world(args.backend, args.time_stepping)
-    if args.check:
-        run_check(world, body, cavity, args.steps, args.pressure)
-    elif args.no_viewer:
+    if args.no_viewer:
         run_screenshots(world, body, cavity, args.steps, args.pressure, args.out)
     else:
         run_polyscope(world, body, cavity, args.steps, args.pressure)

@@ -164,16 +164,7 @@ def run_polyscope(world, body, steps: int, floor_z: float,
             advance_one()
         psim.Text(f"step {state['i']} / {steps}")
         rep = world.last_report()
-        psim.Text(f"iters={rep.iterations}  res={rep.final_residual:.2e}  "
-                  f"{'converged' if rep.converged else 'DIVERGED'}")
-        if psim.TreeNode("last iter details"):
-            for ir in rep.per_iteration:
-                flag = "  [LS FAILED]" if ir.line_search_failed else ""
-                psim.Text(
-                    f"iter {ir.iter:2d}  E={ir.energy:.3e}  "
-                    f"res={ir.residual:.3e}  α0={ir.initial_step_size:.2e}  "
-                    f"α={ir.step_size:.2e}  bt={ir.bt_iters}{flag}")
-            psim.TreePop()
+        psim.Text(f"iters={rep.iterations}  res={rep.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()
@@ -196,11 +187,7 @@ def run_screenshots(world, body, steps: int, floor_z: float,
         _update_visuals(ps_mesh, ps_hex, world, body)
         snapshot(i)
 
-    rep = world.last_report()
     print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={rep.iterations}  "
-          f"residual={rep.final_residual:.3e}  "
-          f"{'converged' if rep.converged else 'DIVERGED'}")
 
 
 def main():

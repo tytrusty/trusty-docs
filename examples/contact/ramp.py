@@ -102,9 +102,7 @@ def run_headless(world, blocks, steps: int):
         if (i + 1) % 50 == 0:
             moved = "  ".join(f"{n} {np.linalg.norm(centre(world, b) - start[n]):.3f}"
                               for n, b in blocks.items())
-            r = world.last_report()
-            print(f"  step {i + 1:4d}  distance moved (m): {moved}  "
-                  f"converged={r.converged}")
+            print(f"  step {i + 1:4d}  distance moved (m): {moved}")
     for n, b in blocks.items():
         x = np.asarray(trusty.fem.read_positions(world, b))
         print(f"Done. {n}: centre x={x[:, 0].mean():+.3f} m, lowest z={x[:, 2].min():+.4f} m")

@@ -12,9 +12,9 @@ tendon runs, not on mesh nodes, and the body interpolates them. No gravity: the
 tentacle is neutrally buoyant, as in water.
 
 Usage:
-    python examples/boundary_conditions/cable_tentacle.py               # polyscope
-    python examples/boundary_conditions/cable_tentacle.py --mode tension
-    python examples/boundary_conditions/cable_tentacle.py --no-viewer   # headless PNGs
+    python examples/robotics/cable_tentacle.py               # polyscope
+    python examples/robotics/cable_tentacle.py --mode tension
+    python examples/robotics/cable_tentacle.py --no-viewer   # headless PNGs
 """
 
 from __future__ import annotations

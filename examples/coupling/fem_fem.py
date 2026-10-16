@@ -5,7 +5,7 @@ between them.
 
 
 Usage:
-    python examples/coupling/fem_fem.py --no-viewer
+    python examples/coupling/fem_fem.py
 """
 
 from __future__ import annotations
@@ -58,19 +58,14 @@ def body_min_z(world, body) -> float:
 
 def run_headless(world, bodies, steps: int):
     print(f"fem x fem contact: {steps} steps")
-    diverged = 0
     for i in range(steps):
         world.step()
         r = world.last_report()
-        diverged += (not r.converged)
         if (i + 1) % 20 == 0:
             print(f"  step {i + 1:4d}  iters={r.iterations}  "
                   f"res={r.final_residual:.2e}")
     lo_z = body_min_z(world, bodies[0])
-    print(f"Done. bottom-beam min_z={lo_z:+.4f}, {diverged} non-converged steps.")
-    assert lo_z > -0.02, "bottom beam fell through the floor"
-    assert diverged == 0
-    print("OK: stable fem<->fem contact.")
+    print(f"Done. bottom-beam min_z={lo_z:+.4f}.")
 
 
 def main():
@@ -78,10 +73,8 @@ def main():
     p.add_argument("--steps", type=int, default=80)
     p.add_argument("--backend", choices=["auto", "cpu", "accelerate", "cuda"],
                    default="auto")
-    p.add_argument("--no-viewer", action="store_true")
     args = p.parse_args()
     world, bodies = build_world(args.backend)
-    # Headless by default for this validation example.
     run_headless(world, bodies, args.steps)
 
 

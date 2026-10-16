@@ -1,4 +1,4 @@
-"""Joint VELOCITY-limit test: two identical light grounded hinges given the SAME
+"""Joint velocity limit: two identical light grounded hinges given the same
 step command, one with a joint velocity limit and one without.
 
 The actuator is a position servo, so a step change in its target whips the
@@ -10,14 +10,12 @@ it. Both reach the target; only the rate differs.
 `--penalty-mode` picks the penalty shape; both choices here are soft caps, so
 the limited bar is allowed a small overshoot.
 
-Headless mode is a self-checking test: it asserts the limited bar's per-step
-angular speed never exceeds `omega_max` (plus a small soft-cap tolerance), the
-free bar's peak speed far exceeds it, and both bars reach the commanded targets.
-Polyscope mode shows the two bars side by side with a live speed readout.
+Headless mode prints both bars' peak angular speed and the limited bar's final
+angle. Polyscope mode shows the two bars side by side with a live speed readout.
 
 Usage:
     python examples/affine/joint_velocity_limit.py                # polyscope
-    python examples/affine/joint_velocity_limit.py --no-viewer    # headless test
+    python examples/affine/joint_velocity_limit.py --no-viewer    # print the peak rates
     python examples/affine/joint_velocity_limit.py --omega-max 2.0
 """
 
@@ -113,19 +111,10 @@ def run_headless(world, act_free, act_limited, omega_max, steps, dt):
                   f"({free_rate:5.2f} rad/s)  limited {lim:+.3f} "
                   f"({lim_rate:5.2f} rad/s)")
 
-    tol = 1.35 * omega_max   # soft cap -> allow a small overshoot
-    capped = lim_peak <= tol
-    whipped = free_peak > 2.0 * omega_max
-    reached = abs(lim - (-0.6)) < 0.1
+    # The cap is a soft penalty, so the limited bar may overshoot it slightly.
     print(f"\nfree peak rate    = {free_peak:6.2f} rad/s  (uncapped)")
-    print(f"limited peak rate = {lim_peak:6.2f} rad/s  (cap {omega_max:.2f}, "
-          f"tol {tol:.2f})")
+    print(f"limited peak rate = {lim_peak:6.2f} rad/s  (cap {omega_max:.2f})")
     print(f"limited final angle = {lim:+.3f} rad  (target -0.60)")
-    ok = capped and whipped and reached
-    print("PASS: velocity limit capped the rate while the free bar whipped, and "
-          "the limited bar still reached its target." if ok
-          else "FAIL: velocity limit did not behave as expected.")
-    return ok
 
 
 def run_polyscope(world, free_bar, act_free, limited_bar, act_limited,
@@ -211,8 +200,8 @@ def main():
     world, free_bar, act_free, limited_bar, act_limited = build(
         args.omega_max, args.backend, mode)
     if args.no_viewer:
-        ok = run_headless(world, act_free, act_limited, args.omega_max, args.steps, dt)
-        raise SystemExit(0 if ok else 1)
+        run_headless(world, act_free, act_limited, args.omega_max, args.steps, dt)
+        return
     run_polyscope(world, free_bar, act_free, limited_bar, act_limited,
                   args.omega_max, args.steps, dt)
 

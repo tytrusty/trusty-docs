@@ -120,9 +120,7 @@ def main():
         for i in range(1, args.steps + 1):
             world.step()
             if i % 10 == 0:
-                report = world.last_report()
-                print(f"step {i:3d}: height {height(world, body):.3f} m"
-                      f"{'' if report.converged else '  (NOT converged)'}")
+                print(f"step {i:3d}: height {height(world, body):.3f} m")
         return
     run_viewer(world, body, args.steps)
 

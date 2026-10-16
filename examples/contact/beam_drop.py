@@ -87,20 +87,18 @@ def surface(world, beam):
 
 def run_headless(world, beam, steps: int):
     print(f"Beam drop: {steps} steps")
-    lowest, unconverged = np.inf, 0
+    lowest = np.inf
     for i in range(steps):
         world.step()
         r = world.last_report()
-        unconverged += not r.converged
         z = float(np.asarray(trusty.fem.read_positions(world, beam))[:, 2].min())
         lowest = min(lowest, z)
         if (i + 1) % 20 == 0:
             print(f"  step {i + 1:4d}  lowest point z={z:+.5f}  "
-                  f"iters={r.iterations}  converged={r.converged}")
+                  f"iters={r.iterations}")
     x = np.asarray(trusty.fem.read_positions(world, beam))
     print(f"Done. lowest point over the run {lowest:+.5f} m, "
-          f"final height of the top {x[:, 2].max():.3f} m, "
-          f"{unconverged} unconverged steps.")
+          f"final height of the top {x[:, 2].max():.3f} m.")
 
 
 def run_polyscope(world, beam, steps: int):
@@ -122,8 +120,7 @@ def run_polyscope(world, beam, steps: int):
             ps_mesh.update_vertex_positions(surface(world, beam)[0])
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
-        psim.Text(f"iters={r.iterations}  residual={r.final_residual:.2e}  "
-                  f"{'converged' if r.converged else 'NOT converged'}")
+        psim.Text(f"iters={r.iterations}  residual={r.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()

@@ -118,17 +118,14 @@ def build_world(grid: int, mu: float, backend: str):
 
 def run_headless(world, ball, steps: int):
     print(f"Running {steps} steps headless...")
-    unconverged = 0
     for i in range(steps):
         world.step()
         r = world.last_report()
-        unconverged += not r.converged
-        if (i + 1) % 10 == 0 or not r.converged:
+        if (i + 1) % 10 == 0:
             c = np.asarray(trusty.affine.surface(world, ball)[0]).mean(0)
             print(f"  step {i + 1:4d}  ball=({c[0]:+.2f},{c[1]:+.2f},{c[2]:+.2f}) "
-                  f"iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'NOT CONVERGED'}")
-    print(f"Done. {unconverged} of {steps} steps did not converge.")
+                  f"iters={r.iterations} res={r.final_residual:.2e}")
+    print("Done.")
 
 
 def run_polyscope(world, ball, blocks, links, steps: int):
@@ -176,8 +173,7 @@ def run_polyscope(world, ball, blocks, links, steps: int):
             advance()
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
-        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}")
+        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()

@@ -175,10 +175,7 @@ def run_report(backend: str, steps: int, names):
     world, beams, tip, tip_rest_z = build_world(backend, names)
     for _ in range(steps):
         world.step()
-    r = world.last_report()
-    print(f"after {steps} steps: iters={r.iterations} "
-          f"residual={r.final_residual:.3e} "
-          f"{'converged' if r.converged else 'DIVERGED'}")
+    print(f"after {steps} steps:")
     report(world, beams, tip, tip_rest_z)
 
 

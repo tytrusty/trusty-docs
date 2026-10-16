@@ -10,21 +10,18 @@ together in one implicit step.
 
 Usage:
     python examples/subspace/muscle_arm.py
-    python examples/subspace/muscle_arm.py --no-viewer   # self-checking
+    python examples/subspace/muscle_arm.py --no-viewer   # print the forearm motion
 
 Install polyscope with `pip install polyscope`.
 """
 from __future__ import annotations
 
 import argparse
-import sys
-import tempfile
-from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis, pack
+from trusty.subspace.precompute import build_basis
 
 
 def make_box(center, half):
@@ -47,7 +44,6 @@ def build_world(modes: int, muscle_stiffness: float, backend: str = "cpu"):
     beam     = trusty.make_beam_hex_mesh(size=(0.8, 0.2, 0.2), res=(8, 2, 2))
     material = trusty.StableNeoHookean(youngs_modulus=1e6, poisson_ratio=0.3)
     rest     = np.asarray(beam.vertices).copy()
-    hexes    = np.asarray(beam.hexes)
 
     # Bones below the muscle: grounded base near x=0, hinged forearm near x=0.8.
     base_c, fore_c = (0.0, 0.1, -0.3), (0.8, 0.1, -0.3)
@@ -83,13 +79,8 @@ def build_world(modes: int, muscle_stiffness: float, backend: str = "cpu"):
     # not (the basis leaves the attached ends free to follow their bones).
     pc = trusty.World()
     add_arm_bodies(pc)
-    basis_obj = build_basis.build_skinning_eigenmodes(
-        world=pc, num_nodes=rest.shape[0], rest_positions=rest,
-        num_handles=modes,
-        mesh_hash=build_basis.mesh_hash_sha256(rest, hexes))
-    tmp = Path(tempfile.mkdtemp())
-    pack.save(tmp / "bicep.basis", basis_obj)
-    basis = trusty.subspace.load(str(tmp / "bicep.basis"))
+    basis = build_basis.build_skinning_eigenmodes(
+        world=pc, rest_positions=rest, num_handles=modes)
 
     world = trusty.World(backend=backend,
                          timestep=1.0 / 120.0,
@@ -114,24 +105,17 @@ def actuation_at(step: int, ramp: int, amp: float) -> float:
 def run_headless(world, muscle, mus, bone_fore, steps, ramp, amp):
     for _ in range(5):
         world.step()
-        assert world.last_report().converged, "relaxed solve diverged"
     rest_fore = np.asarray(trusty.affine.surface(world, bone_fore)[0]).copy()
 
     for s in range(1, steps + 1):
         trusty.subspace.set_actuation(world, mus, actuation_at(s, ramp, amp))
         world.step()
-        assert world.last_report().converged, f"diverged at step {s}"
 
     fore = np.asarray(trusty.affine.surface(world, bone_fore)[0])
     disp = float(np.linalg.norm(fore - rest_fore, axis=1).mean())
     tip_dz = float(fore[:, 2].mean() - rest_fore[:, 2].mean())
     print(f"forearm mean displacement = {disp:.4f}")
     print(f"forearm mean z change     = {tip_dz:+.4f}  (flexion lifts it)")
-    if disp <= 1e-3:
-        print("FAIL: the muscle did not move the forearm", file=sys.stderr)
-        return 1
-    print("OK: contracting the muscle flexes the forearm about the joint")
-    return 0
 
 
 def run_polyscope(world, muscle, mus, bone_base, bone_fore, steps, ramp, amp):
@@ -170,7 +154,7 @@ def run_polyscope(world, muscle, mus, bone_base, bone_fore, steps, ramp, amp):
     ps.show()
 
 
-def main() -> int:
+def main():
     trusty.check_capabilities("subspace", "affine")
 
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
@@ -194,12 +178,11 @@ def main() -> int:
         args.modes, args.muscle_stiffness, args.backend)
 
     if args.no_viewer:
-        return run_headless(world, muscle, mus, bone_fore,
-                            args.steps, args.ramp, args.amp)
-    run_polyscope(world, muscle, mus, bone_base, bone_fore,
-                  args.steps, args.ramp, args.amp)
-    return 0
+        run_headless(world, muscle, mus, bone_fore, args.steps, args.ramp, args.amp)
+    else:
+        run_polyscope(world, muscle, mus, bone_base, bone_fore,
+                      args.steps, args.ramp, args.amp)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

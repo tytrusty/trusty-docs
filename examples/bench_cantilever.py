@@ -71,7 +71,6 @@ def run_one(family, nx, backend, consistent, timing_steps):
     base = dict(backend=backend, timestep=1.0 / 60.0)
     world, body = _make_body(family, nx, dict(base, time_stepping="static"))
     world.step()
-    converged = world.last_report().converged
     verts = np.asarray(trusty.fem.read_positions(world, body))
     tip = verts[:, 0] > verts[:, 0].max() - 1e-3
     deflection = float(-verts[tip, 2].max())
@@ -85,7 +84,7 @@ def run_one(family, nx, backend, consistent, timing_steps):
     ms_per_step = 1e3 * (time.perf_counter() - t0) / timing_steps
 
     return {"nodes": verts.shape[0], "deflection": deflection,
-            "converged": converged, "ms": ms_per_step}
+            "ms": ms_per_step}
 
 
 def main():
@@ -129,13 +128,13 @@ def main():
     print(f"static ground-truth tip deflection (hex_q2, nx={ref_nx}, {ref['nodes']} nodes): "
           f"{ref_defl:.6e} m\n")
     print(f"{'family':<20} {'nx':>4} {'nodes':>7} {'deflection':>13} "
-          f"{'abs.err (m)':>12} {'ms/step':>9} {'conv':>5}")
+          f"{'abs.err (m)':>12} {'ms/step':>9}")
     for family in FAMILIES:
         for nx in levels_for(family):
             r = results[family][nx]
             print(f"{family:<20} {nx:>4} {r['nodes']:>7} "
                   f"{r['deflection']:>13.5e} {abs(r['deflection'] - ref_defl):>12.3e} "
-                  f"{r['ms']:>9.2f} {str(r['converged']):>5}")
+                  f"{r['ms']:>9.2f}")
         print()
 
     if args.plot:

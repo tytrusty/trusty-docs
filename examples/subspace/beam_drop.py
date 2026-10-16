@@ -29,26 +29,24 @@ from __future__ import annotations
 
 import argparse
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis, pack
+from trusty.subspace.precompute import build_basis
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils import init_polyscope   # noqa: E402
 
 
-def _register_basis_columns(ps_mesh, basis):
+def _register_basis_columns(ps_mesh, basis, rest_verts):
     """Register every basis column on the mesh as scalar (magnitude) and
     vector (per-vertex 3D) quantities. Polyscope's UI lets the user pick
     which one to display from the structure panel."""
-    N = basis.num_nodes
-    r_total = basis.B.shape[1]
-    for k in range(r_total):
-        col = basis.B[:, k].reshape(N, 3)
+    B = basis.matrix(rest_verts)
+    for k in range(B.shape[1]):
+        col = B[:, k].reshape(basis.num_nodes, 3)
         mag = np.linalg.norm(col, axis=1)
         ps_mesh.add_scalar_quantity(f"basis[{k}] |.|", mag)
         ps_mesh.add_vector_quantity(f"basis[{k}] vec", col)
@@ -58,8 +56,8 @@ DROP_HEIGHT = 0.3
 FLOOR_Z     = 0.0
 
 
-def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
-                          modes: int, backend: str):
+def build_world_and_basis(basis_kind: str, element: str, modes: int,
+                          backend: str):
     """A free block lifted ``DROP_HEIGHT`` above the floor, with its basis.
 
     ``modes`` is the mode count for ``modal`` and the handle count for
@@ -87,26 +85,18 @@ def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
     rest_verts[:, 2] += DROP_HEIGHT
     mesh = wrap_mesh(np.ascontiguousarray(rest_verts),
                      np.ascontiguousarray(cells))
-    mh = build_basis.mesh_hash_sha256(rest_verts, cells)
 
     # Precompute world: a plain solid with the same mesh and material.
     pc_world = trusty.World()
     fem_add(pc_world, mesh, material, density=1000.0)
 
     if basis_kind == "modal":
-        basis_obj = build_basis.build_eigenmodes(
-            world=pc_world, num_nodes=rest_verts.shape[0],
-            rest_positions=rest_verts, r_modal=modes, mesh_hash=mh)
+        basis = build_basis.build_eigenmodes(world=pc_world, r_modal=modes)
     elif basis_kind == "handles":
-        basis_obj = build_basis.build_skinning_eigenmodes(
-            world=pc_world, num_nodes=rest_verts.shape[0],
-            rest_positions=rest_verts, num_handles=modes, mesh_hash=mh)
+        basis = build_basis.build_skinning_eigenmodes(
+            world=pc_world, rest_positions=rest_verts, num_handles=modes)
     else:
         raise ValueError(f"unknown basis kind {basis_kind!r}")
-
-    basis_path = tmp_dir / "beam.basis"
-    pack.save(basis_path, basis_obj)
-    basis = trusty.subspace.load(str(basis_path))
 
     # Runtime world: the reduced body, carrying the basis.
     world = trusty.World(timestep=1.0 / 60.0,
@@ -116,7 +106,7 @@ def build_world_and_basis(tmp_dir: Path, basis_kind: str, element: str,
     trusty.contact.enable(world)
     beam  = subspace_add(world, mesh, material, density=1000.0, basis=basis)
     trusty.add_floor_plane(world, FLOOR_Z)
-    return world, beam, mesh, rest_verts, cells, basis_path
+    return world, beam, mesh, rest_verts, cells, basis
 
 
 def _register_visuals(ps, rest_verts, cells, element):
@@ -138,7 +128,7 @@ def run_polyscope(rest_verts, cells, element, body, world, basis,
                   steps: int, label: str):
     ps = init_polyscope(headless=False)
     ps_mesh = _register_visuals(ps, rest_verts, cells, element)
-    _register_basis_columns(ps_mesh, basis)
+    _register_basis_columns(ps_mesh, basis, rest_verts)
     state = {"i": 0, "simulate": False}
 
     def callback():
@@ -155,8 +145,7 @@ def run_polyscope(rest_verts, cells, element, body, world, basis,
         rep = world.last_report()
         psim.Text(
             f"last solve: iters={rep.iterations}  "
-            f"residual={rep.final_residual:.3e}  "
-            f"{'converged' if rep.converged else 'DIVERGED'}")
+            f"residual={rep.final_residual:.3e}")
 
     ps.set_user_callback(callback)
     ps.show()
@@ -168,10 +157,8 @@ def run_headless(body, world, steps: int, label: str):
         world.step()
         x = trusty.subspace.deformed_positions(world, body)
         lowest = min(lowest, float(x[:, 2].min()))
-    rep = world.last_report()
     print(f"[{label}] {steps} steps; lowest point {lowest:.4f} m "
-          f"(floor at {FLOOR_Z}); final rest height {x[:, 2].min():.4f} m; "
-          f"{'converged' if rep.converged else 'NOT converged'}")
+          f"(floor at {FLOOR_Z}); final rest height {x[:, 2].min():.4f} m")
 
 
 def main():
@@ -201,17 +188,14 @@ def main():
             "This build does not include CUDA support; "
             "run with --backend cpu.")
 
-    with tempfile.TemporaryDirectory() as td:
-        tmp = Path(td)
-        world, beam, mesh, rest_verts, cells, basis_path = build_world_and_basis(
-            tmp, args.basis, args.element, args.modes, args.backend)
-        basis = pack.load(basis_path)
-        label = f"{args.backend}-{args.element}-{args.basis}"
-        if args.no_viewer:
-            run_headless(beam, world, args.steps, label)
-        else:
-            run_polyscope(rest_verts, cells, args.element, beam, world, basis,
-                          args.steps, label)
+    world, beam, mesh, rest_verts, cells, basis = build_world_and_basis(
+        args.basis, args.element, args.modes, args.backend)
+    label = f"{args.backend}-{args.element}-{args.basis}"
+    if args.no_viewer:
+        run_headless(beam, world, args.steps, label)
+    else:
+        run_polyscope(rest_verts, cells, args.element, beam, world, basis,
+                      args.steps, label)
 
 
 if __name__ == "__main__":

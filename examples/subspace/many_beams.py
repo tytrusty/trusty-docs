@@ -1,7 +1,7 @@
 """Many soft beams falling onto a floor, all sharing one basis.
 
 The beams are translated copies of one rest mesh, so one precomputed basis
-serves them all: it is loaded once and handed to every body, and each body
+serves them all: it is built once and handed to every body, and each body
 keeps its own reduced state. Independent bodies are solved separately rather
 than as one dense system, so the cost grows gently with the body count.
 `--backend accelerate` uses Apple's Accelerate sparse solver, which is
@@ -18,14 +18,13 @@ from __future__ import annotations
 
 import argparse
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis, pack
+from trusty.subspace.precompute import build_basis
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils import init_polyscope   # noqa: E402
@@ -37,23 +36,17 @@ DROP_HEIGHT = 0.3
 FLOOR_Z     = 0.0
 
 
-def build_shared_basis(tmp_dir: Path, num_handles: int) -> Path:
-    """Build one skinning-eigenmode basis from a single beam at rest and
-    save it; every beam in the world uses this file."""
+def build_shared_basis(num_handles: int):
+    """Build one skinning-eigenmode basis from a single beam at rest; every
+    beam in the world uses it."""
     mesh     = trusty.make_beam_hex_mesh(size=BEAM_SIZE, res=BEAM_RES)
     material = trusty.StableNeoHookean(youngs_modulus=5e5, poisson_ratio=0.3)
     world    = trusty.World()
     _        = trusty.fem.add_hex_solid(world, mesh, material, density=1000.0)
-
-    rest_verts = np.asarray(mesh.vertices, dtype=np.float64)
-    basis_obj  = build_basis.build_skinning_eigenmodes(
+    return build_basis.build_skinning_eigenmodes(
         world=world,
-        num_nodes=rest_verts.shape[0],
-        rest_positions=rest_verts,
+        rest_positions=np.asarray(mesh.vertices, dtype=np.float64),
         num_handles=num_handles)
-    basis_path = tmp_dir / "beam.basis"
-    pack.save(basis_path, basis_obj)
-    return basis_path
 
 
 def add_translated_beam(world, basis, x_offset: float, y_offset: float):
@@ -71,18 +64,16 @@ def add_translated_beam(world, basis, x_offset: float, y_offset: float):
     return body, mesh
 
 
-def build_world(num_beams: int, modes: int, spacing: float, backend: str,
-                tmp_dir: Path):
+def build_world(num_beams: int, modes: int, spacing: float, backend: str):
     """`num_beams` beams in rows of three above a floor, all sharing one
     basis. Returns (world, bodies, hexes)."""
-    basis_path = build_shared_basis(tmp_dir, modes)
 
     world = trusty.World(timestep=1.0 / 60.0, backend=backend)
     trusty.contact.enable(world)
 
-    # Load the basis once; every beam carries the same one. Each body's rest
+    # Build the basis once; every beam carries the same one. Each body's rest
     # shape is its own mesh, so the beams still sit at distinct places.
-    basis = trusty.subspace.load(str(basis_path))
+    basis = build_shared_basis(modes)
     bodies = []
     for i in range(num_beams):
         body, mesh = add_translated_beam(
@@ -97,10 +88,8 @@ def build_world(num_beams: int, modes: int, spacing: float, backend: str,
 
 def run_headless(world, bodies, steps: int, label: str):
     t0 = time.time()
-    for i in range(1, steps + 1):
+    for _ in range(steps):
         world.step()
-        if not world.last_report().converged:
-            print(f"step {i}: did not converge")
     dt = time.time() - t0
     lowest = min(float(trusty.subspace.deformed_positions(world, b)[:, 2].min())
                  for b in bodies)
@@ -159,13 +148,12 @@ def main():
         raise SystemExit("CUDA backend not available in this build")
 
     label = f"{args.num_beams} beams @ {args.modes} handles ({args.backend})"
-    with tempfile.TemporaryDirectory() as td:
-        world, bodies, hexes = build_world(
-            args.num_beams, args.modes, args.spacing, args.backend, Path(td))
-        if args.no_viewer:
-            run_headless(world, bodies, args.steps, label)
-        else:
-            run_polyscope(world, bodies, hexes, args.steps, label)
+    world, bodies, hexes = build_world(
+        args.num_beams, args.modes, args.spacing, args.backend)
+    if args.no_viewer:
+        run_headless(world, bodies, args.steps, label)
+    else:
+        run_polyscope(world, bodies, hexes, args.steps, label)
 
 
 if __name__ == "__main__":

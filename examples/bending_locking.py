@@ -117,8 +117,7 @@ def run_viewer(world, bodies, steps):
         psim.Text(f"step {state['i']} / {steps}")
         report = world.last_report()
         psim.Text(f"last solve: iters={report.iterations}  "
-                  f"residual={report.final_residual:.3e}  "
-                  f"{'converged' if report.converged else 'DIVERGED'}")
+                  f"residual={report.final_residual:.3e}")
 
     ps.set_user_callback(callback)
     ps.show()

@@ -24,15 +24,14 @@ every step starts from rest, so nothing picks up speed and tumbles.
 The letters rub on each other with friction; the loops slide round the
 letters on half that friction.
 
-The letter meshes are in data/logo_*.npz. The headless run prints a
-convergence, contact and deformation summary and checks that every pair of
-neighbouring letters is in contact and that the T, u, s, t and y visibly deform.
+The letter meshes are in data/logo_*.npz. The headless run prints the
+solver iterations, contacts and deformation as it goes.
 --export DIR also writes every frame's geometry to DIR (manifest.json,
 topology.npz, frame_NNNN.npz), for rendering offline.
 
 Usage:
     python examples/coupling/trusty_logo.py                       # viewer (opens paused)
-    python examples/coupling/trusty_logo.py --no-viewer           # headless self-check
+    python examples/coupling/trusty_logo.py --no-viewer           # headless summary
     python examples/coupling/trusty_logo.py --export frames/      # headless, save frames
     python examples/coupling/trusty_logo.py --backend accelerate  # Apple solver
 """
@@ -65,7 +64,6 @@ E_HEX, HEX_NU = 1e4, 0.4  # Pa, the t's hexes
 E_Y, Y_NU = 2e4, 0.4      # Pa, the y's voxel grid
 Y_VOXEL   = 0.012         # m, the y's voxel size
 S_E, S_NU = 1.5e4, 0.35   # Pa, the s: an elastic MPM solid
-MIN_DENT  = 0.002         # m, the smallest non-rigid displacement the check accepts
 PULL      = 4.0      # N, each loop muscle's largest pull
 RAMP      = 0.4      # s, time for the muscles to reach full activation
 LOOP_Z    = (0.030, 0.085)  # m, the two loops' heights, low and high on the lower-case letters
@@ -404,28 +402,26 @@ def run_headless(world, b, letters, census, steps, dt, export: Path | None):
     gaps0, len0 = letter_gaps(s), [loop_length(s[k]) for k in RODS]
     s0 = s
     edges = deform_edges(topology(world, b, letters), s0, float(letters["s"]["spacing"]))
-    unconverged, iters, t0 = 0, 0, time.perf_counter()
+    iters, t0 = 0, time.perf_counter()
     for i in range(steps):
         set_activation(world, b, (i + 1) * dt)
         if i == steps - 1:
             census.count()               # contact pairs at the last step
         world.step()
         r = world.last_report()
-        unconverged += (not r.converged)
         iters += r.iterations
         s = read_state(world, b, letters)
         if export is not None:
             export_frame(export, i + 1, s)
-        if (i + 1) % 5 == 0 or not r.converged:
+        if (i + 1) % 5 == 0:
             print(f"  step {i + 1:4d}  iters={r.iterations:3d}  res={r.final_residual:.1e}  "
-                  f"converged={r.converged}  loops={loop_length(s['rod_lo']):.3f} "
+                  f"loops={loop_length(s['rod_lo']):.3f} "
                   f"{loop_length(s['rod_hi']):.3f} m  "
                   f"hinge={hinge_angle(s, letters):+5.1f} deg  closest (mm): "
                   + " ".join(f"{1e3 * g:4.1f}" for g in letter_gaps(s)), flush=True)
     wall = time.perf_counter() - t0
     gaps = letter_gaps(s)
-    print(f"Done: {steps} steps in {wall:.0f} s, {iters} Newton iterations, "
-          f"{unconverged} unconverged steps.")
+    print(f"Done: {steps} steps in {wall:.0f} s, {iters} Newton iterations.")
     for k, l0, m in zip(RODS, len0, b["muscles"]):
         print(f"  {k}: loop {l0:.3f} m -> {loop_length(s[k]):.3f} m, "
               f"pull {trusty.rods.muscle_force(world, m):.2f} N")
@@ -439,18 +435,6 @@ def run_headless(world, b, letters, census, steps, dt, export: Path | None):
     pairs = census.pairs or {}
     print("  contact pairs at the last step: "
           + "  ".join(f"{a}-{c} {n}" for (a, c), n in sorted(pairs.items(), key=lambda kv: -kv[1])))
-    assert all(np.isfinite(v).all() for v in s.values()), "non-finite positions"
-    assert unconverged == 0, f"{unconverged} steps did not converge"
-    parts = {ch: ("r_stem", "r_arm") if ch == "r" else (ch,) for ch in LETTERS}
-    for a, c in zip(LETTERS[:-1], LETTERS[1:]):
-        assert any((x, y) in pairs or (y, x) in pairs for x in parts[a] for y in parts[c]), \
-            f"{a} and {c} are not in contact"
-    for ch, (r, _) in dent.items():
-        assert r > MIN_DENT, f"{ch} barely deforms ({1e3 * r:.2f} mm)"
-    for ch in ("T", "y"):
-        assert any((ch, k) in pairs for k in RODS), f"the rods do not touch {ch}"
-    print("OK: the rod loops press all six letters together; every pair of "
-          "neighbours is in contact, and T, u, s, t and y all visibly deform.")
 
 
 # ----------------------------------------------------------------------

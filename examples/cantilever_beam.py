@@ -78,8 +78,7 @@ def run_polyscope(world, beam, steps: int, order):
         report = world.last_report()
         psim.Text(
             f"last solve: iters={report.iterations}  "
-            f"residual={report.final_residual:.3e}  "
-            f"{'converged' if report.converged else 'DIVERGED'}"
+            f"residual={report.final_residual:.3e}"
         )
 
     ps.set_user_callback(callback)
@@ -101,11 +100,7 @@ def run_screenshots(world, beam, steps: int, out_dir: Path, order):
         ps_mesh.update_vertex_positions(read_verts())
         snapshot(i)
 
-    report = world.last_report()
     print(f"Wrote {steps + 1} screenshots to {out_dir}/")
-    print(f"Last solve: iters={report.iterations}  "
-          f"residual={report.final_residual:.3e}  "
-          f"{'converged' if report.converged else 'DIVERGED'}")
 
 
 def main():

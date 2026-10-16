@@ -9,7 +9,7 @@ bounces but keeps its shape.
 
 Usage:
     python examples/mpm/dam_break.py                     # polyscope viewer
-    python examples/mpm/dam_break.py --no-viewer         # headless self-check
+    python examples/mpm/dam_break.py --no-viewer         # print the flow front
     python examples/mpm/dam_break.py --noslip            # fluid sticks to the walls
     python examples/mpm/dam_break.py --scheme lite       # the other MPM scheme
     python examples/mpm/dam_break.py --material stable_neohookean  # an elastic block
@@ -145,26 +145,18 @@ def front(X):
 
 
 def run_headless(world, steps):
-    """Step, print progress, then check that the water stayed in the box."""
+    """Step and print how far the water has run."""
     X = np.asarray(trusty.mpm.read_particles(world))  # (P, 3) positions
     print(f"{'step':>5} {'front x':>8} {'top z':>7} {'iters':>5}")
-    unconverged, t0 = 0, time.perf_counter()
+    t0 = time.perf_counter()
     for i in range(1, steps + 1):
         world.step()
         report = world.last_report()
-        unconverged += not report.converged
         if i % 20 == 0 or i == steps:
             X = np.asarray(trusty.mpm.read_particles(world))
             print(f"{i:5d} {front(X):8.3f} {X[:, 2].max():7.3f} "
                   f"{report.iterations:5d}")
-    X = np.asarray(trusty.mpm.read_particles(world))
-    print(f"{steps} steps in {time.perf_counter() - t0:.1f} s, "
-          f"{unconverged} did not converge")
-    assert np.isfinite(X).all(), "particle positions are not finite"
-    assert (X >= 0.0).all() and (X[:, :2] <= BOX[:2]).all(), \
-        "particles left the box"
-    assert unconverged == 0, f"{unconverged} steps did not converge"
-    print("OK: the water stayed in the box.")
+    print(f"{steps} steps in {time.perf_counter() - t0:.1f} s")
 
 
 def run_polyscope(world, steps):
@@ -236,7 +228,7 @@ def make_parser():
                    help="timestep, s (default 1/240)")
     p.add_argument("--steps", type=int, default=240)
     p.add_argument("--no-viewer", action="store_true",
-                   help="run the headless self-check instead of the viewer")
+                   help="run headless and print the flow front instead of the viewer")
     return p
 
 

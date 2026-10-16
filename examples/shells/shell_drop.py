@@ -146,8 +146,7 @@ def run_polyscope(world, body, sphere, steps: int):
         report = world.last_report()
         psim.Text(
             f"last solve: iters={report.iterations}  "
-            f"residual={report.final_residual:.3e}  "
-            f"{'converged' if report.converged else 'DIVERGED'}"
+            f"residual={report.final_residual:.3e}"
         )
 
     ps.set_user_callback(callback)
@@ -165,15 +164,13 @@ def main():
 
     world, body, sphere = build_world(backend=args.backend)
     if args.no_viewer:
-        unconverged = 0
         for _ in range(args.steps):
             world.step()
-            unconverged += not world.last_report().converged
         x = trusty.shells.read_positions(world, body)
         top = SPHERE_CENTER[2] + SPHERE_RADIUS
         print(f"after {args.steps} steps: the sheet rests at z = {x[:, 2].max():.4f} m "
               f"on the sphere's top at {top:.4f} m; its corners hang down to "
-              f"z = {x[:, 2].min():.3f} m. {unconverged} step(s) not converged")
+              f"z = {x[:, 2].min():.3f} m.")
     else:
         run_polyscope(world, body, sphere, args.steps)
 

@@ -104,10 +104,8 @@ def main():
 
     world, rods = build_world(args.backend)
     if args.no_viewer:
-        for i in range(args.steps):
+        for _ in range(args.steps):
             world.step()
-            if not world.last_report().converged:
-                print(f"step {i}: Newton did not converge")
         print(f"after {args.steps} steps:")
         for name, rod in rods.items():
             x = np.asarray(trusty.rods.read_positions(world, rod))

@@ -1,9 +1,10 @@
 """Subspace cantilever: a clamped beam sagging under gravity, on a few modes.
 
 A hex beam is clamped at one end. Its basis is precomputed once from a plain
-solid with the same mesh, material and clamp, saved to a `.basis` file, and
-loaded onto a reduced body, whose state is a short vector of mode amplitudes
-instead of every node position.
+solid with the same mesh, material and clamp (and, with `--basis-file`, saved
+to a `.basis` file and loaded back on later runs), then carried by a reduced
+body, whose state is a short vector of mode amplitudes instead of every node
+position.
 
 `--basis handles` (the default) uses skinning eigenmodes, which follow large
 bending closely. `--basis modal` uses plain vibration modes: cheaper, but
@@ -24,13 +25,12 @@ from __future__ import annotations
 
 import argparse
 import sys
-import tempfile
 from pathlib import Path
 
 import numpy as np
 
 import trusty
-from trusty.subspace.precompute import build_basis, pack
+from trusty.subspace.precompute import build_basis
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from utils import init_polyscope   # noqa: E402
@@ -53,16 +53,13 @@ def precompute_basis(kind="handles", modes=6):
 
     if kind == "handles":   # 12 coordinates per handle
         return build_basis.build_skinning_eigenmodes(
-            world=pc_world, num_nodes=len(rest), rest_positions=rest,
-            num_handles=modes)
+            world=pc_world, rest_positions=rest, num_handles=modes)
     else:                   # one coordinate per mode
-        return build_basis.build_eigenmodes(
-            world=pc_world, num_nodes=len(rest), rest_positions=rest,
-            r_modal=modes)
+        return build_basis.build_eigenmodes(world=pc_world, r_modal=modes)
 
 
 def build_world(basis, backend="auto"):
-    """A reduced beam carrying `basis`, from `trusty.subspace.load`."""
+    """A reduced beam carrying `basis`."""
     mesh, material = make_beam()
     world = trusty.World(backend=backend)
     beam = trusty.subspace.add_hex_body(
@@ -72,7 +69,7 @@ def build_world(basis, backend="auto"):
 
 def load_or_precompute(path: Path, kind: str, modes: int):
     if not path.exists():   # precompute once, reuse on later runs
-        pack.save(path, precompute_basis(kind, modes))
+        precompute_basis(kind, modes).save(str(path))
     basis = trusty.subspace.load(str(path))
     return basis
 
@@ -148,7 +145,7 @@ def main():
                         "(default: 6)")
     p.add_argument("--basis-file", type=Path, default=None,
                    help="save the basis here, or load it if the file exists "
-                        "(default: a temporary file)")
+                        "(default: precompute it in memory)")
     p.add_argument("--steps", type=int, default=300,
                    help="simulation steps (default: 300 = 5 s at 1/60)")
     p.add_argument("--no-viewer", action="store_true",
@@ -158,14 +155,15 @@ def main():
     if args.backend == "cuda" and "cuda" not in trusty.capabilities():
         raise SystemExit("CUDA backend not available in this build")
 
-    with tempfile.TemporaryDirectory() as td:
-        path = args.basis_file or Path(td) / "beam.basis"
-        basis = load_or_precompute(path, args.basis, args.modes)
-        world, beam = build_world(basis, args.backend)
-        if args.no_viewer:
-            run_headless(world, beam, args.steps, args.backend)
-        else:
-            run_polyscope(world, beam, args.steps)
+    if args.basis_file:
+        basis = load_or_precompute(args.basis_file, args.basis, args.modes)
+    else:
+        basis = precompute_basis(args.basis, args.modes)
+    world, beam = build_world(basis, args.backend)
+    if args.no_viewer:
+        run_headless(world, beam, args.steps, args.backend)
+    else:
+        run_polyscope(world, beam, args.steps)
 
 
 if __name__ == "__main__":

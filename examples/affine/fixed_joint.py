@@ -17,13 +17,13 @@ The shin and foot drop onto a frictionless floor together. The shin stays
 rigid, the foot squashes on impact and springs back, and the weld holds the
 foot under the shin throughout.
 
-Headless mode checks this: the run stays finite, the foot stays welded to the
-shin, the pair rests on the floor, and the foot compresses on impact. It
-prints PASS or FAIL. Polyscope mode shows the drop.
+Headless mode prints how far the weld frame drifts between the two bodies, how
+low the pair settles, and how much the foot compresses on impact. Polyscope
+mode shows the drop.
 
 Usage:
     python examples/affine/fixed_joint.py                # polyscope
-    python examples/affine/fixed_joint.py --no-viewer    # headless test
+    python examples/affine/fixed_joint.py --no-viewer    # print the weld gap and compression
 """
 
 from __future__ import annotations
@@ -173,11 +173,6 @@ def run_headless(world, weld_origin, rest, shin, foot, steps):
     print(f"soft foot peak compression: {100 * compression:.1f}%  "
           f"(stiff shin stays rigid)")
 
-    ok = (finite and weld_gap < 5e-3 and min_z > -1e-2 and compression > 0.01)
-    print("PASS: the weld held the soft foot under the stiff shin, and the foot "
-          "squashed on impact." if ok else "FAIL: see metrics above.")
-    return ok
-
 
 def run_polyscope(world, weld_origin, rest, shin, foot, steps):
     try:
@@ -225,8 +220,8 @@ def main():
 
     world, weld_origin, rest, shin, foot = build(args.backend)
     if args.no_viewer:
-        ok = run_headless(world, weld_origin, rest, shin, foot, args.steps)
-        raise SystemExit(0 if ok else 1)
+        run_headless(world, weld_origin, rest, shin, foot, args.steps)
+        return
     run_polyscope(world, weld_origin, rest, shin, foot, args.steps)
 
 

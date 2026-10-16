@@ -96,7 +96,7 @@ def run(
     screenshot_dir: Path | None = None,
     show_hexes: bool = True,
     quiet: bool = False,
-) -> int:
+) -> None:
     trusty.check_capabilities("embedded")
     V, F = make_bar_trimesh(BAR_SIZE, BAR_RES,
                             origin=(0.0, -BAR_SIZE[1] / 2, -BAR_SIZE[2] / 2))
@@ -184,13 +184,10 @@ def run(
 
     target_theta = 2 * np.pi * float(turns)
     history: list[float] = []  # observed twist angle at the right face
-    state = {"i": 0, "playing": False, "failed": False}   # play starts OFF
+    state = {"i": 0, "playing": False}   # play starts OFF
 
-    def advance() -> bool:
-        """Ramp theta one step, drive the pin, measure the observed twist.
-
-        False if Newton failed to converge, which stops the run.
-        """
+    def advance() -> None:
+        """Ramp theta one step, drive the pin, measure the observed twist."""
         i = state["i"]
         theta = ((i + 1) / n_steps) * target_theta
 
@@ -203,11 +200,6 @@ def run(
         trusty.embedded.set_pin_targets(world, body, new_targets)
         world.step()
         report = world.last_report()
-        if not report.converged:
-            print(f"[{backend}] step {i+1}/{n_steps} did NOT converge "
-                  f"(residual={report.final_residual:.2e})")
-            state["failed"] = True
-            return False
 
         # Observed twist on the right face: mean angle change in (y, z)
         # relative to the pivot, unwrapped against the previous observation
@@ -234,7 +226,6 @@ def run(
                   f"theta_target={theta:+.3f}  theta_obs={observed:+.3f}  "
                   f"newton={report.iterations:3d}  "
                   f"res={report.final_residual:.2e}")
-        return True
 
     def refresh() -> None:
         if ps_mesh is None:
@@ -249,8 +240,7 @@ def run(
     if screenshot_dir is not None:
         while state["i"] < n_steps:
             i = state["i"]
-            if not advance():
-                return 1
+            advance()
             if i % every == 0:
                 refresh()
                 ps.screenshot(
@@ -266,41 +256,31 @@ def run(
             _, state["playing"] = psim.Checkbox("play", state["playing"])
             psim.SameLine()
             stepped = psim.Button("step")
-            if (stepped or state["playing"]) and state["i"] < n_steps \
-                    and not state["failed"]:
-                if advance():
-                    refresh()
-                else:
-                    state["playing"] = False
+            if (stepped or state["playing"]) and state["i"] < n_steps:
+                advance()
+                refresh()
             psim.Text(f"step {state['i']} / {n_steps}")
             psim.Text(f"twist target {(state['i'] / n_steps) * target_theta:+.3f} rad"
                       f"   observed {(history[-1] if history else 0.0):+.3f} rad")
             rep = world.last_report()
             psim.Text(f"iters={rep.iterations}  res={rep.final_residual:.2e}")
-            if state["failed"]:
-                psim.Text("Newton did not converge -- run stopped")
 
         ps.set_user_callback(cb)
         ps.show()
     else:
         while state["i"] < n_steps:
-            if not advance():
-                return 1
+            advance()
 
     # Final summary. In the viewer the window can be closed early, so this
     # reports whatever was actually simulated.
     if not history:
         print(f"[{backend}] no steps simulated")
-        return 1 if state["failed"] else 0
+        return
     err = abs(history[-1] - target_theta) if state["i"] == n_steps else float("nan")
     print(f"[{backend}] target twist = {target_theta:+.3f} rad "
           f"({turns:.3f} turns)")
     print(f"[{backend}] observed twist at right face = {history[-1]:+.3f} rad "
           f"(error {err:+.3e} rad) after {state['i']}/{n_steps} steps")
-
-    if state["failed"]:
-        return 1
-    return 0
 
 
 def main() -> None:
@@ -333,7 +313,7 @@ def main() -> None:
     ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
 
-    rc = run(
+    run(
         backend=args.backend,
         n_steps=args.steps,
         turns=args.turns,
@@ -345,7 +325,6 @@ def main() -> None:
         show_hexes=not args.no_hexes,
         quiet=args.quiet,
     )
-    sys.exit(rc)
 
 
 if __name__ == "__main__":

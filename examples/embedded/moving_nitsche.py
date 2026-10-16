@@ -141,8 +141,7 @@ def run_polyscope(backend: str, n_steps: int):
         rep = world.last_report()
         psim.Text(
             f"last solve: iters={rep.iterations}  "
-            f"residual={rep.final_residual:.3e}  "
-            f"{'converged' if rep.converged else 'DIVERGED'}")
+            f"residual={rep.final_residual:.3e}")
 
     ps.set_user_callback(callback)
     ps.show()
@@ -165,19 +164,16 @@ def run_screenshots(backend: str, n_steps: int, out_dir: Path):
                       transparent_bg=False)
 
     snapshot(0)
-    last_residual = float("nan")
     for i in range(n_steps):
         targets, _dz = prescribed_targets(i, V, right_verts)
         trusty.embedded.set_pin_targets(world, body, targets)
         world.step()
-        last_residual = world.last_report().final_residual
         ps_mesh.update_vertex_positions(np.asarray(
             trusty.embedded.read_embedded_surface(world, body)))
         ps_target.update_point_positions(targets[right_verts])
         snapshot(i + 1)
 
     print(f"Wrote {n_steps + 1} screenshots to {out_dir}/")
-    print(f"Last residual: {last_residual:.3e}")
 
 
 def main():

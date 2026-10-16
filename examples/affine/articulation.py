@@ -406,8 +406,7 @@ def run_headless(world, actuators, render, steps):
             h = ball_heights()
             pile = f"balls z mean={np.mean(h):+.2f} min={np.min(h):+.2f}" if h else ""
             print(f"  step {i + 1:4d}  iters={r.iterations} "
-                  f"res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}  {pile}")
+                  f"res={r.final_residual:.2e}  {pile}")
     print("Done.")
 
 
@@ -451,8 +450,7 @@ def run_polyscope(world, actuators, render, steps):
             advance()
         psim.Text(f"step {state['i']} / {steps}")
         r = world.last_report()
-        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}")
+        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()

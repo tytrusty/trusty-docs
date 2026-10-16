@@ -121,8 +121,7 @@ def run_polyscope(world, beam, sheet, steps: int):
         report = world.last_report()
         psim.Text(
             f"last solve: iters={report.iterations}  "
-            f"residual={report.final_residual:.3e}  "
-            f"{'converged' if report.converged else 'DIVERGED'}"
+            f"residual={report.final_residual:.3e}"
         )
 
     ps.set_user_callback(callback)
@@ -140,16 +139,14 @@ def main():
 
     world, beam, sheet = build_world(backend=args.backend)
     if args.no_viewer:
-        unconverged = 0
         for _ in range(args.steps):
             world.step()
-            unconverged += not world.last_report().converged
         beam_x = np.asarray(trusty.fem.read_positions(world, beam))
         sheet_x = trusty.shells.read_positions(world, sheet)
         print(f"after {args.steps} steps: beam top at z = {beam_x[:, 2].max():.3f} m "
               f"(rest {BEAM_SIZE[2]:.3f} m), lowest beam point z = "
               f"{beam_x[:, 2].min():.3f} m, sheet lowest point z = "
-              f"{sheet_x[:, 2].min():.3f} m, {unconverged} step(s) not converged")
+              f"{sheet_x[:, 2].min():.3f} m")
     else:
         run_polyscope(world, beam, sheet, args.steps)
 

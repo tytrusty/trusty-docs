@@ -169,8 +169,7 @@ def run_polyscope(world, acts, arm_bodies, steps: int):
         psim.Text(f"prismatic slide: {trusty.affine.actuator_value(world, acts[0]):+.3f} m")
         psim.Text(f"revolute angle:  {trusty.affine.actuator_value(world, acts[1]):+.3f} rad")
         r = world.last_report()
-        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e} "
-                  f"{'ok' if r.converged else 'DIVERGED'}")
+        psim.Text(f"solve: iters={r.iterations} res={r.final_residual:.2e}")
 
     ps.set_user_callback(callback)
     ps.show()

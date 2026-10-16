@@ -109,9 +109,7 @@ def main():
     if args.no_viewer:
         for _ in range(args.steps):
             world.step()
-        report = world.last_report()
-        print(f"tip sag after {args.steps} steps: {tip_sag(world, beam):.3f} m "
-              f"({'converged' if report.converged else 'NOT converged'})")
+        print(f"tip sag after {args.steps} steps: {tip_sag(world, beam):.3f} m")
         return
     run_viewer(world, beam, mesh, args.steps)
 
