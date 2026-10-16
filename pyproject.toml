@@ -2,11 +2,11 @@
 # use.
 [project]
 name = "trusty-sim-examples"
-version = "0.1.0a6"
+version = "0.1.0a7"
 description = "Examples for trusty-sim"
 requires-python = ">=3.11"
 dependencies = [
-    "trusty-sim==0.1.0a6",
+    "trusty-sim==0.1.0a7",
     "numpy>=1.26",
     "polyscope",
     "scipy",
