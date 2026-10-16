@@ -1712,12 +1712,9 @@ Raising the pressure makes the chambers balloon against each other, and since
 the base resists stretching, the finger curls toward it. Three scripts build
 on this finger: the finger alone, a two-finger gripper on a turning hub, and a
 reduced model of the finger that runs much faster.</p>
-<p><strong>Capabilities:</strong> <code>fem</code>, <code>boundary_conditions</code>; the gripper adds <code>affine</code>, and
-the reduced finger <code>subspace</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/pneunet_finger.py
 </code></pre></div>
-<p>The viewer starts paused: tick <em>play</em>, or press <em>step</em>. The pressure ramps from
-zero to <code>--pressure</code> (40 kPa by default) over the run.</p>
+<p>The pressure ramps from zero to <code>--pressure</code> (40 kPa by default) over the run.</p>
 <h2 id="pressure-in-a-cavity">Pressure in a cavity<a class="headerlink" href="#pressure-in-a-cavity" title="Permanent link">&para;</a></h2>
 <p>The finger is a voxel hexahedral mesh with the chambers cut out of it, and a
 channel through the base joins every chamber into one closed void. That void is
@@ -1737,9 +1734,8 @@ pressure the finger should feel:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_cavity_pressure</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cavity</span><span class="p">,</span> <span class="n">pressure_at</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">p_max</span><span class="p">))</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 </code></pre></div>
-<p><code>cavity_volume</code> reads back the volume the chambers enclose, which the
-<code>--no-viewer</code> run prints with the tip's drop. At 40 kPa the tip of the finger
-drops about 100 mm.</p>
+<p><code>cavity_volume</code> reads back the volume the chambers enclose. At 40 kPa the tip
+of the finger drops about 100 mm.</p>
 <p>The finger uses <code>time_stepping="quasi_static"</code>, which moves forward a step and
 then drops every velocity, so the finger heads for rest without swinging. A
 <code>static</code> solve of this finger fails by about 1 kPa. See
@@ -1810,10 +1806,9 @@ evaluates the elasticity on a small set of weighted elements, 16 of the finger's
 adds the reduced finger, and <code>fit_cubature</code> and <code>set_cubature</code> install the
 rule. The pressure cavity works on the reduced body as it does on a solid.</p>
 <p>The full finger (blue) and the reduced one (translucent orange) then inflate
-side by side, and the viewer's panel compares them. With five modes, at 40 kPa,
-the reduced finger's tip drops about 10% less than the full finger's, and a
-step takes about 2 ms against about 34 ms in a run on the Accelerate
-backend. The shapes are fixed in the rest frame, so they follow this clamped
+side by side. With five modes, at 40 kPa, the reduced finger's tip drops about
+10% less than the full finger's, and a step takes about 2 ms against about
+34 ms in a run on the Accelerate backend. The shapes are fixed in the rest frame, so they follow this clamped
 finger well but would not follow one carried through a large rotation.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>examples/robotics/pneunet_pod_subspace.py
 </code></pre></div>

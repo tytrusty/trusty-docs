@@ -1902,7 +1902,6 @@ solved on the grid, and the particles move with it. The grid only exists where t
 flow and splash anywhere, with no mesh to keep up with it.</p>
 <p>The MPM material is a fluid, which resists changes of volume and has no
 shear stiffness, or an elastic solid; see <a href="#material">Material</a>.</p>
-<p><strong>Capability:</strong> <code>mpm</code>. Walls and collisions also need <code>contact</code>.</p>
 <h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
 <p>A column of water collapsing in an open box, the classic dam break:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">World</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">newton</span><span class="o">=</span><span class="n">newton</span><span class="p">)</span>

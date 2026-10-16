@@ -1842,7 +1842,6 @@
 <p><code>trusty.shells</code> simulates thin sheets such as cloth, paper and sheet metal. A
 shell is a triangle mesh of the sheet's midsurface; its thickness is a number,
 not a layer of elements.</p>
-<p><strong>Capability:</strong> <code>shells</code>.</p>
 <h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
 <p>A square curtain hanging from its two top corners:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">World</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">,</span>
@@ -2170,9 +2169,8 @@ Stretching stiffness grows only in proportion, which is why a thin sheet bends
 easily but hardly stretches. Below, three 1 m plates of the same material,
 clamped along one edge, are 5, 10 and 20 mm thick:</p>
 <p><img alt="Three clamped plates, 5, 10 and 20 mm thick" class="shot" src="../../assets/img/shells_thickness.png" width="640" /></p>
-<p>They sag 0.42, 0.12 and 0.03 m. <code>--no-viewer</code> prints each sag next to the
-estimate from plate theory, which it matches to within about 20% on this
-coarse mesh.</p>
+<p>They sag 0.42, 0.12 and 0.03 m, which matches the estimate from plate theory
+to within about 20% on this coarse mesh.</p>
 <details class="example">
 <summary>Full script: <code>python examples/shells/shell_cantilever.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="sd">"""Three plates clamped along one edge, sagging under gravity.</span>

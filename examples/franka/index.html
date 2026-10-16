@@ -1711,13 +1711,8 @@ the shoulder turns side to side, the elbow bends and the wrist rolls, while the
 two fingers of the hand open and close. A second script replaces the rigid
 fingers with a pair of soft <a href="../pneunet/">PneuNet fingers</a> that inflate as the
 arm moves.</p>
-<p><strong>Capabilities:</strong> <code>affine</code>; the soft-finger version adds <code>fem</code>,
-<code>boundary_conditions</code> and <code>contact</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/franka_arm.py
 </code></pre></div>
-<p>The viewer starts paused: tick <em>play</em>, or press <em>step</em>. With <code>--no-viewer</code> the
-script prints, every half second of simulated time, how far the joints lag
-behind their targets.</p>
 <h2 id="the-arm">The arm<a class="headerlink" href="#the-arm" title="Permanent link">&para;</a></h2>
 <p>Every link is a near-rigid <a href="../../modules/affine/">affine body</a> whose shape is
 the link's collision mesh from the URDF. Links joined by a fixed joint (the last
@@ -1759,8 +1754,7 @@ opening between the fingers in metres.</p>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">return</span> <span class="n">q</span>
 </code></pre></div>
 <p>The actuators are position servos, so a joint trails its target by a little
-under load: gravity pulls on every link. The <code>--no-viewer</code> run prints the
-largest lag across the joints.</p>
+under load: gravity pulls on every link.</p>
 <h2 id="soft-fingers-on-the-hand">Soft fingers on the hand<a class="headerlink" href="#soft-fingers-on-the-hand" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_franka_pneunet.jpg" aria-label="A robot arm swinging while two soft fingers on its hand inflate and curl toward each other until their tips touch, then deflate">

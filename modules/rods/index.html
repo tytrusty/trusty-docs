@@ -1786,7 +1786,6 @@
 <p><code>trusty.rods</code> simulates thin elastic rods: cables, hair, wires and muscles. A
 rod is a polyline with a round cross-section. It stretches, bends and twists,
 and each edge carries a twist angle about its own axis.</p>
-<p><strong>Capability:</strong> <code>rods</code>.</p>
 <h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
 <p>A rod clamped at one end, drooping under gravity:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">world</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">World</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span>
@@ -1829,7 +1828,7 @@ its id, which every other <code>trusty.rods</code> function takes.</p>
 </table>
 <p><code>X</code> is also the rod's rest shape: the rod is unstressed when it has that shape.
 The clamp comes from <code>pin_vertices</code>; see <a href="#pins-and-twist">Pins and twist</a>.</p>
-<p>The headless run, <code>--no-viewer</code>, prints the tip sag: 0.111 m, where the
+<p>The tip sags 0.111 m, where the
 small-deflection beam formula gives 0.123 m. The difference is mostly the
 clamped first edge, which does not bend; it shrinks as you add points.</p>
 <div class="admonition note">

@@ -1691,12 +1691,8 @@ their ends, and the frame shears so that the tip curls toward the load. The
 finger wraps around what presses on it, where a solid finger would bend away.</p>
 <p>Here the finger stands with its base clamped, and a near-rigid sphere slides
 sideways into the front flank and back out.</p>
-<p><strong>Capabilities:</strong> <code>fem</code>, <code>affine</code>, <code>contact</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/finray_finger.py
 </code></pre></div>
-<p>The viewer starts paused: tick <em>play</em>, or press <em>step</em>. With <code>--no-viewer</code> the
-script prints, for each step, how far the sphere has travelled and how far the
-tip has moved toward it.</p>
 <h2 id="the-finger">The finger<a class="headerlink" href="#the-finger" title="Permanent link">&para;</a></h2>
 <p>The frame is a tetrahedral solid, extruded from a triangulated profile, of a
 soft TPU (Young's modulus 30 MPa). Its base is clamped with <code>pin_face</code>. The

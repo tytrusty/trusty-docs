@@ -1819,7 +1819,6 @@
 <h1 id="solids">Solids<a class="headerlink" href="#solids" title="Permanent link">&para;</a></h1>
 <p><code>trusty.fem</code> simulates deformable volumetric solids: a mesh, a material and a
 density are all a body needs.</p>
-<p><strong>Capability:</strong> <code>fem</code> (included in every build).</p>
 <h2 id="quick-example">Quick example<a class="headerlink" href="#quick-example" title="Permanent link">&para;</a></h2>
 <p>A soft beam clamped at one end, sagging under gravity:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">mesh</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">make_beam_hex_mesh</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="n">res</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>

@@ -1711,12 +1711,8 @@ to tip. Pulling the tendon shortens the fibres it runs beside, so the finger
 curls toward that side. Three scripts use the same few calls: a straight
 finger, a finger cut with notches so it folds sharply, and a four-tendon
 tentacle that steers.</p>
-<p><strong>Capabilities:</strong> <code>fem</code>, <code>boundary_conditions</code>; the notched finger also uses
-<code>contact</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/cable_finger.py
 </code></pre></div>
-<p>The viewer starts paused: tick <em>play</em>, or press <em>step</em>. With <code>--no-viewer</code> the
-script writes a screenshot of every step to <code>out/</code> instead.</p>
 <h2 id="a-tendon-through-a-finger">A tendon through a finger<a class="headerlink" href="#a-tendon-through-a-finger" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">cable</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">add_cable</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">finger</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                     <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Length</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"length"</span> <span class="k">else</span> <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Tension</span><span class="p">)</span>
@@ -1780,8 +1776,7 @@ the open.</p>
 <p>A winch at the root winds the tendon in and lets it out again on a cycle. As
 the notch walls meet they have to stop each other, so the finger turns on
 self-contact (<code>trusty.contact.set_self_contact(world, finger, True)</code>). Past
-that point the tension climbs steeply for little more curl, which the
-<code>--no-viewer</code> run prints step by step.</p>
+that point the tension climbs steeply for little more curl.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>examples/robotics/cable_notched_finger.py
 </code></pre></div>
 <h2 id="a-tentacle-with-four-tendons">A tentacle with four tendons<a class="headerlink" href="#a-tentacle-with-four-tendons" title="Permanent link">&para;</a></h2>
