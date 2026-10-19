@@ -1861,8 +1861,7 @@
 
 
 <h1 id="comparison-with-newton">Comparison with Newton<a class="headerlink" href="#comparison-with-newton" title="Permanent link">&para;</a></h1>
-<p>This page compares TrustySim with Newton, NVIDIA's open source physics library (which has nothing to do with the Newton iteration TrustySim uses to solve each step), on a handful of small scenes that each isolate one behavior. We are not showing performance here, and are looking instead at the effects that each simulator captures, so that any difference you see in the videos comes from how the method treats the physics and not from how quickly it runs.</p>
-<p>Newton's deformable solver is Vertex Block Descent, which we call Newton-VBD, and which runs a fixed number of iterations on every step, so each Newton-VBD video is labeled with its iteration count and with the number of vertices in its mesh, while TrustySim solves every step implicitly until it converges and so has no iteration count to choose. In every scene the Newton-VBD video comes first, on the left or above, and the TrustySim video comes second, on the right or below, and both simulate the same mesh with matched material parameters and boundary conditions (apart from the material model itself in the two scenes where that is the point), and the Newton results were produced with Newton at commit <code>b6b62318</code>.</p>
+<p>This page compares TrustySim with Newton, NVIDIA's open source physics library, on a handful of small scenes that each isolate one behavior. We are not looking at performance here and are showing instead the effects that each simulator captures, so in every scene the Newton-VBD video (Newton's Vertex Block Descent solver, which runs a fixed number of iterations per step) comes first, on the left or above, and the TrustySim video, which solves every step to convergence, comes second, on the right or below, with Newton at commit <code>b6b62318</code>.</p>
 <h2 id="resolution-and-iteration-count">Resolution and iteration count<a class="headerlink" href="#resolution-and-iteration-count" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_cantilever_newton.jpg" aria-label="Newton-VBD: a beam clamped at one end swings down under gravity on four meshes, and the finer the mesh the lower it swings">
@@ -1876,7 +1875,7 @@
   <source src="../../assets/video/newton_cantilever_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>We start with the simplest case we could think of, a 1 m beam clamped at one end and released under gravity, simulated on four meshes from 44 to 6,561 vertices with the material held fixed. A simulator that has converged should settle on the same motion as the mesh is refined, and that is what TrustySim does, with the tip reaching a lowest point between 0.33 and 0.41 m on every mesh. With a fixed 10 iterations Newton-VBD instead gets softer as we add vertices even though the material never changes, and the lowest point of the tip grows from 0.43 m on the coarsest mesh to a full 1.0 m, the entire length of the beam, on the finest, since each iteration only passes information between neighboring vertices and so a fixed number of iterations resolves less and less of the beam as the mesh is refined. Giving Newton-VBD more iterations brings the finer meshes back toward the TrustySim result, but the number it needs grows with the resolution, which makes the iteration count a setting that has to be tuned again whenever the mesh changes. We will see the same effect in most of the scenes below.</p>
+<p>We start with the simplest case, a beam clamped at one end and released under gravity, simulated at increasing resolution with the material held fixed. A converged solver should give the same motion at every resolution, which is what TrustySim does, whereas with a fixed number of iterations Newton-VBD behaves like a softer and softer material as we increase the resolution, since each iteration only passes information between neighboring vertices and so the same number of iterations resolves less and less of the beam. More iterations bring it back, but the number needed grows with the resolution, so it is a setting that has to be tuned again whenever the mesh changes, and we will see the same effect in many of the scenes below.</p>
 <h2 id="inversion-free-materials">Inversion-free materials<a class="headerlink" href="#inversion-free-materials" title="Permanent link">&para;</a></h2>
 <div class="pair">
 <video class="shot" muted loop playsinline controls preload="metadata"
@@ -1891,7 +1890,7 @@
 </video>
 </div>
 
-<p>Next we crush a soft cube to 55% of its height by moving its top face down, which takes the elements well into the large deformation regime. Newton-VBD uses a stable neo-Hookean energy, which stays finite when an element turns inside out and so allows elements to invert, while TrustySim also supports materials that cannot invert, and here we use the classical neo-Hookean model together with a line search that never lets an element's volume change sign. This may seem like a subtle difference, but it matters a great deal once deformations are large. As the cube is compressed Newton-VBD inverts 264 of its 20,480 elements, the upper part of the cube shears over the lower part and leaves a crease along its side, and the result is a deformation that a real block of rubber would not show, whereas in TrustySim no element ever inverts and the cube bulges outward at its sides as it is squeezed.</p>
+<p>Next we crush a soft cube. Newton-VBD currently supports only invertible material models such as stable neo-Hookean, which stay finite when an element turns inside out, while TrustySim also supports inversion-free models such as neo-Hookean, which is what we use here. This may seem like a subtle difference, but it has a big effect in large deformations, and under compression Newton-VBD gives a non-physical deformation, with the upper part of the cube shearing over the lower part, instead of the bulging at the sides that we see in TrustySim.</p>
 <h2 id="twisting">Twisting<a class="headerlink" href="#twisting" title="Permanent link">&para;</a></h2>
 <div class="pair">
 <video class="shot" muted loop playsinline controls preload="metadata"
@@ -1906,7 +1905,7 @@
 </video>
 </div>
 
-<p>Twisting the top face of the cube by a full turn, with self contact turned on in both simulators, shows the same difference, since Newton-VBD inverts 1,540 of the 20,480 elements and the cube pinches into a narrow neck below the top face, while in TrustySim no element inverts, the cube folds into a smooth spiral, and the IPC contact model keeps the surfaces that press against each other as it folds from intersecting.</p>
+<p>Twisting the cube shows the same difference, with Newton-VBD pinching the cube into a narrow neck, while in TrustySim all contact, including the self contact as the cube folds, is resolved with no penetration.</p>
 <h2 id="contact-stiffness">Contact stiffness<a class="headerlink" href="#contact-stiffness" title="Permanent link">&para;</a></h2>
 <div class="pair" style="--cols: 2fr 1fr">
 <video class="shot" muted loop playsinline controls preload="metadata"
@@ -1921,7 +1920,7 @@
 </video>
 </div>
 
-<p>Newton also shows a different compliance in its contact, which requires the user to tune the stiffness of the contact in order to avoid intersections. Here a 0.2 m cube is pressed down by 20% of its height onto a thin sheet, and the vertices that pass through the sheet are drawn in red. With a contact stiffness of 1e05 the cube sinks as much as 32 mm into the sheet, and with 1e06 it still sinks 3.7 mm, so the stiffness that is needed depends on the dynamics in the scene and on the materials, which makes it an unintuitive thing to tune. With our IPC-based contact model there is nothing to tune in order to guarantee a penetration-free result, and in TrustySim no vertex ever passes through the sheet. Newton-VBD can also truncate the motion of vertices at contacts with its Divide-and-Truncate option, but that relies on a bound on how far things can move between collision detections, which depends on the speeds in the scene and so is another parameter that the user has to choose, and the Newton-VBD videos on this page do not use it.</p>
+<p>Newton also has a compliant contact, which requires the user to tune the stiffness of the contact in order to avoid intersections, and here the vertices that pass through the sheet are drawn in red. The stiffness that is needed varies with the dynamics in the scene and with the materials, which makes it an unintuitive thing to tune, whereas with our IPC-based contact model there is nothing to tune in order to guarantee a penetration-free result. Newton-VBD has since added Divide-and-Truncate (DAT), which limits how far vertices can move at a contact, but it still needs a bound on how far things move between collision detections, which depends on the speeds in the scene and is another parameter the user has to set, and the videos here do not use it.</p>
 <h2 id="several-settings-at-once">Several settings at once<a class="headerlink" href="#several-settings-at-once" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_bridge_newton.jpg" aria-label="Newton-VBD: a heavy box on a stiff plank resting on two supports, on two meshes and at two contact stiffnesses, where the plank sags far too much, sinks through its supports or passes through them entirely">
@@ -1935,7 +1934,7 @@
   <source src="../../assets/video/newton_bridge_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>This scene is more of an integration test, in which a 20 kg box sits at the middle of a stiff 1 m plank that rests on two supports, so the plank should sag by only about 2.6 mm. It shows that you are rarely tuning a single parameter in isolation, since here we vary both the resolution of the mesh and the contact stiffness (2.5e03 in the top row and 3e06 in the bottom row), and what comes out depends on the two together and, as we saw with the beam, on the iteration count as well. In all four Newton-VBD runs the plank ends up inside or below its supports, by anything from 17 mm to more than 0.7 m, and the sag of the plank ranges from nothing at all to 136 mm, while TrustySim keeps the plank resting on its supports at both resolutions with a sag of 1.5 and 1.9 mm.</p>
+<p>This scene is more of an integration test, a stiff bridge made of a stiff plank on two supports with a heavy box at its middle, and it shows that you are rarely tuning one parameter in isolation. The contact stiffness, the resolution and the iteration count all interact in Newton-VBD, and changing any of them has a dramatic effect on the result, so that in none of these four runs does the plank stay on its supports, while TrustySim keeps it there at both resolutions.</p>
 <h2 id="how-far-a-push-travels">How far a push travels<a class="headerlink" href="#how-far-a-push-travels" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_bar_newton.jpg" aria-label="Newton-VBD: a bar pushed into a wall, where on the finer mesh the compression stays near the pushed end">
@@ -1949,7 +1948,7 @@
   <source src="../../assets/video/newton_bar_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>In this scene one end of a 1 m bar is pushed into a wall, compressing it by 2% over 50 ms, and the colors show how much each part of the bar has been compressed, with red for no compression and blue for 5%. This shows the resolution dependence of Newton-VBD directly, because for a fixed number of iterations (15 here) you can see how fast the deformation travels along the bar, and on the finer mesh the bar is compressed by 4.5% near the pushed end and hardly at all at the far end by the time the push is over. In TrustySim every step is solved to convergence, so the speed at which the deformation travels is not a factor, and the whole bar is compressed by 2% on both meshes.</p>
+<p>Here a bar is pushed into a wall, and the color shows how compressed each part of it is. With a fixed number of iterations Newton-VBD shows its resolution dependence directly, since you can see how quickly the deformation travels along the bar, which is slower on the finer mesh, whereas TrustySim solves every step to convergence so this speed is not a factor and the bar compresses evenly at both resolutions.</p>
 <h2 id="buckling">Buckling<a class="headerlink" href="#buckling" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_buckle_newton.jpg" aria-label="Newton-VBD: a slender column whose ends are pushed together stays nearly straight until the end of the push and then bows, by a different amount on each mesh">
@@ -1963,7 +1962,7 @@
   <source src="../../assets/video/newton_buckle_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>The same effect shows up when a slender column is buckled by pushing its two ends together by 50 mm over 0.25 s. Euler's theory says that the column starts to bow after 12.9 mm of shortening, and TrustySim follows it closely, with the bow starting at about 17 mm and ending with a mid-span deflection of 117 and 121 mm on the two meshes against 123 mm from the theory. Newton-VBD hardly deflects at all while the column is being pushed and only snaps into its bowed shape right at the end of the push, with 132 mm of deflection on the coarser mesh and 169 mm on the finer one, which is what we expect when a fixed number of iterations leaves the deformation unresolved within a time step, since the elastic response then lags behind the motion over several steps and the motion looks damped.</p>
+<p>The same effect shows up when buckling a slender column. Not resolving the deformation within a time step makes the elastic response lag behind the motion over several steps, so Newton-VBD hardly deflects until the end of the push and its motion looks damped, while TrustySim follows Euler's buckling theory closely and ends in almost the same shape on both meshes.</p>
 <h2 id="fabric-stretch">Fabric stretch<a class="headerlink" href="#fabric-stretch" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_cloth_newton.jpg" aria-label="Newton-VBD: a square cloth hanging from two corners, which on the finer mesh stretches into a long sagging sheet">
@@ -1977,7 +1976,7 @@
   <source src="../../assets/video/newton_cloth_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>For cloth we hang a 1 m square sheet from two of its corners under gravity, using the fabric of Newton's own cloth example with a stiffness of 100 N/m, and the colors show how much each triangle has stretched, up to 5%. The elasticity of the fabric depends on the resolution in Newton-VBD in the same way as the stiffness of the beam did, since the mean stretch is 0.7% on the 1,089 vertex mesh and grows to 10% on the 16,641 vertex mesh, where the sheet hangs far longer than the fabric should allow. In TrustySim the mean stretch is 0.5% on both meshes.</p>
+<p>The cloth lift is much the same, with an elasticity that depends on the resolution, so that for a fixed fabric stiffness the finer cloth stretches far more in Newton-VBD, while TrustySim stretches by the same small amount at both resolutions. TrustySim can also cap the stretch with <a href="../../modules/shells/#strain-limiting">strain limiting</a>, which Newton-VBD does not support, and we leave it off here so that the stretch comes from the fabric alone.</p>
 <h2 id="a-cable-in-a-duct">A cable in a duct<a class="headerlink" href="#a-cable-in-a-duct" title="Permanent link">&para;</a></h2>
 <video class="shot wide" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/newton_cable_newton.jpg" aria-label="Newton-VBD: a cable pushed along a duct, which stays straight on the coarse mesh and buckles into waves and a loop on the fine mesh">
@@ -1991,7 +1990,7 @@
   <source src="../../assets/video/newton_cable_trustysim.mp4" type="video/mp4">
 </video>
 
-<p>Our last scene is a cable that is pushed along a frictional duct, and we show it on the coarsest and the finest mesh, with Newton-VBD above and TrustySim below. The cable is 1 m long and 4 mm across, it is pushed at 0.2 m/s along a duct 12 mm wide and 12 mm high, and the push is gentle enough that the far end should simply follow the pushed end. This is another case that should not depend on the resolution, and in TrustySim it does not, with the far end following the push on both meshes, whereas in Newton-VBD the cable with 33 vertices follows the push but the cable with 257 vertices buckles into waves and a loop inside the duct and its far end never moves, so we get an unwanted buckling in a very benign example.</p>
+<p>Our last scene is a cable pushed along a frictional duct, shown at the lowest and the highest resolution with Newton-VBD above and TrustySim below. This should not depend on the resolution either, and in TrustySim it does not, while in Newton-VBD the finer cable buckles inside the duct, which is an unwanted result in a very benign example.</p>
 
 
 
