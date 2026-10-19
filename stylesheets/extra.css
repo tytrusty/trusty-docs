@@ -50,3 +50,20 @@
   font-size: 0.8rem;
   margin-top: 0;
 }
+
+/* A pair of videos side by side (Newton-VBD left, TrustySim right); --cols sets
+   the column ratio, one column on a narrow screen. */
+.md-typeset .pair {
+  display: grid;
+  grid-template-columns: var(--cols, 1fr 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  margin: 0.4rem 0 1.2rem;
+}
+.md-typeset .pair video.shot {
+  width: 100%;
+  margin: 0;
+}
+@media (max-width: 44.9375em) {
+  .md-typeset .pair { grid-template-columns: 1fr; }
+}
