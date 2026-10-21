@@ -111,9 +111,6 @@ def rod_loop(letters, z):
     S = np.vstack([S, S[:1]])
     d = np.r_[0.0, np.cumsum(np.linalg.norm(np.diff(S, axis=0), axis=1))]
     n = int(round(d[-1] / ROD_EDGE))
-    # A rod in a world with MPM particles currently needs an edge count (n - 1)
-    # that is a multiple of 3; round n to the nearest such count.
-    n = 3 * round((n - 1) / 3) + 1
     s = np.linspace(0.0, d[-1], n + 1)[:-1]
     return np.stack([np.interp(s, d, S[:, 0]), np.interp(s, d, S[:, 1]),
                      np.full(n, z)], axis=1)

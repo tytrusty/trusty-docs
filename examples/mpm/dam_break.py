@@ -15,6 +15,7 @@ Usage:
     python examples/mpm/dam_break.py --material stable_neohookean  # an elastic block
     python examples/mpm/dam_break.py --sample uniform    # particles on a lattice
     python examples/mpm/dam_break.py --spacing 0.025 --cell-size 0.05  # finer
+    python examples/mpm/dam_break.py --spacing 0.01 --cell-size 0.02    # ~37k particles
     python examples/mpm/dam_break.py --backend accelerate  # faster on macOS
     python examples/mpm/dam_break.py --backend cuda      # on the GPU
 """
