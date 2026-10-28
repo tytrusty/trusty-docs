@@ -24,7 +24,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.71">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -35,7 +35,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e442bf79.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
@@ -117,9 +117,10 @@
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -171,9 +172,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -337,6 +339,8 @@
       
         
           
+        
+      
         
       
         
@@ -664,6 +668,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -804,6 +814,87 @@
     
   
   Franka arm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/franka_reach_pick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka reach and pick
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/franka_assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka insertion and snapping
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/franka_cloth_pour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka cloth and water
 
     
   </span>
@@ -1371,6 +1462,8 @@
       
         
       
+        
+      
     
     
     
@@ -1628,6 +1721,33 @@
     
   
   trusty.contact
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  trusty.control
 
     
   </span>
@@ -2341,7 +2461,7 @@ its right face is held by a softer one whose targets will move:</p>
 </tr>
 <tr>
 <td><code>stiffness</code></td>
-<td>spring stiffness in Pa. It is scaled by the volume each node carries, so the same value behaves the same at any mesh resolution.</td>
+<td>spring stiffness per volume (Pa/m²). It is scaled by the volume each node carries, so the pin softens relative to the elements as the mesh is refined: it is a compliant support, not a clamp.</td>
 </tr>
 </tbody>
 </table>
@@ -2848,7 +2968,7 @@ stitched to the tip of a hinged <a href="../affine/">affine</a> bar:</p>
 <p>The orange points are the stitched vertices. Released level, the bar swings
 down and the beam whips behind it.</p>
 <p>The follower is a solid, a <a href="../shells/">shell</a> or a <a href="../rods/">rod</a>. The anchor
-is an <a href="../embedded/">embedded solid</a> or an affine body. The follower and its
+is a solid, a shell, an <a href="../embedded/">embedded solid</a> or an affine body. The follower and its
 anchor don't collide with each other. There are two more examples:
 <code>fem_embedded_flag.py</code> stitches a solid to an embedded cube (the
 <a href="#clamping-a-face">clamp</a> image), and <code>shell_affine_flag.py</code> stitches a shell
@@ -3038,9 +3158,10 @@ to an affine bar.</p>
 </details>
 <h3 id="attaching">Attaching<a class="headerlink" href="#attaching" title="Permanent link">&para;</a></h3>
 <p><code>attach(world, follower, follower_verts, anchor, stiffness=1e6)</code> ties each
-vertex to the anchor with a spring. It is how a <a href="../subspace/">reduced solid</a>
-is joined to other bodies, since a reduced solid can't be stitched. This is
-the same pendulum, with a reduced beam:</p>
+vertex to the anchor with a spring. It joins any follower to the anchor
+without constraining either body's degrees of freedom, and it is how a
+<a href="../subspace/">reduced solid</a> is joined to other bodies, since a reduced solid
+can't be stitched. This is the same pendulum, with a reduced beam:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Root = the first slice of beam nodes, which overlaps the bar's tip.</span>
 <a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">BAR_LEN</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">)</span>
 <a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">beam</span><span class="p">,</span> <span class="n">root</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">bar</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">stiffness</span><span class="p">)</span>
@@ -3070,8 +3191,8 @@ attached vertices trail the bar slightly. Over the swing, the largest gap is:</p
 </tr>
 </tbody>
 </table>
-<p>The follower is a reduced solid. The anchor is an embedded solid or an affine
-body.</p>
+<p>The follower is a solid, a shell, a rod or a reduced solid (not an embedded solid). The anchor is a
+solid, a shell, an embedded solid, an affine body or a reduced solid.</p>
 <details class="example">
 <summary>Full script: <code>python examples/boundary_conditions/attach_pendulum.py</code></summary>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="sd">"""Soft reduced beam attached to a swinging affine bar by a spring.</span>
@@ -3249,12 +3370,12 @@ body.</p>
 <tr>
 <td>Follower</td>
 <td>solid, shell or rod</td>
-<td>reduced solid</td>
+<td>solid, shell, rod or reduced solid</td>
 </tr>
 <tr>
 <td>Anchor</td>
-<td>embedded solid or affine body</td>
-<td>embedded solid or affine body</td>
+<td>solid, shell, embedded solid or affine body</td>
+<td>solid, shell, embedded solid, affine body or reduced solid</td>
 </tr>
 <tr>
 <td>Tuning</td>
@@ -3263,8 +3384,8 @@ body.</p>
 </tr>
 </tbody>
 </table>
-<p>The follower's type decides: stitch solids, shells and rods, and attach
-reduced solids.</p>
+<p>Stitch when the bond should be exact. Attach when it should be a spring, or
+when the follower is a reduced solid, which a stitch cannot hold.</p>
 <h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
 <p>Every function and argument: <a href="../../reference/boundary_conditions/">trusty.boundary_conditions reference</a>.
 <code>pin_face</code> is in the <a href="../../reference/fem/">trusty.fem reference</a>.</p>
@@ -3333,7 +3454,7 @@ reduced solids.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a2388154.min.js"></script>
+      <script src="../../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
         <script src="../../javascripts/videos.js"></script>
       

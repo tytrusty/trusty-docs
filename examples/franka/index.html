@@ -17,14 +17,14 @@
         <link rel="prev" href="../finray/">
       
       
-        <link rel="next" href="../../modules/solids/">
+        <link rel="next" href="../franka_reach_pick/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.71">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -35,7 +35,7 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e442bf79.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
@@ -117,9 +117,10 @@
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -171,9 +172,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -337,6 +339,8 @@
       
         
           
+        
+      
         
       
         
@@ -671,6 +675,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -901,6 +911,87 @@
   
 </nav>
       
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../franka_reach_pick/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka reach and pick
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../franka_assembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka insertion and snapping
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../franka_cloth_pour/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Franka cloth and water
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1276,6 +1367,8 @@
       
         
       
+        
+      
     
     
     
@@ -1552,6 +1645,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  trusty.control
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/boundary_conditions/" class="md-nav__link">
         
   
@@ -1710,7 +1830,10 @@
 the shoulder turns side to side, the elbow bends and the wrist rolls, while the
 two fingers of the hand open and close. A second script replaces the rigid
 fingers with a pair of soft <a href="../pneunet/">PneuNet fingers</a> that inflate as the
-arm moves.</p>
+arm moves. The arm can also be told where its <em>hand</em> should go and left to
+work out the joints, which lets it <a href="../franka_reach_pick/">pick and stack</a>,
+<a href="../franka_assembly/">insert and snap</a> and handle <a href="../franka_cloth_pour/">cloth and
+water</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/franka_arm.py
 </code></pre></div>
 <h2 id="the-arm">The arm<a class="headerlink" href="#the-arm" title="Permanent link">&para;</a></h2>
@@ -1727,13 +1850,21 @@ drives it toward a target:</p>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_revolute_joint</span><span class="p">(</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">arm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">ARM_GAINS</span><span class="p">[</span><span class="n">ARM_JOINTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]))</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_prismatic_joint</span><span class="p">(</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pose</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"child"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">grip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">FINGER_GAIN</span><span class="p">))</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="o">-</span><span class="n">ANGLE_RANGE</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">ANGLE_RANGE</span><span class="p">),</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">margin</span><span class="o">=</span><span class="n">ARM_LIMIT_MARGIN</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">arm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">ARM_GAINS</span><span class="p">[</span><span class="n">ARM_JOINTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]))</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_prismatic_joint</span><span class="p">(</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pose</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"child"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="mf">5e-4</span><span class="p">)</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">upper</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">finger_margin</span><span class="p">,</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">grip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">FINGER_GAIN</span><span class="p">))</span>
 </code></pre></div>
 <p>The seven arm joints are revolute, each with an actuator whose gain goes down
 from shoulder to wrist, and each finger slides on a prismatic joint.
@@ -1852,7 +1983,7 @@ contact with <code>trusty.contact.exclude_body_from_contact</code>.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["navigation.tabs","navigation.sections","navigation.top","navigation.indexes","content.code.copy","content.tabs.link","search.highlight"],"redirect":null,"search":"../../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.a2388154.min.js"></script>
+      <script src="../../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
         <script src="../../javascripts/videos.js"></script>
       

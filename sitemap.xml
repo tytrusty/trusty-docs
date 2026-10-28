@@ -16,6 +16,15 @@
         <loc>https://tytrusty.github.io/trusty-docs/examples/franka/</loc>
       </url>
       <url>
+        <loc>https://tytrusty.github.io/trusty-docs/examples/franka_assembly/</loc>
+      </url>
+      <url>
+        <loc>https://tytrusty.github.io/trusty-docs/examples/franka_cloth_pour/</loc>
+      </url>
+      <url>
+        <loc>https://tytrusty.github.io/trusty-docs/examples/franka_reach_pick/</loc>
+      </url>
+      <url>
         <loc>https://tytrusty.github.io/trusty-docs/examples/pneunet/</loc>
       </url>
       <url>
@@ -65,6 +74,9 @@
       </url>
       <url>
         <loc>https://tytrusty.github.io/trusty-docs/reference/contact/</loc>
+      </url>
+      <url>
+        <loc>https://tytrusty.github.io/trusty-docs/reference/control/</loc>
       </url>
       <url>
         <loc>https://tytrusty.github.io/trusty-docs/reference/embedded/</loc>
