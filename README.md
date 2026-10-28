@@ -6,14 +6,14 @@ A physics simulation library for deformable solids, shells, rods, articulated
 affine bodies, reduced-order (subspace) bodies and MPM, with IPC-style frictional
 contact between them. You drive it from Python and step it with numpy arrays.
 
-> **Pre-release test build (0.1.0a8).** The API will change between releases.
+> **Pre-release test build (0.1.0a9).** The API will change between releases.
 > macOS on Apple Silicon and Linux x86_64 are supported for now.
 
 ## Install
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install trusty-sim==0.1.0a8
+pip install trusty-sim==0.1.0a9
 ```
 
 Optional extras:
@@ -34,7 +34,7 @@ from NVIDIA's wheels on PyPI, which pip installs for you:
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install trusty-sim-cuda12==0.1.0a8
+pip install trusty-sim-cuda12==0.1.0a9
 ```
 
 It contains GPU code for compute capabilities 7.0, 7.5, 8.0, 8.6, 8.9, 9.0,
@@ -144,7 +144,7 @@ it. As BibTeX:
 @software{trusty_sim,
   author  = {Trusty, Ty},
   title   = {trusty-sim},
-  version = {0.1.0a8},
+  version = {0.1.0a9},
   year    = {2026},
   url     = {https://tytrusty.github.io/trusty-docs/}
 }
