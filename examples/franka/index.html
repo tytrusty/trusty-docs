@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -875,32 +873,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-arm" class="md-nav__link">
+  <a href="#soft-fingers" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The arm
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#driving-it" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Driving it
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#soft-fingers-on-the-hand" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Soft fingers on the hand
+        Soft fingers
       </span>
     </span>
   </a>
@@ -931,33 +907,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1767,32 +1716,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-arm" class="md-nav__link">
+  <a href="#soft-fingers" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The arm
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#driving-it" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Driving it
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#soft-fingers-on-the-hand" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Soft fingers on the hand
+        Soft fingers
       </span>
     </span>
   </a>
@@ -1826,98 +1753,53 @@
   <source src="../../assets/video/robotics_franka_arm.mp4" type="video/mp4">
 </video>
 
-<p>A Franka FR3 arm, built from its URDF, swings through a smooth periodic motion:
-the shoulder turns side to side, the elbow bends and the wrist rolls, while the
-two fingers of the hand open and close. A second script replaces the rigid
-fingers with a pair of soft <a href="../pneunet/">PneuNet fingers</a> that inflate as the
-arm moves. The arm can also be told where its <em>hand</em> should go and left to
-work out the joints, which lets it <a href="../franka_reach_pick/">pick and stack</a>,
-<a href="../franka_assembly/">insert and snap</a> and handle <a href="../franka_cloth_pour/">cloth and
-water</a>.</p>
+<p>Articulated robots are built from <a href="../../modules/affine/">affine bodies</a> joined
+by revolute and prismatic joints, with joint limits and position actuators.
+Here a Franka FR3, loaded from its URDF, follows scripted joint targets.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/franka_arm.py
 </code></pre></div>
-<h2 id="the-arm">The arm<a class="headerlink" href="#the-arm" title="Permanent link">&para;</a></h2>
-<p>Every link is a near-rigid <a href="../../modules/affine/">affine body</a> whose shape is
-the link's collision mesh from the URDF. Links joined by a fixed joint (the last
-arm link and the hand) become one body. The base is bolted to the world with a
-fixed joint, and every other joint is a hinge or a slider with an actuator that
-drives it toward a target:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">T</span> <span class="o">=</span> <span class="n">pose</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"parent"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)]</span> <span class="o">@</span> <span class="n">_transform</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">axis</span> <span class="o">=</span> <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"axis"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"xyz"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()])</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">child</span> <span class="o">=</span> <span class="n">bodies</span><span class="p">[</span><span class="n">owner</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"child"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)]]</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">parent</span> <span class="o">=</span> <span class="n">bodies</span><span class="p">[</span><span class="n">owner</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"parent"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)]]</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ARM_JOINTS</span><span class="p">:</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_revolute_joint</span><span class="p">(</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="o">-</span><span class="n">ANGLE_RANGE</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">ANGLE_RANGE</span><span class="p">),</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">margin</span><span class="o">=</span><span class="n">ARM_LIMIT_MARGIN</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">arm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">ARM_GAINS</span><span class="p">[</span><span class="n">ARM_JOINTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]))</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_prismatic_joint</span><span class="p">(</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pose</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"child"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
-<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="mf">5e-4</span><span class="p">)</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">upper</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">finger_margin</span><span class="p">,</span>
-<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>        <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
-<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">grip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">FINGER_GAIN</span><span class="p">))</span>
+<p>Each URDF joint becomes a joint, a limit and an actuator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ARM_JOINTS</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_revolute_joint</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">axis</span><span class="p">),</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="o">-</span><span class="n">ANGLE_RANGE</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">ANGLE_RANGE</span><span class="p">),</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="n">margin</span><span class="o">=</span><span class="n">ARM_LIMIT_MARGIN</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">arm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">ARM_GAINS</span><span class="p">[</span><span class="n">ARM_JOINTS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]))</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">joint</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_prismatic_joint</span><span class="p">(</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">child</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pose</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"child"</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"link"</span><span class="p">)][:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">axis</span><span class="p">),</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">body_j</span><span class="o">=</span><span class="n">parent</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">JOINT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">limits</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_joint_limit</span><span class="p">(</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="mf">5e-4</span><span class="p">)</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">upper</span> <span class="o">-</span> <span class="n">finger0</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="n">finger_margin</span><span class="p">,</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        <span class="n">stiffness</span><span class="o">=</span><span class="n">LIMIT_STIFFNESS</span><span class="p">)</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">grip</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">joint</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">FINGER_GAIN</span><span class="p">))</span>
 </code></pre></div>
-<p>The seven arm joints are revolute, each with an actuator whose gain goes down
-from shoulder to wrist, and each finger slides on a prismatic joint.
-<code>trusty.affine</code> has no URDF loader, so <code>examples/robotics/franka.py</code>, shared by
-both Franka examples, builds the bodies and joints from the URDF itself, as the
-<a href="../../modules/affine/#robots-from-urdf">articulation example</a> does for a
-smaller robot. <code>build_franka(world)</code> returns an object that sets joint targets:
-<code>set_arm</code> takes seven joint angles in radians and <code>set_gripper</code> takes the
-opening between the fingers in metres.</p>
-<h2 id="driving-it">Driving it<a class="headerlink" href="#driving-it" title="Permanent link">&para;</a></h2>
-<p>Each step sets the targets, then steps the world:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">drive</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">franka</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="n">PERIOD</span><span class="p">)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="n">PERIOD</span><span class="p">)</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">q</span> <span class="o">=</span> <span class="n">Q_READY</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">c</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">s</span><span class="p">])</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">franka</span><span class="o">.</span><span class="n">set_arm</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">franka</span><span class="o">.</span><span class="n">set_gripper</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="mf">0.04</span> <span class="o">+</span> <span class="mf">0.035</span> <span class="o">*</span> <span class="n">c</span><span class="p">)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="k">return</span> <span class="n">q</span>
-</code></pre></div>
-<p>The actuators are position servos, so a joint trails its target by a little
-under load: gravity pulls on every link.</p>
-<h2 id="soft-fingers-on-the-hand">Soft fingers on the hand<a class="headerlink" href="#soft-fingers-on-the-hand" title="Permanent link">&para;</a></h2>
+<p>Each step sets the actuator targets with <code>trusty.affine.set_actuator_target</code>.
+The actuators are springs, so the joints sag slightly under gravity.</p>
+<h2 id="soft-fingers">Soft fingers<a class="headerlink" href="#soft-fingers" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_franka_pneunet.jpg" aria-label="A robot arm swinging while two soft fingers on its hand inflate and curl toward each other until their tips touch, then deflate">
   <source src="../../assets/video/robotics_franka_pneunet.webm" type="video/webm">
   <source src="../../assets/video/robotics_franka_pneunet.mp4" type="video/mp4">
 </video>
 
-<p>The same arm, with the hand's rigid fingers left out and two soft fingers in
-their place. Each finger's root is bonded to the hand with <code>stitch</code>, so it
-rides along with the arm. The two face each other with their strain-limiting
-bases inward, so when both inflate they curl toward each other until the tips
-press together, and open again as they deflate.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">for</span> <span class="n">side</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">):</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="c1"># Finger length along the hand's axis, its base facing the other finger.</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">local</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">side</span> <span class="o">*</span> <span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">V</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                      <span class="n">side</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">OPENING</span> <span class="o">+</span> <span class="n">V</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                      <span class="n">MOUNT</span> <span class="o">+</span> <span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">body</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">add_hex_solid</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trusty</span><span class="o">.</span><span class="n">make_hex_mesh</span><span class="p">(</span><span class="n">local</span> <span class="o">@</span> <span class="n">R</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">origin</span><span class="p">,</span> <span class="n">hexes</span><span class="p">),</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>                                    <span class="n">material</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1080.0</span><span class="p">)</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">bc</span><span class="o">.</span><span class="n">stitch</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">franka</span><span class="o">.</span><span class="n">hand</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="n">fingers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="n">cavities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bc</span><span class="o">.</span><span class="n">add_pressure_cavity</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">cavity_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)))</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">set_self_contact</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<p>Soft solids attach to rigid links with <code>stitch</code>. Here two
+<a href="../pneunet/">PneuNet fingers</a> are stitched to the hand and inflated by
+pressure cavities while the arm moves.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">body</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">add_hex_solid</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trusty</span><span class="o">.</span><span class="n">make_hex_mesh</span><span class="p">(</span><span class="n">local</span> <span class="o">@</span> <span class="n">R</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">origin</span><span class="p">,</span> <span class="n">hexes</span><span class="p">),</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                                <span class="n">material</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1080.0</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">root</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">bc</span><span class="o">.</span><span class="n">stitch</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">franka</span><span class="o">.</span><span class="n">hand</span><span class="p">)</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">fingers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">cavities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bc</span><span class="o">.</span><span class="n">add_pressure_cavity</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">cavity_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)))</span>
 </code></pre></div>
-<p>Each finger is a copy of the <a href="../pneunet/#pressure-in-a-cavity">PneuNet finger</a>
-with its own pressure cavity. Contact is on, so the two fingers stop each
-other instead of passing through, and the arm's own links are left out of
-contact with <code>trusty.contact.exclude_body_from_contact</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>examples/robotics/franka_pneunet.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>examples/robotics/franka_pneunet.py
 </code></pre></div>
-<p><code>--pressure</code> sets the peak pressure in the fingers, in Pa.</p>
 
 
 

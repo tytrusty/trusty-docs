@@ -14,7 +14,7 @@
       
       
       
-        <link rel="prev" href="../franka_assembly/">
+        <link rel="prev" href="../franka_reach_pick/">
       
       
         <link rel="next" href="../../modules/solids/">
@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -851,33 +849,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1804,45 +1775,19 @@
   <source src="../../assets/video/robotics_franka_pour.mp4" type="video/mp4">
 </video>
 
-<p>Two tasks with things that do not hold their shape: a towel folded by a corner
-and a cup of water poured into another. Both are steered like the other
-<a href="../franka_reach_pick/#steering-by-sensitivity">Franka examples</a>; what changes
-is what the hand is carrying, and the contact settings that go with it.</p>
+<p>Rigid bodies, <a href="../../modules/mpm/">MPM</a> fluids and <a href="../../modules/shells/">shells</a>
+are coupled through contact in one solve. The Franka, steered as in
+<a href="../franka_reach_pick/">reach and pick</a>, pours water from one cup into another
+and folds a towel.</p>
 <h2 id="pouring-water">Pouring water<a class="headerlink" href="#pouring-water" title="Permanent link">&para;</a></h2>
-<p>The source cup is a thin-walled rigid body holding about 90 g of water, which
-is simulated as <a href="../../modules/mpm/">MPM</a> particles. The target is a fixed cup
-beside it. The hand grips the cup from the side, lifts it, carries it over the
-target and rolls its wrist to tip the water out in a thin stream. It then
-rights the cup and sets it down:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">R_side</span> <span class="o">=</span> <span class="n">franka</span><span class="o">.</span><span class="n">tcp</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">roll</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">deg</span><span class="p">:</span> <span class="n">Rotation</span><span class="o">.</span><span class="n">from_rotvec</span><span class="p">([</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">deg</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span> <span class="o">@</span> <span class="n">R_side</span>  <span class="c1"># noqa: E731</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">grasp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">SOURCE_XY</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">SOURCE_XY</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TABLE_Z</span> <span class="o">+</span> <span class="n">GRASP_Z</span><span class="p">])</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">lifted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">grasp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grasp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">TABLE_Z</span> <span class="o">+</span> <span class="n">CARRY_Z</span><span class="p">])</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">over_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">TARGET_XY</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">TARGET_XY</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">POUR_LIP</span><span class="p">,</span> <span class="n">TABLE_Z</span> <span class="o">+</span> <span class="n">CARRY_Z</span><span class="p">])</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">franka</span><span class="o">.</span><span class="n">tcp</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">franka</span><span class="o">.</span><span class="n">finger0</span><span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">([</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle"</span><span class="p">),</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">grasp</span><span class="p">),</span> <span class="n">fr</span><span class="o">.</span><span class="n">GRIPPER_OPEN</span><span class="p">,</span> <span class="s2">"reach"</span><span class="p">),</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="n">fr</span><span class="o">.</span><span class="n">GRASP_CLOSE_TIME</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">grip_width</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"close"</span><span class="p">),</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="n">fr</span><span class="o">.</span><span class="n">GRASP_SETTLE_TIME</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle grip"</span><span class="p">),</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">lifted</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lift"</span><span class="p">),</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">over_target</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"carry"</span><span class="p">),</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">roll</span><span class="p">(</span><span class="n">TIP_DEG</span><span class="p">),</span> <span class="n">over_target</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"tip"</span><span class="p">),</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">roll</span><span class="p">(</span><span class="n">POUR_DEG</span><span class="p">),</span> <span class="n">over_target</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pour"</span><span class="p">),</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"drain"</span><span class="p">),</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">over_target</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"right"</span><span class="p">),</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">lifted</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"return"</span><span class="p">),</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_side</span><span class="p">,</span> <span class="n">grasp</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">),</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">fr</span><span class="o">.</span><span class="n">GRIPPER_OPEN</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"release"</span><span class="p">),</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">franka</span><span class="o">.</span><span class="n">tcp</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"retreat"</span><span class="p">)])</span>
+<p>The water is MPM particles inside a rigid cup held by the gripper:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">fluid</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">MpmMaterial</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">trusty</span><span class="o">.</span><span class="n">MaterialModel</span><span class="o">.</span><span class="n">QuadraticVolume</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                               <span class="n">lam</span><span class="o">=</span><span class="n">WATER_BULK</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">WATER_DENSITY</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">trusty</span><span class="o">.</span><span class="n">mpm</span><span class="o">.</span><span class="n">add_mpm_particles</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">water0</span><span class="p">,</span> <span class="n">spacing</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="n">fluid</span><span class="p">,</span> <span class="n">cell_size</span><span class="o">=</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">spacing</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                             <span class="n">cdpi_domain_scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python<span class="w"> </span>examples/robotics/pour.py
 </code></pre></div>
-<p>The wrist roll is a rotation of the hand about a fixed point, so it is written
-as hand poses that differ only in rotation. Arm, cup, water and table share one
-simulation. Headless, the run prints where the water ended up and how far the
-cup slipped in the grip: with the default settings all of it lands in the
-target cup and the cup slips under a millimetre. <code>--spacing</code> sets the particle
-spacing in metres; a finer spacing means more particles and a slower run.</p>
 <h2 id="folding-a-towel">Folding a towel<a class="headerlink" href="#folding-a-towel" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_franka_cloth_fold.jpg" aria-label="A robot arm pinches the corner of a towel overhanging a table, swings it in an arc over the diagonal and lays it on the opposite corner">
@@ -1850,42 +1795,14 @@ spacing in metres; a finer spacing means more particles and a slower run.</p>
   <source src="../../assets/video/robotics_franka_cloth_fold.mp4" type="video/mp4">
 </video>
 
-<p>A square <a href="../../modules/shells/">shell</a> towel lies on a table with one corner
-hanging a few centimetres over the edge. The hand slides its fingers over that
-corner, pinches the single layer, swings it in an arc over the diagonal fold
-line and lets go onto the opposite corner:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">fold_waypoints</span><span class="p">(</span><span class="n">tip_A</span><span class="p">,</span> <span class="n">tip_C</span><span class="p">):</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="sd">"""Pinch corner A, arc it over the fold line, release over C, retreat."""</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">lift</span> <span class="o">=</span> <span class="n">tip_A</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">]</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">wps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle"</span><span class="p">),</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">tip_A</span> <span class="o">+</span> <span class="n">out</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">GRIP_OPEN</span><span class="p">,</span> <span class="s2">"approach"</span><span class="p">),</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">tip_A</span> <span class="o">+</span> <span class="n">out</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"descend"</span><span class="p">),</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">tip_A</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"insert"</span><span class="p">),</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">GRIP_CLOSE</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"pinch"</span><span class="p">),</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle_grip"</span><span class="p">),</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>           <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">lift</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lift"</span><span class="p">)]</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">mid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">CENTER</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">CENTER</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">tip_A</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">phi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">7</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>        <span class="n">tip</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">ARC_RADIUS</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">),</span> <span class="mf">0.02</span> <span class="o">+</span> <span class="n">ARC_RADIUS</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)]</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>        <span class="n">wps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">tip</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">RELEASE_TILT</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"arc</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    <span class="n">above</span> <span class="o">=</span> <span class="n">tip_C</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">RELEASE_DZ</span><span class="p">]</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">R</span> <span class="o">=</span> <span class="n">hand_R</span><span class="p">(</span><span class="n">RELEASE_TILT</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>    <span class="k">return</span> <span class="n">wps</span> <span class="o">+</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="n">RELEASE_TILT</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lay"</span><span class="p">),</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>                  <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle_lay"</span><span class="p">),</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                  <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">RELEASE_OPEN</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"release"</span><span class="p">),</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                  <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">tcp_for_tip</span><span class="p">(</span><span class="n">above</span><span class="p">,</span> <span class="n">RELEASE_TILT</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>                                       <span class="o">-</span> <span class="mf">0.10</span> <span class="o">*</span> <span class="n">R</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"retreat"</span><span class="p">)]</span>
+<p>The towel is a shell, pinched by the finger pads and folded onto itself:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">cfg</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">ShellConfig</span><span class="p">()</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">cfg</span><span class="o">.</span><span class="n">youngs_modulus</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">poisson_ratio</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">youngs</span><span class="p">,</span> <span class="mf">0.3</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">cfg</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="n">cfg</span><span class="o">.</span><span class="n">density</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="mf">400.0</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">cfg</span><span class="o">.</span><span class="n">bending_model</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">shells</span><span class="o">.</span><span class="n">BendingModel</span><span class="o">.</span><span class="n">QuadraticLagrange</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>examples/robotics/cloth_fold.py
 </code></pre></div>
-<p>How close the pads can pinch the cloth is set by the contact distance
-<code>--dhat</code>, since the contact barrier, not the cloth, sets the gap, so a larger one keeps
-the pads further apart. The fingers' own limit
-barrier is thinned to a tenth of the cloth thickness for the same reason.
-Headless, the run prints how far the corner landed from its target (about
-16 mm), how much of the flap lies over the fold line, and how far the corner
-slipped in the pinch. <code>--youngs</code> and <code>--thickness</code> change the towel.</p>
 
 
 

@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -821,17 +819,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pressure-in-a-cavity" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Pressure in a cavity
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#a-gripper-on-a-turning-hub" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -931,33 +918,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1767,17 +1727,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pressure-in-a-cavity" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Pressure in a cavity
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#a-gripper-on-a-turning-hub" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1826,40 +1775,18 @@
   <source src="../../assets/video/robotics_pneunet_finger.mp4" type="video/mp4">
 </video>
 
-<p>A pneumatic network (PneuNet) finger is a silicone body with a row of
-air-filled chambers on one side and a thicker, stiffer base on the other.
-Raising the pressure makes the chambers balloon against each other, and since
-the base resists stretching, the finger curls toward it. Three scripts build
-on this finger: the finger alone, a two-finger gripper on a turning hub, and a
-reduced model of the finger that runs much faster.</p>
+<p>Pneumatic actuation is supported through
+<code>boundary_conditions.add_pressure_cavity</code>, a follower pressure load on a
+closed surface inside a solid. Here it inflates a silicone PneuNet finger, a
+two-finger gripper and a reduced finger.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/pneunet_finger.py
 </code></pre></div>
-<p>The pressure ramps from zero to <code>--pressure</code> (40 kPa by default) over the run.</p>
-<h2 id="pressure-in-a-cavity">Pressure in a cavity<a class="headerlink" href="#pressure-in-a-cavity" title="Permanent link">&para;</a></h2>
-<p>The finger is a voxel hexahedral mesh with the chambers cut out of it, and a
-channel through the base joins every chamber into one closed void. That void is
-the cavity the pressure acts on. The cavity is found as a connected piece of
-the body's boundary surface: <code>trusty.triangle_components</code> numbers the pieces
-(the outer skin, then each internal void), and the script keeps every piece
-but the skin.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">cavity</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">add_pressure_cavity</span><span class="p">(</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">cavity_faces</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">))</span>
 </code></pre></div>
-<p><code>add_pressure_cavity(world, body, faces)</code> applies a gauge pressure to those
-faces. The pressure is a follower load: it keeps pushing along the normal of
-the chamber walls as they move, and it is the derivative of a potential,
-−<em>p</em> <em>V</em>, where <em>V</em> is the volume the faces enclose. The faces must form a
-closed surface, which an internal void of a solid does. Each step sets the
-pressure the finger should feel:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">trusty</span><span class="o">.</span><span class="n">boundary_conditions</span><span class="o">.</span><span class="n">set_cavity_pressure</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cavity</span><span class="p">,</span> <span class="n">pressure_at</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">p_max</span><span class="p">))</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">world</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 </code></pre></div>
-<p><code>cavity_volume</code> reads back the volume the chambers enclose. At 40 kPa the tip
-of the finger drops about 100 mm.</p>
-<p>The finger uses <code>time_stepping="quasi_static"</code>, which moves forward a step and
-then drops every velocity, so the finger heads for rest without swinging. A
-<code>static</code> solve of this finger fails by about 1 kPa. See
-<a href="../../modules/solids/#the-world">Time stepping</a>.</p>
 <h2 id="a-gripper-on-a-turning-hub">A gripper on a turning hub<a class="headerlink" href="#a-gripper-on-a-turning-hub" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_pneunet_gripper.jpg" aria-label="Two soft fingers on either side of a cube inflate one after the other and curl under it while the cube turns a quarter turn">
@@ -1867,37 +1794,15 @@ then drops every velocity, so the finger heads for rest without swinging. A
   <source src="../../assets/video/robotics_pneunet_gripper.mp4" type="video/mp4">
 </video>
 
-<p>Two fingers reach out on either side of a near-rigid hub, with their
-strain-limiting base underneath. Inflating a finger curls it down and back
-under the hub, the way a gripper closes around an object. Both run the same
-inflate and deflate cycle, the second a quarter of a cycle behind the first,
-while the hub turns a quarter turn about the vertical.</p>
-<p>The hub is an <a href="../../modules/affine/">affine body</a> on a revolute joint with an
-actuator, and each finger's root vertices are bonded to it with <code>stitch</code>, so
-the finger moves exactly with the hub:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># The hub turns about the vertical through its centre, driven by an actuator.</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">Vh</span><span class="p">,</span> <span class="n">Fh</span> <span class="o">=</span> <span class="n">box</span><span class="p">((</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">HUB</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">HUB</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">height</span> <span class="o">-</span> <span class="n">HUB</span><span class="p">)),</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>             <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">HUB</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">HUB</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">HUB</span><span class="p">)))</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">hub</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_affine_body</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">Vh</span><span class="p">,</span> <span class="n">Fh</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">axle</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_revolute_joint</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">hub</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">HUB</span><span class="p">),</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                                        <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">actuator</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">axle</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<p>Soft fingers are bonded to a rigid hub with <code>stitch</code>, and the hub turns on an
+actuated <a href="../../modules/affine/">affine</a> joint.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">hub</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_affine_body</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">Vh</span><span class="p">,</span> <span class="n">Fh</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">axle</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_revolute_joint</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">hub</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">HUB</span><span class="p">),</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>                                        <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">actuator</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">axle</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">bc</span><span class="o">.</span><span class="n">stitch</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">V</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">hub</span><span class="p">)</span>
 </code></pre></div>
-<p>The loop adds each finger and calls <code>boundary_conditions.stitch(world, finger,
-root_vertices, hub)</code>. The bonded vertices carry no unknowns of their own, so
-the hub carries them. Each step sets the pressure of both cavities and the
-hub's target angle:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">drive</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">actuator</span><span class="p">,</span> <span class="n">cavities</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">p_max</span><span class="p">):</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="sd">"""Inflate each finger on its own cycle and turn the hub a quarter turn over the run."""</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">phase</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">step</span> <span class="o">/</span> <span class="n">STEPS_PER_CYCLE</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">LAG</span><span class="p">]))</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">p_max</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase</span><span class="p">))</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">for</span> <span class="n">cavity</span><span class="p">,</span> <span class="n">pi</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cavities</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">bc</span><span class="o">.</span><span class="n">set_cavity_pressure</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cavity</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">pi</span><span class="p">))</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">angle</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">step</span> <span class="o">/</span> <span class="n">steps</span><span class="p">)))</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">set_actuator_target</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">actuator</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="k">return</span> <span class="n">p</span><span class="p">,</span> <span class="n">angle</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>examples/robotics/pneunet_gripper.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>examples/robotics/pneunet_gripper.py
 </code></pre></div>
 <h2 id="a-reduced-finger">A reduced finger<a class="headerlink" href="#a-reduced-finger" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
@@ -1906,36 +1811,18 @@ hub's target angle:</p>
   <source src="../../assets/video/robotics_pneunet_pod_subspace.mp4" type="video/mp4">
 </video>
 
-<p>A finger with thousands of elements is expensive to step, but its motion under
-pressure is simple: a handful of shapes describe nearly all of it. The script
-learns them from the finger itself. It inflates the full finger once, keeps the
-displacement field of every step as a snapshot, and takes the leading singular
-vectors of the snapshots (a proper orthogonal decomposition) as the shapes of a
-<a href="../../modules/subspace/">reduced body</a>. It then fits a cubature rule that
-evaluates the elasticity on a small set of weighted elements, 16 of the finger's
-2374 hexahedra with the default settings.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">body</span> <span class="o">=</span> <span class="n">subspace</span><span class="o">.</span><span class="n">add_hex_body</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">trusty</span><span class="o">.</span><span class="n">StableNeoHookean</span><span class="p">(</span><span class="o">**</span><span class="n">MATERIAL</span><span class="p">),</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>                             <span class="n">density</span><span class="o">=</span><span class="n">DENSITY</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">subspace</span><span class="o">.</span><span class="n">Basis</span><span class="o">.</span><span class="n">modal</span><span class="p">(</span><span class="n">modes</span><span class="p">))</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">if</span> <span class="n">cubature</span><span class="p">:</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">rule</span> <span class="o">=</span> <span class="n">subspace</span><span class="o">.</span><span class="n">fit_cubature</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">subspace</span><span class="o">.</span><span class="n">set_cubature</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cubature: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">hexes</span><span class="p">))</span><span class="si">}</span><span class="s2"> elements"</span><span class="p">)</span>
+<p>A <a href="../../modules/subspace/">reduced body</a> with a basis learned from the full
+finger's motion and a fitted cubature rule. Pressure cavities work on it
+unchanged. A step takes about 2 ms against 34 ms for the full finger (blue).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">body</span> <span class="o">=</span> <span class="n">subspace</span><span class="o">.</span><span class="n">add_hex_body</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">trusty</span><span class="o">.</span><span class="n">StableNeoHookean</span><span class="p">(</span><span class="o">**</span><span class="n">MATERIAL</span><span class="p">),</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                             <span class="n">density</span><span class="o">=</span><span class="n">DENSITY</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">subspace</span><span class="o">.</span><span class="n">Basis</span><span class="o">.</span><span class="n">modal</span><span class="p">(</span><span class="n">modes</span><span class="p">))</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">if</span> <span class="n">cubature</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">rule</span> <span class="o">=</span> <span class="n">subspace</span><span class="o">.</span><span class="n">fit_cubature</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">subspace</span><span class="o">.</span><span class="n">set_cubature</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cubature: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">hexes</span><span class="p">))</span><span class="si">}</span><span class="s2"> elements"</span><span class="p">)</span>
 </code></pre></div>
-<p><code>Basis.modal(modes)</code> builds the basis from the shapes (see
-<a href="../../modules/subspace/#your-own-arrays">Your own arrays</a>), <code>add_hex_body</code>
-adds the reduced finger, and <code>fit_cubature</code> and <code>set_cubature</code> install the
-rule. The pressure cavity works on the reduced body as it does on a solid.</p>
-<p>The full finger (blue) and the reduced one (translucent orange) then inflate
-side by side. With five modes, at 40 kPa, the reduced finger's tip drops about
-10% less than the full finger's, and a step takes about 2 ms against about
-34 ms in a run on the Accelerate backend. The shapes are fixed in the rest frame, so they follow this clamped
-finger well but would not follow one carried through a large rotation.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>examples/robotics/pneunet_pod_subspace.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>examples/robotics/pneunet_pod_subspace.py
 </code></pre></div>
-<p><code>--modes</code> sets how many shapes to keep, and <code>--reduced-only</code> runs the reduced
-finger alone, so that its time per step stands by itself.</p>
-<p>The pressure functions are in the
-<a href="../../reference/boundary_conditions/"><code>trusty.boundary_conditions</code> reference</a>.</p>
 
 
 

@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -792,17 +790,6 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#a-tendon-through-a-finger" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        A tendon through a finger
-      </span>
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#a-finger-that-folds" class="md-nav__link">
@@ -931,33 +918,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1767,17 +1727,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#a-tendon-through-a-finger" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        A tendon through a finger
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#a-finger-that-folds" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1826,59 +1775,42 @@
   <source src="../../assets/video/robotics_cable_finger.mp4" type="video/mp4">
 </video>
 
-<p>A soft finger is clamped at its base, and a tendon runs through it from root
-to tip. Pulling the tendon shortens the fibres it runs beside, so the finger
-curls toward that side. Three scripts use the same few calls: a straight
-finger, a finger cut with notches so it folds sharply, and a four-tendon
-tentacle that steers.</p>
+<p>Tendons are supported through <code>boundary_conditions.add_cable</code>, a polyline
+embedded anywhere in a soft body, driven by a tension or wound in to a target
+length. Three examples: a straight finger, a notched finger and a four-tendon
+tentacle.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/cable_finger.py
 </code></pre></div>
-<h2 id="a-tendon-through-a-finger">A tendon through a finger<a class="headerlink" href="#a-tendon-through-a-finger" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">cable</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">add_cable</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">finger</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                     <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Length</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"length"</span> <span class="k">else</span> <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Tension</span><span class="p">)</span>
 </code></pre></div>
-<p><code>add_cable(world, body, points, mode)</code> takes the tendon as a polyline of
-points in the body's rest shape, in path order. The points need not lie on
-mesh nodes: the body carries each one along with the element that contains it,
-so a tendon can run through the interior of the finger or, with
-<code>--anchor surface</code>, along its underside. The tendon starts slack, and returns a
-handle that the other cable calls take.</p>
-<p>Each cable has a mode, chosen when it is added, that says how it is commanded:</p>
 <table>
 <thead>
 <tr>
 <th>Mode</th>
-<th>You set</th>
-<th>The cable's energy</th>
+<th>Command</th>
+<th>Behaviour</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>CableMode.Tension</code></td>
-<td>a tension <em>T</em>, in N, with <code>set_cable_tension</code></td>
-<td><em>T</em> × <em>L</em>, where <em>L</em> is the path length</td>
+<td><code>set_cable_tension</code> (N)</td>
+<td>pulls with a fixed force</td>
 </tr>
 <tr>
 <td><code>CableMode.Length</code></td>
-<td>a target length, in m, with <code>set_cable_length</code></td>
-<td>½ <em>k</em> max(<em>L</em> − <em>L</em>ₜ, 0)², with the cable's stiffness <em>k</em> (the <code>stiffness</code> argument, N/m); it goes slack once it is shorter than the target</td>
+<td><code>set_cable_length</code> (m)</td>
+<td>a winch: pulls like a spring while the path is longer than the target, slack otherwise</td>
 </tr>
 </tbody>
 </table>
-<p>A tension cable is a motor that pulls with a given force. A length cable is a
-winch: you shorten it, and how hard it pulls follows from how much the finger
-resists. The script ramps whichever it was given, one step at a time:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"tension"</span><span class="p">:</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">bc</span><span class="o">.</span><span class="n">set_cable_tension</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cable</span><span class="p">,</span> <span class="n">s</span> <span class="o">*</span> <span class="n">tension_max</span><span class="p">)</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"T = </span><span class="si">{</span><span class="n">s</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tension_max</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> N"</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">bc</span><span class="o">.</span><span class="n">set_cable_length</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cable</span><span class="p">,</span> <span class="n">rest_length</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">PULL_MAX</span><span class="p">)</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">return</span> <span class="sa">f</span><span class="s2">"pull-in = </span><span class="si">{</span><span class="mf">1e3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">PULL_MAX</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> mm"</span>
 </code></pre></div>
-<p><code>python examples/robotics/cable_finger.py --mode length</code> runs the winch.
-<code>cable_length</code>, <code>cable_tension</code> and <code>cable_points</code> read back the path length,
-the tension and the tendon's current shape.</p>
-<p>The finger uses <code>time_stepping="static"</code> with gravity on, so each step is the
-finger in equilibrium with the current command, without any swinging.</p>
 <h2 id="a-finger-that-folds">A finger that folds<a class="headerlink" href="#a-finger-that-folds" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_cable_notched_finger.jpg" aria-label="A finger with trapezoidal notches along one side hangs from its root, curls up as a tendon winds in and the notches close, and lets out again">
@@ -1886,17 +1818,12 @@ finger in equilibrium with the current command, without any swinging.</p>
   <source src="../../assets/video/robotics_cable_notched_finger.mp4" type="video/mp4">
 </video>
 
-<p>Cutting trapezoidal notches along one side of a finger, between a row of
-blocks, gives it joints. Pulling the tendon draws the blocks together and the
-notches close, while the solid spine the notches sit on bends without
-stretching. Here the tendon runs through the blocks and crosses each notch in
-the open.</p>
+<p>A notched finger with self-contact on, so the notch walls stop each other as
+the tendon closes them.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">cable</span> <span class="o">=</span> <span class="n">bc</span><span class="o">.</span><span class="n">add_cable</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">finger</span><span class="p">,</span> <span class="n">hanging</span><span class="p">(</span><span class="n">tendon_points</span><span class="p">()),</span> <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Length</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># Self-contact: the closing notch walls press on each other instead of passing through.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">trusty</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">set_self_contact</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">finger</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
-<p>A winch at the root winds the tendon in and lets it out again on a cycle. As
-the notch walls meet they have to stop each other, so the finger turns on
-self-contact (<code>trusty.contact.set_self_contact(world, finger, True)</code>). Past
-that point the tension climbs steeply for little more curl.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>examples/robotics/cable_notched_finger.py
 </code></pre></div>
 <h2 id="a-tentacle-with-four-tendons">A tentacle with four tendons<a class="headerlink" href="#a-tentacle-with-four-tendons" title="Permanent link">&para;</a></h2>
@@ -1906,9 +1833,7 @@ that point the tension climbs steeply for little more curl.</p>
   <source src="../../assets/video/robotics_cable_tentacle.mp4" type="video/mp4">
 </video>
 
-<p>Four tendons, one near each side of a square tentacle, steer it in any
-direction. The script winds one in while the previous one lets go, and the tip
-sweeps around a circle.</p>
+<p>Four tendons in a quadratic hexahedral body steer its tip around a circle.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">LENGTH</span><span class="p">,</span> <span class="n">NUM_CABLE_POINTS</span><span class="p">)</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">cables</span> <span class="o">=</span> <span class="p">[]</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">):</span>  <span class="c1"># +x, +y, -x, -y sides</span>
@@ -1918,15 +1843,8 @@ sweeps around a circle.</p>
 <a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">world</span><span class="p">,</span> <span class="n">tentacle</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span>
 <a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Length</span> <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"length"</span> <span class="k">else</span> <span class="n">bc</span><span class="o">.</span><span class="n">CableMode</span><span class="o">.</span><span class="n">Tension</span><span class="p">))</span>
 </code></pre></div>
-<p>The tentacle is a quadratic hexahedral body
-(<code>order=trusty.fem.ElementOrder.Quadratic</code>), which bends smoothly with few
-elements. See <a href="../../modules/solids/#element-order">Element order</a>. There is no
-gravity, as if the tentacle floated in water.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>examples/robotics/cable_tentacle.py
 </code></pre></div>
-<p><code>--mode tension</code> drives the four tendons with forces instead.</p>
-<p>The cable functions are in the
-<a href="../../reference/boundary_conditions/"><code>trusty.boundary_conditions</code> reference</a>.</p>
 
 
 

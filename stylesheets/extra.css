@@ -50,3 +50,16 @@
   font-size: 0.8rem;
   margin-top: 0;
 }
+
+/* Example galleries: each card's still spans the card. */
+.md-typeset .grid.cards.gallery img {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+  margin: 0 0 0.6rem;
+  background: #16171d;
+}
+/* The landing page's gallery: two large renders per row. */
+@media screen and (min-width: 45em) {
+  .md-typeset .grid.cards.gallery.featured { grid-template-columns: repeat(2, 1fr); }
+}

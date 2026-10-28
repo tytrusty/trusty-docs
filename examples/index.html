@@ -677,8 +677,6 @@
       
         
       
-        
-      
     
     
     
@@ -849,33 +847,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="./franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1716,67 +1687,91 @@
 
 
 <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
-<p>Larger scenes, each taken apart step by step. Every one is a script in the
-<a href="https://github.com/tytrusty/trusty-docs">trusty-docs repository</a> that
-you can run and change: clone it and run <code>python examples/...</code> from its root.
-See <a href="../getting_started/install/#run-the-examples">Run the examples</a>.</p>
-<div class="grid cards">
+<p>Larger scenes built from several modules. Every script is in the
+<a href="https://github.com/tytrusty/trusty-docs">trusty-docs repository</a>; clone it and
+run <code>python examples/...</code> from its root. See
+<a href="../getting_started/install/#run-the-examples">Run the examples</a>.</p>
+<div class="grid cards gallery">
 <ul>
 <li>
+<p><a href="trusty_logo/"><img alt="The Trusty logo" src="../assets/video/teaser.jpg" /></a></p>
 <p><strong><a href="trusty_logo/">The Trusty logo</a></strong></p>
-<hr />
-<p>Six letters, six body types (tets, hexes, jointed affine bodies, a
-shell, MPM particles and an embedded solid), squeezed together by two
-rod loops with muscles. Contact and friction between every pair, in one
-solve.</p>
+<p>Six body types coupled in one solve.</p>
 </li>
 </ul>
 </div>
 <h2 id="robotics">Robotics<a class="headerlink" href="#robotics" title="Permanent link">&para;</a></h2>
-<p>Soft and rigid robots, actuated by tendons, air pressure and joint motors.</p>
-<div class="grid cards">
+<div class="grid cards gallery">
 <ul>
 <li>
-<p><strong><a href="cable_fingers/">Cable-driven fingers</a></strong></p>
-<hr />
-<p>A tendon through a soft finger, pulled by tension or wound in by a winch:
-a straight finger, a notched finger that folds, and a four-tendon tentacle.</p>
+<p><a href="cable_fingers/"><img alt="Cable-driven finger" src="../assets/video/robotics_cable_finger.jpg" /></a></p>
+<p><strong><a href="cable_fingers/">Cable-driven finger</a></strong></p>
+<p>A tendon curling a soft finger.</p>
 </li>
 <li>
-<p><strong><a href="pneunet/">PneuNet fingers</a></strong></p>
-<hr />
-<p>Silicone fingers curled by air pressure in their chambers, a two-finger
-gripper on a turning hub, and a reduced finger that steps many times
-faster.</p>
+<p><a href="cable_fingers/#a-finger-that-folds"><img alt="Notched finger" src="../assets/video/robotics_cable_notched_finger.jpg" /></a></p>
+<p><strong><a href="cable_fingers/#a-finger-that-folds">Notched finger</a></strong></p>
+<p>Self-contact closing the notches.</p>
 </li>
 <li>
+<p><a href="cable_fingers/#a-tentacle-with-four-tendons"><img alt="Tentacle" src="../assets/video/robotics_cable_tentacle.jpg" /></a></p>
+<p><strong><a href="cable_fingers/#a-tentacle-with-four-tendons">Tentacle</a></strong></p>
+<p>Four tendons steering a soft tentacle.</p>
+</li>
+<li>
+<p><a href="pneunet/"><img alt="PneuNet finger" src="../assets/video/robotics_pneunet_finger.jpg" /></a></p>
+<p><strong><a href="pneunet/">PneuNet finger</a></strong></p>
+<p>Pressure cavities inflating a silicone finger.</p>
+</li>
+<li>
+<p><a href="pneunet/#a-gripper-on-a-turning-hub"><img alt="PneuNet gripper" src="../assets/video/robotics_pneunet_gripper.jpg" /></a></p>
+<p><strong><a href="pneunet/#a-gripper-on-a-turning-hub">PneuNet gripper</a></strong></p>
+<p>Soft fingers stitched to a turning rigid hub.</p>
+</li>
+<li>
+<p><a href="pneunet/#a-reduced-finger"><img alt="Reduced PneuNet finger" src="../assets/video/robotics_pneunet_pod_subspace.jpg" /></a></p>
+<p><strong><a href="pneunet/#a-reduced-finger">Reduced PneuNet finger</a></strong></p>
+<p>A reduced body against the full finger.</p>
+</li>
+<li>
+<p><a href="finray/"><img alt="Fin Ray finger" src="../assets/video/robotics_finray_finger.jpg" /></a></p>
 <p><strong><a href="finray/">Fin Ray finger</a></strong></p>
-<hr />
-<p>A triangular frame that wraps around a sphere pressed into it, with
-contact and friction.</p>
+<p>A soft frame wrapping around a sphere.</p>
 </li>
 <li>
+<p><a href="franka/"><img alt="Franka arm" src="../assets/video/robotics_franka_arm.jpg" /></a></p>
 <p><strong><a href="franka/">Franka arm</a></strong></p>
-<hr />
-<p>A Franka FR3 arm built from its URDF, swinging under joint actuators, and
-then with soft inflating fingers on its hand.</p>
+<p>A URDF arm of jointed affine bodies.</p>
 </li>
 <li>
-<p><strong><a href="franka_reach_pick/">Franka reach and pick</a></strong></p>
-<hr />
-<p>The arm steered by where its hand should be: tracing a square, stacking
-cubes by friction, and lifting a soft toy.</p>
+<p><a href="franka/#soft-fingers"><img alt="Franka with soft fingers" src="../assets/video/robotics_franka_pneunet.jpg" /></a></p>
+<p><strong><a href="franka/#soft-fingers">Franka with soft fingers</a></strong></p>
+<p>PneuNet fingers stitched to the hand.</p>
 </li>
 <li>
-<p><strong><a href="franka_assembly/">Franka insertion and snapping</a></strong></p>
-<hr />
-<p>A peg into a tight chamfered hole, a clip snapped into a slot, and a cable
-pressed into three spring-jawed clips.</p>
+<p><a href="franka_reach_pick/#reaching-around-an-obstacle"><img alt="Franka obstacle avoidance" src="../assets/video/robotics_franka_inverse_reach.jpg" /></a></p>
+<p><strong><a href="franka_reach_pick/#reaching-around-an-obstacle">Franka obstacle avoidance</a></strong></p>
+<p>Task-space control around a column.</p>
 </li>
 <li>
-<p><strong><a href="franka_cloth_pour/">Franka cloth and water</a></strong></p>
-<hr />
-<p>A towel folded by its corner and a cup of water poured into another.</p>
+<p><a href="franka_reach_pick/#picking-up-cubes"><img alt="Franka cube stacking" src="../assets/video/robotics_franka_pick_place.jpg" /></a></p>
+<p><strong><a href="franka_reach_pick/#picking-up-cubes">Franka cube stacking</a></strong></p>
+<p>Rigid cubes held by friction.</p>
+</li>
+<li>
+<p><a href="franka_reach_pick/#a-soft-toy"><img alt="Franka soft grasp" src="../assets/video/robotics_franka_soft_grasp.jpg" /></a></p>
+<p><strong><a href="franka_reach_pick/#a-soft-toy">Franka soft grasp</a></strong></p>
+<p>Lifting a deformable foam toy.</p>
+</li>
+<li>
+<p><a href="franka_cloth_pour/#pouring-water"><img alt="Franka pouring water" src="../assets/video/robotics_franka_pour.jpg" /></a></p>
+<p><strong><a href="franka_cloth_pour/#pouring-water">Franka pouring water</a></strong></p>
+<p>MPM water poured between cups.</p>
+</li>
+<li>
+<p><a href="franka_cloth_pour/#folding-a-towel"><img alt="Franka folding a towel" src="../assets/video/robotics_franka_cloth_fold.jpg" /></a></p>
+<p><strong><a href="franka_cloth_pour/#folding-a-towel">Franka folding a towel</a></strong></p>
+<p>A shell towel pinched and folded.</p>
 </li>
 </ul>
 </div>

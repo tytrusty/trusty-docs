@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -798,23 +796,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Fin Ray finger
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="././" class="md-nav__link md-nav__link--active">
         
   
@@ -830,48 +811,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-finger" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The finger
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-sphere-on-a-rail" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The sphere on a rail
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -920,33 +859,6 @@
     
   
   Franka reach and pick
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
 
     
   </span>
@@ -1732,11 +1644,6 @@
                       
                     
                     
-                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-                      <div class="md-sidebar-button__wrapper">
-                        <label class="md-sidebar-button" for="__toc"></label>
-                      </div>
-                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -1748,36 +1655,6 @@
   
     
   
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-finger" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The finger
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-sphere-on-a-rail" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The sphere on a rail
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -1804,21 +1681,11 @@
   <source src="../../assets/video/robotics_finray_finger.mp4" type="video/mp4">
 </video>
 
-<p>A Fin Ray finger is a soft triangular frame. A front and a back flank lean in
-to meet at the tip, and thin ribs join them, sloping up toward the back.
-Pressed at its middle, the front flank pushes the ribs back, they swing about
-their ends, and the frame shears so that the tip curls toward the load. The
-finger wraps around what presses on it, where a solid finger would bend away.</p>
-<p>Here the finger stands with its base clamped, and a near-rigid sphere slides
-sideways into the front flank and back out.</p>
+<p>Frictional contact between soft solids and actuated rigid bodies, demonstrated
+by a tetrahedral Fin Ray finger wrapping around a sphere driven into it on a
+prismatic joint.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/finray_finger.py
 </code></pre></div>
-<h2 id="the-finger">The finger<a class="headerlink" href="#the-finger" title="Permanent link">&para;</a></h2>
-<p>The frame is a tetrahedral solid, extruded from a triangulated profile, of a
-soft TPU (Young's modulus 30 MPa). Its base is clamped with <code>pin_face</code>. The
-finger and the sphere both have a friction coefficient of 0.5. The script uses <code>time_stepping="quasi_static"</code>, so each step is the finger in
-equilibrium with the sphere's current push, without the finger swinging.</p>
-<h2 id="the-sphere-on-a-rail">The sphere on a rail<a class="headerlink" href="#the-sphere-on-a-rail" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># The sphere slides along x on a rail, driven by an actuator.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">height</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">LENGTH</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">center</span> <span class="o">=</span> <span class="p">(</span><span class="n">front_flank_x</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">-</span> <span class="n">GAP</span> <span class="o">-</span> <span class="n">SPHERE_RADIUS</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">DEPTH</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
@@ -1829,18 +1696,9 @@ equilibrium with the sphere's current push, without the finger swinging.</p>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>                                         <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">actuator</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_actuator</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">rail</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
 </code></pre></div>
-<p>The sphere is an <a href="../../modules/affine/">affine body</a>: a body that stays nearly
-rigid. A prismatic joint lets it slide only along <em>x</em>, like a slider on a rail,
-and an actuator on the joint drives it toward a target slide each step. The
-actuator is a spring of finite stiffness, so the sphere gives way as the finger
-pushes back, instead of forcing its way in to the target.</p>
-<p>Contact is what lets the sphere push on the finger. It is enabled for the whole
-world, with a contact distance <code>dhat</code> of 0.2 mm, and the finger's own
-self-contact is switched off, so only the finger and the sphere touch:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">trusty</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">set_self_contact</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">finger</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">trusty</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">trusty</span><span class="o">.</span><span class="n">contact</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span><span class="n">dhat</span><span class="o">=</span><span class="mf">2e-4</span><span class="p">))</span>
 </code></pre></div>
-<p>See <a href="../../modules/contact/">Contact</a> for the contact settings.</p>
 
 
 

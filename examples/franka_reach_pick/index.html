@@ -17,7 +17,7 @@
         <link rel="prev" href="../franka/">
       
       
-        <link rel="next" href="../franka_assembly/">
+        <link rel="next" href="../franka_cloth_pour/">
       
       
         
@@ -679,8 +679,6 @@
       
         
       
-        
-      
     
     
     
@@ -902,32 +900,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#steering-by-sensitivity" class="md-nav__link">
+  <a href="#reaching-around-an-obstacle" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Steering by sensitivity
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#a-square-above-a-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        A square above a table
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#click-to-aim" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Click to aim
+        Reaching around an obstacle
       </span>
     </span>
   </a>
@@ -960,33 +936,6 @@
   
 </nav>
       
-    </li>
-  
-
-                
-              
-                
-                  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../franka_assembly/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Franka insertion and snapping
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1789,32 +1738,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#steering-by-sensitivity" class="md-nav__link">
+  <a href="#reaching-around-an-obstacle" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Steering by sensitivity
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#a-square-above-a-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        A square above a table
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#click-to-aim" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Click to aim
+        Reaching around an obstacle
       </span>
     </span>
   </a>
@@ -1870,128 +1797,44 @@
   <source src="../../assets/video/robotics_franka_pick_place.mp4" type="video/mp4">
 </video>
 
-<p>The <a href="../franka/">Franka arm</a> there swings through joint angles that a script
-chose. Here the script chooses where the <em>hand</em> should be, and the arm finds
-its own way there, by asking the simulation how the hand would move if each
-joint target changed. Two examples use that: the hand traces a square above a
-table, and then picks three cubes up and stacks them.</p>
+<p>Task-space control is supported through
+<a href="../../reference/control/"><code>trusty.control</code></a>, which reports how tracked points
+on a body move per unit change of each actuator target, measured on the
+converged step. The examples here use it to drive the Franka's hand to a pose:
+tracing a square, reaching around an obstacle, stacking cubes and lifting a
+soft toy.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python<span class="w"> </span>examples/robotics/reach.py
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python<span class="w"> </span>examples/robotics/pick_place.py
 </code></pre></div>
-<h2 id="steering-by-sensitivity">Steering by sensitivity<a class="headerlink" href="#steering-by-sensitivity" title="Permanent link">&para;</a></h2>
-<p><code>trusty.control</code> follows chosen points on a body and reports, after every step,
-three things about them:</p>
-<ul>
-<li>where they are (<code>tracked_points</code>),</li>
-<li>where the next step would take them if the joint targets stayed as they
-  are (<code>free_response</code>), which includes gravity and whatever is in contact,</li>
-<li>how they move per unit change of each joint target (<code>sensitivity</code>), measured
-  on the step that just converged.</li>
-</ul>
-<p>The controller tracks three points on the hand, the tool centre between the
-fingertips and a point 10 cm along the hand's <em>x</em> and <em>y</em>, with the seven
-joint actuators as the inputs:</p>
+<p>Three points on the hand are tracked against the seven arm actuators:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">trusty</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">franka</span><span class="o">.</span><span class="n">arm_actuators</span><span class="p">)</span>
 </code></pre></div>
-<p>Three points fix a position and an orientation, so the sensitivity is a
-9 by 7 matrix. Each step the controller takes the three points' predicted
-positions, the pose the path asks for next, and solves a small convex
-problem, with <a href="https://www.cvxpy.org">cvxpy</a>, for the change of joint targets
-that closes the gap:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">y</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">tracked_points</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">hand</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">y_model</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">trusty</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">free_response</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">hand</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">J</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">sensitivity</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">hand</span><span class="p">)[:</span><span class="mi">9</span><span class="p">]</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">JtJ</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">J</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="bp">self</span><span class="o">.</span><span class="n">_J</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">SCALE</span> <span class="o">*</span> <span class="n">J</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">SCALE</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_model</span> <span class="o">-</span> <span class="n">frame_points</span><span class="p">(</span><span class="n">T_next</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="bp">self</span><span class="o">.</span><span class="n">_D</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">JtJ</span><span class="p">),</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">JtJ</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u</span><span class="p">)))</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="bp">self</span><span class="o">.</span><span class="n">_shift</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">posture</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="bp">self</span><span class="o">.</span><span class="n">_last</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">du</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="bp">self</span><span class="o">.</span><span class="n">_lo</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hi</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">guarded</span><span class="p">:</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_G</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keep_out_rows</span><span class="p">()</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="bp">self</span><span class="o">.</span><span class="n">_problem</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">CLARABEL</span><span class="p">)</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">du</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_du</span><span class="o">.</span><span class="n">value</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="bp">self</span><span class="o">.</span><span class="n">du</span> <span class="o">=</span> <span class="n">du</span>
-</code></pre></div>
-<p>The solve has no kinematic model of the arm. The sag of the servos under
-gravity, the stiffening of the joints when the hand pushes on something, and
-the joint limits are all already in the sensitivity or the bounds. The step
-size is limited to a trust box, a fraction of what each joint moves at its
-speed limit, that grows while the prediction holds and shrinks when it misses,
-so a hard push into contact does not run away. The
-<a href="../../reference/control/"><code>trusty.control</code> reference</a> lists the calls.</p>
-<h2 id="a-square-above-a-table">A square above a table<a class="headerlink" href="#a-square-above-a-table" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">square_waypoints</span><span class="p">(</span><span class="n">tcp</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">edge_time</span><span class="p">):</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">corners</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">side</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>               <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))]</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">T</span> <span class="o">=</span> <span class="p">[</span><span class="n">make_T</span><span class="p">(</span><span class="n">tcp</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">corners</span><span class="p">]</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">wps</span> <span class="o">=</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle"</span><span class="p">),</span> <span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"approach"</span><span class="p">)]</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">wps</span> <span class="o">+=</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="n">edge_time</span><span class="p">,</span> <span class="n">T</span><span class="p">[(</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"edge</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="n">wps</span> <span class="o">+</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"hold"</span><span class="p">)],</span> <span class="n">T</span>
-</code></pre></div>
-<p>A path is a list of waypoints, each a time to arrive and a pose for the tool
-centre, and the arm moves between them on a smooth minimum-jerk profile. A
-<code>Trajectory</code> plays the list back and a <code>Driver</code> runs the steps:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">trajectory</span> <span class="o">=</span> <span class="n">Trajectory</span><span class="p">(</span><span class="n">franka</span><span class="o">.</span><span class="n">tcp</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">franka</span><span class="o">.</span><span class="n">finger0</span><span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">waypoints</span><span class="p">)</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">driver</span> <span class="o">=</span> <span class="n">Driver</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">franka</span><span class="p">,</span> <span class="n">trajectory</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">dt</span><span class="p">)</span>
-</code></pre></div>
-<p>Headless, the script prints how far the tool centre stayed from the commanded
-path: under a third of a millimetre over the whole square, and about 5
-milliradians in orientation.</p>
-<h2 id="click-to-aim">Click to aim<a class="headerlink" href="#click-to-aim" title="Permanent link">&para;</a></h2>
+<p>The controller in <code>pose_control.py</code> turns that sensitivity into a small
+quadratic program, solved with <a href="https://www.cvxpy.org">cvxpy</a>, for the next
+change of joint targets. Gravity sag, contact and joint limits are already in
+the sensitivity, so the controller needs no kinematic model of the arm.</p>
+<h2 id="reaching-around-an-obstacle">Reaching around an obstacle<a class="headerlink" href="#reaching-around-an-obstacle" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_franka_inverse_reach.jpg" aria-label="A robot arm moves its tool tip around a short column while every link keeps clear of it">
   <source src="../../assets/video/robotics_franka_inverse_reach.webm" type="video/webm">
   <source src="../../assets/video/robotics_franka_inverse_reach.mp4" type="video/mp4">
 </video>
 
-<p><code>inverse_reach.py</code> is the same controller with a target you set. In the viewer,
-a click on the table, or on anything else drawn, puts a red sphere 10 cm above
-the clicked point, and the tool tip moves there at about half a metre per second
-with the hand pointing down. A click that lands out of reach, or inside the column's 6 cm zone, is moved to the
-nearest point the hand can reach, and a click on the empty background does
-nothing.</p>
-<p>A 30 cm column stands in the middle of the table, and no part of the arm may
-come within 6 cm of it. Twelve points on each link are tracked as well as the
-hand's, and each must stay that far from the column after the step. With <code>p</code>
-the point's predicted position and <code>phi</code> its distance to the column, the
-constraint <code>phi(p) &gt;= 6 cm</code> is linearised in the change of joint targets with
-the same sensitivity, so it is one more row in the problem the controller
-already solves. The tip can still reach behind the column, because the elbow
-rises over it. A column too tall for the hand to point down behind it leaves
-a target the arm cannot reach, and <code>--no-column</code> leaves the column out.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">point</span> <span class="o">-</span> <span class="n">tip</span><span class="p">()[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">trajectory</span><span class="o">.</span><span class="n">go</span><span class="p">([</span><span class="n">Waypoint</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">distance</span> <span class="o">/</span> <span class="n">SPEED</span><span class="p">),</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R_down</span><span class="p">,</span> <span class="n">point</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"aim"</span><span class="p">)])</span>
+<p>Tracked points on every link, linearised with the same sensitivity, keep the
+whole arm 6 cm clear of a column. Click in the viewer to move the target.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">controller</span> <span class="o">=</span> <span class="n">HandController</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">franka</span><span class="p">,</span> <span class="n">keep_out</span><span class="o">=</span><span class="n">column_distance</span> <span class="k">if</span> <span class="n">column</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>                            <span class="n">margin</span><span class="o">=</span><span class="n">MARGIN</span><span class="p">)</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>examples/robotics/inverse_reach.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>examples/robotics/inverse_reach.py
 </code></pre></div>
-<p>Run with <code>--no-viewer</code>, the tip circles the column and the script prints how
-far it stayed from the circle and how close the arm came to the column.</p>
 <h2 id="picking-up-cubes">Picking up cubes<a class="headerlink" href="#picking-up-cubes" title="Permanent link">&para;</a></h2>
-<p>Three 45 mm cubes lie on the table at different angles. For each one the hand
-turns to put its fingers across a pair of faces, descends, closes, lifts, and
-sets the cube on the tower:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">pick</span><span class="p">(</span><span class="n">cube</span><span class="p">):</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">T</span> <span class="o">=</span> <span class="n">cube</span><span class="o">.</span><span class="n">pose</span><span class="p">()</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">R</span> <span class="o">=</span> <span class="n">rot_z</span><span class="p">(</span><span class="n">hand_yaw_for</span><span class="p">(</span><span class="n">R0</span><span class="p">,</span> <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]))</span> <span class="o">@</span> <span class="n">R0</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="k">return</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">HOVER</span><span class="p">]),</span> <span class="n">open_width</span><span class="p">,</span> <span class="s2">"approach"</span><span class="p">),</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>            <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"descend"</span><span class="p">),</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>            <span class="n">Waypoint</span><span class="p">(</span><span class="n">fr</span><span class="o">.</span><span class="n">GRASP_CLOSE_TIME</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">grip_width</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"close"</span><span class="p">),</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>            <span class="n">Waypoint</span><span class="p">(</span><span class="n">fr</span><span class="o">.</span><span class="n">GRASP_SETTLE_TIME</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle"</span><span class="p">),</span>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>            <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">T</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">CARRY</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lift"</span><span class="p">)]</span>
+<p>Frictional grasping of rigid bodies is supported through
+<a href="../../modules/contact/">contact</a> with friction: the cubes are held by the
+friction of the two finger pads alone.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">body</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">affine</span><span class="o">.</span><span class="n">add_affine_body</span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">world</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">V</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">F</span><span class="p">),</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">density</span><span class="o">=</span><span class="n">mass</span> <span class="o">/</span> <span class="n">size</span><span class="o">**</span><span class="mi">3</span><span class="p">,</span> <span class="n">stiffness</span><span class="o">=</span><span class="n">fr</span><span class="o">.</span><span class="n">BODY_STIFFNESS</span><span class="p">,</span> <span class="n">friction_mu</span><span class="o">=</span><span class="n">mu</span><span class="p">)</span>
 </code></pre></div>
-<p>The gripper command is not a force. It is a width a little narrower than the
-cube, and each finger's actuator is a spring, so the squeeze is the spring
-stretched by that difference. <code>grasp_command_width</code> picks the width so that
-the squeeze is five times what friction needs to hold the cube's weight. The
-cubes and the finger pads are rigid bodies in
-<a href="../../modules/contact/">contact</a> with friction, so nothing else holds a cube:
-it is carried by the friction of two pads. Headless, the script prints how far
-each cube ended from its place in the tower and how far it slipped in the grip
-while it was carried.</p>
-<p><code>--safety</code> sets how much harder than necessary the fingers squeeze; <code>--mass</code>
-and <code>--mu</code> change the cubes.</p>
 <h2 id="a-soft-toy">A soft toy<a class="headerlink" href="#a-soft-toy" title="Permanent link">&para;</a></h2>
 <video class="shot" muted loop playsinline controls preload="metadata"
        poster="../../assets/video/robotics_franka_soft_grasp.jpg" aria-label="A robot arm squeezes a soft foam ellipsoid between its fingers, lifts it, sets it back on the table and lets go">
@@ -1999,34 +1842,23 @@ and <code>--mu</code> change the cubes.</p>
   <source src="../../assets/video/robotics_franka_soft_grasp.mp4" type="video/mp4">
 </video>
 
-<p>The same hand picks up a foam ellipsoid 60 mm across. The pads dent it, so the
-squeeze command is again a width narrower than the toy, and the toy is held by
-friction alone while it is lifted 10 cm, held, and set back down:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">R</span> <span class="o">=</span> <span class="n">franka</span><span class="o">.</span><span class="n">tcp</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">at</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">dz</span><span class="p">:</span> <span class="n">make_T</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">rest_center</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">dz</span><span class="p">])</span>    <span class="c1"># noqa: E731</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">waypoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle"</span><span class="p">),</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">at</span><span class="p">(</span><span class="n">HOVER</span><span class="p">),</span> <span class="n">fr</span><span class="o">.</span><span class="n">GRIPPER_OPEN</span><span class="p">,</span> <span class="s2">"approach"</span><span class="p">),</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">at</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"descend"</span><span class="p">),</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">grip_width</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"squeeze"</span><span class="p">),</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="n">fr</span><span class="o">.</span><span class="n">GRASP_SETTLE_TIME</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"settle_grip"</span><span class="p">),</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">at</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lift</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lift"</span><span class="p">),</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"hold"</span><span class="p">),</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">at</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">),</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">gripper</span><span class="o">=</span><span class="n">fr</span><span class="o">.</span><span class="n">GRIPPER_OPEN</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"release"</span><span class="p">),</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>             <span class="n">Waypoint</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">at</span><span class="p">(</span><span class="n">HOVER</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"retreat"</span><span class="p">)]</span>
+<p>The same grasp on a deformable foam toy, either a hexahedral
+<a href="../../modules/solids/">solid</a> or a <a href="../../modules/subspace/">reduced body</a>
+(<code>--body subspace</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">if</span> <span class="n">body</span> <span class="o">==</span> <span class="s2">"fem"</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">toy</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">add_hex_solid</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">TOY_RHO</span><span class="p">,</span> <span class="n">friction_mu</span><span class="o">=</span><span class="n">TOY_MU</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">positions</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">read_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">toy</span><span class="p">))</span>    <span class="c1"># noqa: E731</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">basis_world</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">World</span><span class="p">()</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">trusty</span><span class="o">.</span><span class="n">fem</span><span class="o">.</span><span class="n">add_hex_solid</span><span class="p">(</span><span class="n">basis_world</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">TOY_RHO</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="n">basis</span> <span class="o">=</span> <span class="n">build_basis</span><span class="o">.</span><span class="n">build_skinning_eigenmodes</span><span class="p">(</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">world</span><span class="o">=</span><span class="n">basis_world</span><span class="p">,</span> <span class="n">rest_positions</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">),</span> <span class="n">num_handles</span><span class="o">=</span><span class="n">HANDLES</span><span class="p">)</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">toy</span> <span class="o">=</span> <span class="n">trusty</span><span class="o">.</span><span class="n">subspace</span><span class="o">.</span><span class="n">add_hex_body</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">mesh</span><span class="p">,</span> <span class="n">material</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="n">TOY_RHO</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="n">basis</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>                                       <span class="n">friction_mu</span><span class="o">=</span><span class="n">TOY_MU</span><span class="p">)</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">positions</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">trusty</span><span class="o">.</span><span class="n">subspace</span><span class="o">.</span><span class="n">deformed_positions</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">toy</span><span class="p">)</span>       <span class="c1"># noqa: E731</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python<span class="w"> </span>examples/robotics/soft_grasp.py
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>examples/robotics/soft_grasp.py
 </code></pre></div>
-<p>The toy is a hexahedral <a href="../../modules/solids/">solid</a> by default. With
-<code>--body subspace</code> it is a <a href="../../modules/subspace/">reduced body</a> that moves in
-six handles instead of 729 nodes, and <code>--compare</code> runs both headless:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>body        ms/step  squeezed to mm  slip mm  lift cm  final dz mm
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>fem            4.99           58.79     1.80     9.78        -0.59
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>subspace       2.81           59.37     0.87     9.91        -0.19
-</code></pre></div>
-<p>Both lift the toy with about a millimetre of slip. The reduced body is faster,
-but only by a factor of about two, since the arm and the contact with the pads
-cost as much as the toy.</p>
 
 
 
