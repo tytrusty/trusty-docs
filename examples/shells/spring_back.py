@@ -1,7 +1,7 @@
 """A flat plate, started rolled up, springs back flat.
 
-The mesh passed to ``add_shell`` is the rest shape: here a flat strip. Before
-the first step, ``set_initial_positions`` bends it into a half cylinder, so the
+The mesh passed to ``add_shell`` is the rest shape: here a flat strip. The
+``initial_positions`` argument bends it into a half cylinder, so the
 simulation starts from that curved state while the rest shape stays flat.
 Released without gravity, the plate unrolls and swings back and forth about
 flat. ``--no-viewer`` prints how far the plate is from flat as it goes.
@@ -71,9 +71,9 @@ def build_world(backend: str = "auto"):
     config.density = 1000.0
 
     V, F = make_strip(LENGTH, WIDTH, RES)       # the rest shape: flat
-    body = trusty.shells.add_shell(world, V, F, config)
     # Start rolled into a half cylinder; the rest shape stays flat.
-    trusty.shells.set_initial_positions(world, body, rolled(V, LENGTH))
+    body = trusty.shells.add_shell(world, V, F, config,
+                                   initial_positions=rolled(V, LENGTH))
     return world, body, V
 
 

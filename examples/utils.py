@@ -116,6 +116,37 @@ def make_open_box(
     return V, F
 
 
+def signed_volume(V: np.ndarray, F: np.ndarray) -> float:
+    """Volume (m^3) of a closed triangle mesh; negative when its faces point inward."""
+    return float(np.einsum("ij,ij->i", V[F[:, 0]], np.cross(V[F[:, 1]], V[F[:, 2]])).sum() / 6.0)
+
+
+def make_lathe(profile, n: int) -> Tuple[np.ndarray, np.ndarray]:
+    """Closed triangle mesh swept around the z axis through the (radius, z) rows of ``profile``.
+
+    A radius is a number or a function of the angle (n samples); a radius of 0 is a single
+    point. Walk the profile with the outside of the solid on your right and the faces point
+    outward."""
+    th = 2.0 * np.pi * np.arange(n) / n
+    V, rows = [], []
+    for r, z in profile:
+        r = np.full(n, float(r)) if np.isscalar(r) else r(th)
+        pole = bool(np.all(r == 0.0))
+        rows.append(np.arange(1 if pole else n) + len(V))
+        V += [[0.0, 0.0, z]] if pole else np.c_[r * np.cos(th), r * np.sin(th), np.full(n, z)].tolist()
+    F = []
+    for a, b in zip(rows[:-1], rows[1:]):
+        for j in range(n):
+            k = (j + 1) % n
+            if len(a) == 1:
+                F.append([a[0], b[k], b[j]])
+            elif len(b) == 1:
+                F.append([b[0], a[j], a[k]])
+            else:
+                F += [[a[j], a[k], b[k]], [a[j], b[k], b[j]]]
+    return np.array(V), np.array(F, dtype=np.int32)
+
+
 def make_column(
     nx: int,
     ny: int,

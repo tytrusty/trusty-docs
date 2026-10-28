@@ -3,10 +3,10 @@
 Two embedded solids in contact. The sleeve's bore is *smaller* than the
 core, so seating it directly would start interpenetrating, and contact needs
 a start without overlap. Instead the sleeve is inflated off its rest
-shape with `fem.apply_affine_transform(...)`: current
-positions scale up, rest does not. It therefore begins contact-free but
-strained, and quasi-static relaxation pulls it back toward its unchanged rest,
-gripping the core through contact and friction.
+shape with `initial_linear_map` in `embedded.add_embedded_solid(...)`: its
+starting positions scale up, its rest shape does not. It therefore begins
+contact-free but strained, and quasi-static relaxation pulls it back toward its
+unchanged rest, gripping the core through contact and friction.
 
 That inflate-then-relax trick is the general way to set up an interference fit
 without ever authoring a penetrating state.
@@ -157,9 +157,14 @@ def build_world(args):
     core = trusty.embedded.add_embedded_solid(
         world, V_core, F_core, voxel_size=VOXEL_CORE,
         material=core_mat, density=CORE_RHO, friction_mu=MU)
+    # Inflate the sleeve off its rest shape so it starts clear of the core:
+    # its starting positions scale radially, its rest shape does not. The
+    # relaxation then drives it back onto that (unchanged) undersized rest.
+    clearance = (CORE_RADIUS + 2.0 * args.clearance_margin) / r_bore
     sleeve = trusty.embedded.add_embedded_solid(
         world, V_slv, F_slv, voxel_size=VOXEL_SLEEVE,
-        material=slv_mat, density=SLEEVE_RHO, friction_mu=MU)
+        material=slv_mat, density=SLEEVE_RHO, friction_mu=MU,
+        initial_linear_map=np.diag([clearance, clearance, 1.0]))
 
     # Hold the core's top cap so the assembly has something to react against.
     z_hi = V_core[:, 2].max() - PIN_TOP_FRAC * CORE_HEIGHT
@@ -168,14 +173,6 @@ def build_world(args):
     trusty.embedded.attach_weak_pin(
         world, core, pin_faces=pin_faces, initial_targets=V_core.copy(),
         gamma=PIN_GAMMA)
-
-    # Inflate the sleeve off its rest shape so it starts clear of the core:
-    # current positions scale radially, rest positions do not. The relaxation
-    # then drives it back onto that (unchanged) undersized rest.
-    clearance = (CORE_RADIUS + 2.0 * args.clearance_margin) / r_bore
-    A = np.diag([clearance, clearance, 1.0])
-    trusty.fem.apply_affine_transform(world, sleeve, A, (0.0, 0.0, 0.0))
-
 
     print(f"[setup] core {len(V_core)} verts / sleeve {len(V_slv)} verts  "
           f"interference={args.interference:.0%}  inflate={clearance:.3f}x  "

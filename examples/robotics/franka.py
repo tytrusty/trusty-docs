@@ -5,7 +5,7 @@ whose shape is the URDF collision mesh; links joined by a `fixed` joint (the
 last arm link and the hand) become one body. Every arm joint is a revolute
 joint driven by an actuator, and each finger slides on a prismatic joint. The
 arm is built in the pose `q0`, so an actuator's target is the joint's offset
-from `q0`.
+from `q0`. `tcp` is the tool centre point between the fingertips.
 """
 
 from __future__ import annotations
@@ -20,13 +20,14 @@ import numpy as np
 import trusty
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from utils import load_mesh  # noqa: E402
+from utils import load_mesh, signed_volume  # noqa: E402
 
 ROBOT_DIR = Path(__file__).resolve().parent.parent / "data" / "franka_emika_panda"
 URDF = ROBOT_DIR / "urdf" / "fr3_franka_hand.urdf"
 
 ARM_JOINTS    = [f"fr3_joint{i}" for i in range(1, 8)]
 FINGER_JOINTS = ["fr3_finger_joint1", "fr3_finger_joint2"]
+FINGER_LINKS  = ["fr3_leftfinger", "fr3_rightfinger"]
 HAND_LINK     = "fr3_hand"
 Q_READY       = np.array([0.0, -0.785, 0.0, -2.356, 0.0, 1.571, 0.785])  # rad
 
@@ -34,6 +35,22 @@ ARM_GAINS       = [5e4, 5e4, 5e4, 5e4, 1.25e4, 1.25e4, 5e3]  # N*m/rad, shoulder
 FINGER_GAIN     = 2e3   # N/m
 JOINT_STIFFNESS = 1e8   # how hard each joint holds its two links together
 BODY_STIFFNESS  = 1e9   # Pa; large keeps the links near-rigid
+LIMIT_STIFFNESS = 1e3   # joint-limit barrier weight
+ARM_LIMIT_MARGIN    = 0.05  # rad; distance from a joint limit where its barrier starts
+FINGER_LIMIT_MARGIN = 2e-3  # m
+ANGLE_RANGE    = np.pi - 0.05  # rad; a joint limit must lie inside one turn of the build pose
+ARM_FRICTION    = 0.3
+FINGER_FRICTION = 1.0   # pads grip by friction alone
+
+TCP_OFFSET      = 0.1034   # m, from the hand frame to the fingertip centre, along its z
+GRIPPER_OPEN    = 0.075    # m between the pads; clears the finger limit barrier
+
+GRASP_SAFETY      = 5.0    # grip force over the force needed to hold the object's weight
+GRASP_DHAT        = 1e-4   # m, contact barrier width; objects rest this far above their support
+GRASP_KAPPA       = 1e5    # contact barrier stiffness
+GRASP_EPSV        = 1e-3   # m/s, sliding speed below which friction holds
+GRASP_CLOSE_TIME  = 0.6    # s, open to squeeze
+GRASP_SETTLE_TIME = 0.3    # s, hold closed before lifting
 
 
 @dataclass
@@ -43,6 +60,9 @@ class Franka:
     finger_actuators: list  # empty without fingers
     hand: object            # the body carrying the hand
     hand_pose: np.ndarray   # (4, 4) hand frame at rest, z along the fingers
+    tcp: np.ndarray         # (4, 4) tool centre point at rest, the hand frame moved along its z
+    arm_limits: np.ndarray  # (7, 2) URDF joint limits (rad), lower and upper
+    arm_speeds: np.ndarray  # (7,) URDF joint speed limits (rad/s)
     q0: np.ndarray          # (7,) the build pose (rad)
     finger0: float          # finger slide at rest (m)
 
@@ -103,11 +123,14 @@ def _collision_mesh(link):
     return (np.vstack(Vs), np.vstack(Fs)) if Vs else None
 
 
-def build_franka(world, q0=Q_READY, fingers=True, finger0=0.03) -> Franka:
+def build_franka(world, q0=Q_READY, fingers=True, finger0=0.03,
+                 finger_margin=FINGER_LIMIT_MARGIN) -> Franka:
     """Add an FR3 arm to `world`, its base at the origin, posed at `q0` (rad).
 
     With `fingers`, the two hand fingers are added too, each slid `finger0` (m)
-    open from closed.
+    open from closed. Each joint stops short of its URDF limit; a finger's limit barrier
+    starts `finger_margin` (m) from its closed limit, so pinching a sheet thinner than
+    that margin needs a smaller one.
     """
     robot = ET.parse(URDF).getroot()
     links = {link.get("name"): link for link in robot.findall("link")}
@@ -132,6 +155,11 @@ def build_franka(world, q0=Q_READY, fingers=True, finger0=0.03) -> Franka:
         pose[child] = pose[parent] @ _transform(j) @ motion
         owner[child] = owner[parent] if j.get("type") == "fixed" else child
 
+    limits = {j.get("name"): [float(v) for v in (j.find("limit").get("lower"),
+                                                 j.find("limit").get("upper"))] for j in joints
+              if j.find("limit") is not None}
+    speeds = {j.get("name"): float(j.find("limit").get("velocity")) for j in joints
+              if j.find("limit") is not None}
     parts = {}
     for name, T in pose.items():
         mesh = _collision_mesh(links[name])
@@ -146,9 +174,11 @@ def build_franka(world, q0=Q_READY, fingers=True, finger0=0.03) -> Franka:
         F = np.vstack([F + o for (_, F), o in zip(meshes, offsets)]).astype(np.int32)
         mass = sum(float(links[n].find("inertial/mass").get("value"))
                    for n, o in owner.items() if o == name and links[n].find("inertial") is not None)
-        volume = np.einsum("ij,ij->i", V[F[:, 0]], np.cross(V[F[:, 1]], V[F[:, 2]])).sum() / 6.0
+        volume = signed_volume(V, F)
+        pad = name in FINGER_LINKS
         bodies[name] = trusty.affine.add_affine_body(
-            world, V, F, density=mass / volume, stiffness=BODY_STIFFNESS)
+            world, V, F, density=mass / volume, stiffness=BODY_STIFFNESS,
+            friction_mu=FINGER_FRICTION if pad else ARM_FRICTION)
 
     # The base is bolted to the world.
     trusty.affine.add_fixed_joint(world, bodies[owner["fr3_link0"]], (0.0, 0.0, 0.0),
@@ -167,17 +197,55 @@ def build_franka(world, q0=Q_READY, fingers=True, finger0=0.03) -> Franka:
             joint = trusty.affine.add_revolute_joint(
                 world, child, tuple(T[:3, 3] - 0.05 * axis), tuple(T[:3, 3] + 0.05 * axis),
                 body_j=parent, stiffness=JOINT_STIFFNESS)
+            lower, upper = limits[name]
+            trusty.affine.add_joint_limit(
+                world, joint, max(lower - q[name], -ANGLE_RANGE), min(upper - q[name], ANGLE_RANGE),
+                margin=ARM_LIMIT_MARGIN, stiffness=LIMIT_STIFFNESS)
             arm.append(trusty.affine.add_actuator(
                 world, joint, stiffness=ARM_GAINS[ARM_JOINTS.index(name)]))
         else:
             joint = trusty.affine.add_prismatic_joint(
                 world, child, tuple(pose[j.find("child").get("link")][:3, 3]), tuple(axis),
                 body_j=parent, stiffness=JOINT_STIFFNESS)
+            lower, upper = limits[name]
+            trusty.affine.add_joint_limit(
+                world, joint, max(lower, 5e-4) - finger0, upper - finger0, margin=finger_margin,
+                stiffness=LIMIT_STIFFNESS)
             grip.append(trusty.affine.add_actuator(world, joint, stiffness=FINGER_GAIN))
 
+    tcp = pose[HAND_LINK].copy()
+    tcp[:3, 3] += TCP_OFFSET * tcp[:3, 2]
     return Franka(bodies=bodies, arm_actuators=arm, finger_actuators=grip,
-                  hand=bodies[owner[HAND_LINK]], hand_pose=pose[HAND_LINK],
+                  hand=bodies[owner[HAND_LINK]], hand_pose=pose[HAND_LINK], tcp=tcp,
+                  arm_limits=np.array([limits[n] for n in ARM_JOINTS]),
+                  arm_speeds=np.array([speeds[n] for n in ARM_JOINTS]),
                   q0=np.asarray(q0, float), finger0=finger0 if fingers else 0.0)
+
+
+def grasp_contact_config(dhat=GRASP_DHAT, kappa=GRASP_KAPPA, epsv=GRASP_EPSV,
+                         broadphase=trusty.contact.BroadphaseKind.AffineRelative):
+    """Contact settings for pads gripping an object by friction; a deformable object needs `TwoLevel`."""
+    return trusty.contact.Config(dhat=dhat, kappa=kappa, epsv=epsv, broadphase=broadphase)
+
+
+def grasp_command_width(width, mass, mu, *, safety=GRASP_SAFETY, gravity=9.81):
+    """Gripper command that squeezes an object of `width` (m) with `safety` times the
+    force that holds it against gravity by friction `mu`.
+
+    @return (command width (m), grip force per pad (N))
+    """
+    force = safety * mass * gravity / (2.0 * 0.5 * (mu + FINGER_FRICTION))
+    return width - 2.0 * force / FINGER_GAIN, force
+
+
+def meshes(world, franka):
+    """[(name, V, F, rgb)] of every body of the arm, for rendering."""
+    out = []
+    for name, body in franka.bodies.items():
+        V, F = trusty.affine.surface(world, body)
+        out.append((name, np.asarray(V), np.asarray(F),
+                    (0.25, 0.25, 0.28) if name in FINGER_LINKS else (0.92, 0.92, 0.94)))
+    return out
 
 
 def register_meshes(ps, world, franka):
